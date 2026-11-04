@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>body{margin:0;background:#ECEEE6}a{color:#1C854B;text-decoration:none}a:hover{color:#163D28}</style>
+</helmet>
+<div style="font-family:'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#1E2420;letter-spacing:-0.01em;padding:56px 56px 80px;display:flex;flex-direction:column;gap:64px;-webkit-font-smoothing:antialiased">
+
+<header style="display:flex;gap:40px;align-items:flex-end;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:18px">
+    <dc-import name="Critter" animal="{{ch}}" size="84" hint-size="84px,84px"></dc-import>
+    <div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Jua',sans-serif;font-size:56px;line-height:1;color:#1C854B">파크닉</span><span style="font-size:16px;font-weight:600;color:#3D4741">공원에서 20분, 배지 하나 · v1 디자인 시스템 + 핵심 루프</span></div>
+  </div>
+  <div style="max-width:720px;font-size:14px;line-height:1.65;color:#3D4741;text-wrap:pretty;padding:16px 20px;border-radius:18px;background:#FFFFFF">
+    <b>가정</b> · 연결된 디자인 시스템이 비어 있어 브리프 기준으로 새로 정의했어요. 서체는 본문 Pretendard, 숫자·축하 문구에만 둥근 Jua를 써서 귀엽되 유치하지 않게 눌렀어요. 지도는 네이버 지도 자리를 대신하는 목업이고, 캐릭터 8종·배지는 CSS로 만든 임시 형태라 최종 일러스트로 교체가 필요해요. 프로토타입 타이머는 1초=1분으로 빨리 돌아가요.
+  </div>
+</header>
+
+<section id="t13" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><a href="#t13" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">13</a><span style="font-size:22px;font-weight:800">iOS 기본 스타일</span><span style="font-size:13px;color:#6B766F">SF 시스템 서체 · 시스템 컬러 · 인셋 그룹 리스트 · 세그먼트 컨트롤 · 반투명 탭바 — SwiftUI 기본 컴포넌트로 거의 그대로 구현 가능</span></div>
+  <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+    <div id="13a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#13a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">13a</a>지도 · 체크인 중</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicIOS" scene="map" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="13b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#13b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">13b</a>공원 시트</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicIOS" scene="sheet" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="13c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#13c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">13c</a>체크인 진행</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicIOS" scene="checkin" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="13d" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#13d" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">13d</a>배지 획득</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicIOS" scene="badge" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="13e" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#13e" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">13e</a>월간 랭킹</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicIOS" scene="ranking" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="13f" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#13f" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">13f</a>마이</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicIOS" scene="my" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<section id="t12" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><a href="#t12" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">12</a><span style="font-size:22px;font-weight:800">혼합안 · 기존 UI + 스케치 그림</span><span style="font-size:13px;color:#6B766F">버튼·카드·글자·마커는 기존 그대로, 지도·캐릭터·배지·일러스트만 잉크 선 손그림으로</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="12a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12a</a>프로토타입 · 핵심 루프 (눌러보세요)</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.22)"><dc-import name="ParknicApp" art="sketch" scene="map" interactive="{{true}}" character="{{ch}}" demo-speed="{{speed}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="12b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12b</a>공원 시트</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" art="sketch" scene="sheet-active" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="12c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12c</a>체크인 진행</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" art="sketch" scene="checkin" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="12d" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12d" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12d</a>배지 획득</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" art="sketch" scene="badge" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="12e" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12e" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12e</a>로그인</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" art="sketch" scene="login" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="12f" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12f" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12f</a>캐릭터 선택</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" art="sketch" scene="ob-char" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="12g" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12g" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12g</a>월간 랭킹</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" art="sketch" scene="ranking" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="12h" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12h" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12h</a>배지 도감</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" art="sketch" scene="dex" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="12i" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#12i" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">12i</a>마이</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" art="sketch" scene="my" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<section id="t11" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t11" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">11</a><span style="font-size:22px;font-weight:800">스케치 방향 (참고용)</span><span style="font-size:13px;color:#6B766F">UI까지 전부 손그림 · <a href="#t12">12</a>의 혼합안 근거</span></div>
+  <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+    <div id="11b" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#11b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">11b</a><span style="font-size:17px;font-weight:800">스케치</span><span style="font-size:13px;color:#6B766F">종이 + 잉크 선 · 손글씨(개구) · 형광펜·마스킹테이프 · 딱딱한 오프셋 그림자</span></div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap">
+        <div style="padding:10px;border-radius:58px;background:#1E2420"><dc-import name="ParknicSketch" scene="map" character="{{ch}}" hint-size="393px,852px"></dc-import></div>
+        <div style="padding:10px;border-radius:58px;background:#1E2420"><dc-import name="ParknicSketch" scene="sheet" character="{{ch}}" hint-size="393px,852px"></dc-import></div>
+        <div style="padding:10px;border-radius:58px;background:#1E2420"><dc-import name="ParknicSketch" scene="checkin" character="{{ch}}" hint-size="393px,852px"></dc-import></div>
+        <div style="padding:10px;border-radius:58px;background:#1E2420"><dc-import name="ParknicSketch" scene="badge" character="{{ch}}" hint-size="393px,852px"></dc-import></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="t7" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t7" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">7</a><span style="font-size:22px;font-weight:800">로그인 · 온보딩 (2차)</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="7a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#7a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">7a</a>프로토타입 · 로그인 → 닉네임 → 캐릭터 → 권한 → 마이</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="login" interactive="{{true}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="7b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#7b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">7b</a>닉네임 · 사용 가능</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="ob-nick" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="7c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#7c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">7c</a>닉네임 · 중복 (다음 비활성)</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="ob-nick-dup" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="7d" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#7d" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">7d</a>캐릭터 선택</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="ob-char" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="7e" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#7e" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">7e</a>권한 안내 (요청 전)</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="ob-perm" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<section id="t8" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t8" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">8</a><span style="font-size:22px;font-weight:800">랭킹 · 리뷰</span><span style="font-size:13px;color:#6B766F">8a·8c·8e는 눌러볼 수 있어요</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="8a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#8a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">8a</a>월간 랭킹 · 월 선택 · 내 순위 고정</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="ranking" interactive="{{true}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="8b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#8b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">8b</a>시상대 빈 자리</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="ranking-empty" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="8c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#8c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">8c</a>리뷰 목록 · 정렬 · 도움돼요</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="reviews" interactive="{{true}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="8d" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#8d" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">8d</a>더보기 · 신고 / 차단</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="reviews-menu" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="8e" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#8e" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">8e</a>리뷰 작성</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="write" interactive="{{true}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="8f" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#8f" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">8f</a>리뷰 수정</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="edit" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="8g" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#8g" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">8g</a>작성 불가 · 배지 없는 공원</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="write-locked" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<section id="t9" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t9" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">9</a><span style="font-size:22px;font-weight:800">도감 · 마이 · 프로필</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="9a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#9a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">9a</a>배지 도감</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="dex" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="9b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#9b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">9b</a>마이페이지</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="my" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="9c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#9c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">9c</a>마이 · 스크롤 하단 (설정)</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="my-bottom" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="9d" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#9d" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">9d</a>다른 유저 프로필</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="profile" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="9e" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#9e" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">9e</a>프로필 · 신고 / 차단</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="profile-menu" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<section id="t10" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t10" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">10</a><span style="font-size:22px;font-weight:800">공통 상태</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="10a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#10a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">10a</a>로딩</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="loading" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="10b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#10b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">10b</a>네트워크 에러 · 재시도 (눌러보세요)</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="error" interactive="{{true}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="10c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#10c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">10c</a>위치 권한 거부</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicScreens" scene="denied" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<!-- PROTOTYPE -->
+<section id="t1" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t1" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">1</a><span style="font-size:22px;font-weight:800">인터랙티브 프로토타입</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="1a" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#1a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">1a</a>전체 루프 · 직접 눌러보세요</div>
+      <div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.22)"><dc-import name="ParknicApp" scene="map" interactive="{{true}}" character="{{ch}}" demo-speed="{{speed}}" hint-size="393px,852px"></dc-import></div>
+    </div>
+    <div style="max-width:340px;display:flex;flex-direction:column;gap:14px;padding-top:36px">
+      <span style="font-size:16px;font-weight:800">해볼 수 있는 흐름</span>
+      <div style="display:flex;gap:10px;font-size:14px;line-height:1.5;color:#3D4741"><span style="font-family:'Jua',sans-serif;font-size:18px;color:#1C854B">1</span>초록 마커 <b>보라매공원</b>을 눌러 상세 시트 열기</div>
+      <div style="display:flex;gap:10px;font-size:14px;line-height:1.5;color:#3D4741"><span style="font-family:'Jua',sans-serif;font-size:18px;color:#1C854B">2</span>[여기서 체크인하기] → 20초 후 배지 획득</div>
+      <div style="display:flex;gap:10px;font-size:14px;line-height:1.5;color:#3D4741"><span style="font-family:'Jua',sans-serif;font-size:18px;color:#1C854B">3</span>진행 중 "공원 밖으로 나가보기" → 경고 → 시간 초과 시 실패</div>
+      <div style="display:flex;gap:10px;font-size:14px;line-height:1.5;color:#3D4741"><span style="font-family:'Jua',sans-serif;font-size:18px;color:#1C854B">4</span>우상단 지도 아이콘 → 상단 진행 배너 확인</div>
+      <div style="display:flex;gap:10px;font-size:14px;line-height:1.5;color:#3D4741"><span style="font-family:'Jua',sans-serif;font-size:18px;color:#1C854B">5</span>배지 후 지도로 돌아가면 마커가 노랑(오늘 받음)으로 바뀜</div>
+      <span style="font-size:13px;color:#6B766F;line-height:1.5">Tweaks에서 캐릭터와 데모 속도를 바꿀 수 있어요.</span>
+    </div>
+  </div>
+</section>
+
+<!-- DESIGN SYSTEM -->
+<section id="t2" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t2" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">2</a><span style="font-size:22px;font-weight:800">디자인 시스템</span></div>
+  <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+
+    <div id="2a" style="width:560px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2a</a><span style="font-size:17px;font-weight:800">컬러</span></div>
+      <span style="font-size:12px;font-weight:700;color:#6B766F">Leaf · 메인</span>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#163D28"></div><span style="font-size:11px;font-weight:700">leaf900</span><span style="font-size:11px;color:#6B766F">#163D28</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#1C854B"></div><span style="font-size:11px;font-weight:700">leaf600</span><span style="font-size:11px;color:#6B766F">#1C854B</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#34B36B"></div><span style="font-size:11px;font-weight:700">leaf500</span><span style="font-size:11px;color:#6B766F">#34B36B</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#9FDDB5"></div><span style="font-size:11px;font-weight:700">leaf300</span><span style="font-size:11px;color:#6B766F">#9FDDB5</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#E2F4E8"></div><span style="font-size:11px;font-weight:700">leaf100</span><span style="font-size:11px;color:#6B766F">#E2F4E8</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#F2FAF4;border:1px solid #EEF2EF"></div><span style="font-size:11px;font-weight:700">leaf50</span><span style="font-size:11px;color:#6B766F">#F2FAF4</span></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:#6B766F">Sun · 포인트 / Danger</span>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#A86400"></div><span style="font-size:11px;font-weight:700">sun700</span><span style="font-size:11px;color:#6B766F">#A86400</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#FFB627"></div><span style="font-size:11px;font-weight:700">sun500</span><span style="font-size:11px;color:#6B766F">#FFB627</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#FFD77A"></div><span style="font-size:11px;font-weight:700">sun300</span><span style="font-size:11px;color:#6B766F">#FFD77A</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#FFF2CF"></div><span style="font-size:11px;font-weight:700">sun100</span><span style="font-size:11px;color:#6B766F">#FFF2CF</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#C53A2F"></div><span style="font-size:11px;font-weight:700">danger600</span><span style="font-size:11px;color:#6B766F">#C53A2F</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#FDE8E5"></div><span style="font-size:11px;font-weight:700">danger100</span><span style="font-size:11px;color:#6B766F">#FDE8E5</span></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:#6B766F">Ink · 뉴트럴 (살짝 초록기)</span>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#1E2420"></div><span style="font-size:11px;font-weight:700">ink900</span><span style="font-size:11px;color:#6B766F">#1E2420</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#3D4741"></div><span style="font-size:11px;font-weight:700">ink700</span><span style="font-size:11px;color:#6B766F">#3D4741</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#6B766F"></div><span style="font-size:11px;font-weight:700">ink500</span><span style="font-size:11px;color:#6B766F">#6B766F</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#C3CCC6"></div><span style="font-size:11px;font-weight:700">ink300</span><span style="font-size:11px;color:#6B766F">#C3CCC6</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#EEF2EF"></div><span style="font-size:11px;font-weight:700">ink100</span><span style="font-size:11px;color:#6B766F">#EEF2EF</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:14px;background:#F7F8F3;border:1px solid #EEF2EF"></div><span style="font-size:11px;font-weight:700">canvas</span><span style="font-size:11px;color:#6B766F">#F7F8F3</span></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:#6B766F">공원 유형 (배지·태그 전용)</span>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:100%;height:36px;border-radius:12px;background:#34B36B"></div><span style="font-size:11px;font-weight:700">근린</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:100%;height:36px;border-radius:12px;background:#FFB627"></div><span style="font-size:11px;font-weight:700">어린이</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:100%;height:36px;border-radius:12px;background:#F58BA6"></div><span style="font-size:11px;font-weight:700">소공원</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:100%;height:36px;border-radius:12px;background:#5C7CF0"></div><span style="font-size:11px;font-weight:700">체육</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:100%;height:36px;border-radius:12px;background:#4FB3E8"></div><span style="font-size:11px;font-weight:700">수변</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:100%;height:36px;border-radius:12px;background:#A57FE6"></div><span style="font-size:11px;font-weight:700">문화</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:100%;height:36px;border-radius:12px;background:#C9824F"></div><span style="font-size:11px;font-weight:700">역사</span></div>
+      </div>
+      <span style="font-size:12px;line-height:1.5;color:#6B766F">흰 글자는 leaf600 위에만 (4.6:1). leaf500·sun500은 면/아이콘용, 그 위 글자는 ink900.</span>
+    </div>
+
+    <div id="2b" style="width:440px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2b</a><span style="font-size:17px;font-weight:800">타이포그래피</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:12px;border-bottom:1px solid #EEF2EF"><span style="font-size:11px;color:#6B766F">Timer · Jua 62 / 1.0</span><span style="font-family:'Jua',sans-serif;font-size:62px;line-height:1">12:34</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#6B766F">Display · Jua 36 / 1.2 — 축하·숫자</span><span style="font-family:'Jua',sans-serif;font-size:36px;line-height:1.2">근린공원 배지</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#6B766F">Title1 · 24 ExtraBold / 1.3 · -2%</span><span style="font-size:24px;font-weight:800;letter-spacing:-0.02em">보라매공원</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#6B766F">Title2 · 18 ExtraBold / 1.35</span><span style="font-size:18px;font-weight:800">이달의 시상대</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#6B766F">Headline · 17 Bold — 버튼</span><span style="font-size:17px;font-weight:700">여기서 체크인하기</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#6B766F">Body · 15 Regular / 1.6</span><span style="font-size:15px;line-height:1.6">공원 안에서 20분 머무르면 배지를 받아요.</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#6B766F">Callout · 13 SemiBold</span><span style="font-size:13px;font-weight:600;color:#3D4741">동작구 여의대방로20길 33 · 320m</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;color:#6B766F">Caption · 11 Bold — 라벨·마커</span><span style="font-size:11px;font-weight:700">신대방어린이공원</span></div>
+      <span style="font-size:12px;line-height:1.5;color:#6B766F">SwiftUI: Pretendard(본문) · Jua(숫자/축하) 번들. 본문은 Dynamic Type 대응.</span>
+    </div>
+
+    <div id="2c" style="width:380px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2c</a><span style="font-size:17px;font-weight:800">간격 · 모서리 · 그림자</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="width:44px;color:#6B766F">s4</span><div style="width:4px;height:14px;border-radius:3px;background:#9FDDB5"></div></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="width:44px;color:#6B766F">s8</span><div style="width:8px;height:14px;border-radius:3px;background:#9FDDB5"></div></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="width:44px;color:#6B766F">s12</span><div style="width:12px;height:14px;border-radius:3px;background:#9FDDB5"></div></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="width:44px;color:#6B766F">s16</span><div style="width:16px;height:14px;border-radius:3px;background:#9FDDB5"></div><span style="color:#6B766F">화면 좌우 여백</span></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="width:44px;color:#6B766F">s20</span><div style="width:20px;height:14px;border-radius:3px;background:#9FDDB5"></div><span style="color:#6B766F">시트 내부 여백 · 섹션 간격</span></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="width:44px;color:#6B766F">s28</span><div style="width:28px;height:14px;border-radius:3px;background:#9FDDB5"></div></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="width:44px;color:#6B766F">s40</span><div style="width:40px;height:14px;border-radius:3px;background:#9FDDB5"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:6px">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:64px;height:52px;border-radius:8px;background:#E2F4E8"></div><span style="font-size:11px;color:#6B766F">r8 태그</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:64px;height:52px;border-radius:16px;background:#E2F4E8"></div><span style="font-size:11px;color:#6B766F">r16 마커</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:64px;height:52px;border-radius:20px;background:#E2F4E8"></div><span style="font-size:11px;color:#6B766F">r20 버튼</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:64px;height:52px;border-radius:24px;background:#E2F4E8"></div><span style="font-size:11px;color:#6B766F">r24 카드</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:64px;height:52px;border-radius:30px 30px 0 0;background:#E2F4E8"></div><span style="font-size:11px;color:#6B766F">r30 시트</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><div style="width:64px;height:52px;border-radius:99px;background:#E2F4E8"></div><span style="font-size:11px;color:#6B766F">pill</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px;border-radius:20px;background:#F7F8F3">
+        <div style="height:56px;border-radius:16px;background:#FFFFFF;box-shadow:0 2px 8px rgba(22,61,40,.08);display:flex;align-items:center;justify-content:center;font-size:11px;color:#6B766F">soft1</div>
+        <div style="height:56px;border-radius:16px;background:#FFFFFF;box-shadow:0 8px 24px rgba(22,61,40,.16);display:flex;align-items:center;justify-content:center;font-size:11px;color:#6B766F">soft2</div>
+        <div style="height:56px;border-radius:16px;background:#1C854B;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16),0 8px 16px rgba(28,133,75,.28);display:flex;align-items:center;justify-content:center;font-size:11px;color:#FFFFFF;font-weight:700">통통</div>
+      </div>
+    </div>
+
+    <div id="2d" style="width:400px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2d" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2d</a><span style="font-size:17px;font-weight:800">버튼</span></div>
+      <button style="height:60px;border:none;border-radius:20px;background:#1C854B;color:#FFFFFF;font:inherit;font-size:17px;font-weight:700;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16),0 8px 16px rgba(28,133,75,.28)">Primary · 여기서 체크인하기</button>
+      <button style="height:60px;border:none;border-radius:20px;background:#FFB627;color:#1E2420;font:inherit;font-size:17px;font-weight:800;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12)">Accent · 랭킹 보기</button>
+      <button style="height:52px;border:none;border-radius:18px;background:#E2F4E8;color:#1C854B;font:inherit;font-size:16px;font-weight:700">Tonal · 가장 가까운 공원 보기</button>
+      <button style="height:52px;border:none;border-radius:18px;background:#EEF2EF;color:#3D4741;font:inherit;font-size:16px;font-weight:700">Secondary · 지도로 돌아가기</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button style="height:52px;border:none;border-radius:18px;background:#EEF2EF;color:#8F9A93;font:inherit;font-size:16px;font-weight:700">Disabled</button>
+        <button style="height:52px;border:none;border-radius:18px;background:transparent;color:#C53A2F;font:inherit;font-size:16px;font-weight:700">Destructive</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button style="height:36px;padding:0 14px;border:none;border-radius:99px;background:#1C854B;color:#fff;font:inherit;font-size:13px;font-weight:700">S · 36</button>
+        <button style="height:44px;padding:0 18px;border:none;border-radius:16px;background:#1C854B;color:#fff;font:inherit;font-size:15px;font-weight:700">M · 44</button>
+        <div style="width:44px;height:44px;border-radius:50%;background:#FFFFFF;box-shadow:0 2px 8px rgba(22,61,40,.12);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3D4741" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+        <span style="font-size:11px;color:#6B766F">아이콘 44</span>
+      </div>
+      <span style="font-size:12px;line-height:1.5;color:#6B766F">누르면 scale 0.97 + 하단 inset 그림자 제거. 최소 터치 44pt.</span>
+    </div>
+
+    <div id="2e" style="width:400px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2e" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2e</a><span style="font-size:17px;font-weight:800">태그 · 토스트</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <span style="padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;background:#E2F4E8;color:#1C854B">근린공원</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;background:#FFF2CF;color:#A86400">어린이공원</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;background:#FDE7EE;color:#B23A5E">소공원</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;background:#E6EBFD;color:#3550C4">체육공원</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;background:#E2F3FB;color:#1F78A8">수변공원</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;background:#F0E9FC;color:#6E45B8">문화공원</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;background:#F7EADF;color:#8E5229">역사공원</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <span style="padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;background:#1E2420;color:#fff">오늘</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:11px;font-weight:800;background:#FFF2CF;color:#A86400">새 업적</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:11px;font-weight:800;background:#E2F4E8;color:#1C854B">▲ 1</span>
+        <span style="padding:3px 9px;border-radius:8px;font-size:11px;font-weight:700;background:#FFFFFF;color:#1C854B;border:1px solid #DCE3DE">10월</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:20px;background:#E6EAE2;align-items:flex-start">
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:16px;background:#1E2420;color:#fff;font-size:14px;font-weight:600"><span style="width:18px;height:18px;border-radius:50%;background:#34B36B;display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>공원으로 돌아왔어요. 다시 시작!</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:16px;background:#1E2420;color:#fff;font-size:14px;font-weight:600"><span style="width:18px;height:18px;border-radius:50%;background:#FFB627;display:flex;align-items:center;justify-content:center;color:#1E2420;font-size:12px;font-weight:900">!</span>위치 권한을 '항상'으로 바꿔주세요</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:16px;background:#C53A2F;color:#fff;font-size:14px;font-weight:600"><span style="width:18px;height:18px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:#C53A2F;font-size:12px;font-weight:900">!</span>GPS 신호가 약해요</div>
+      </div>
+      <span style="font-size:12px;line-height:1.5;color:#6B766F">토스트: 탭바 위 20pt, 2.2초 후 사라짐. 한 줄, 아이콘 + 짧은 문장.</span>
+    </div>
+
+    <div id="2f" style="width:400px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2f" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2f</a><span style="font-size:17px;font-weight:800">카드 · 바텀시트</span></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:24px;background:#FFFFFF;box-shadow:0 2px 8px rgba(22,61,40,.08),0 0 0 1px #EEF2EF">
+        <dc-import name="ParkBadge" type="water" size="48" hint-size="48px,48px"></dc-import>
+        <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:800">도림천수변공원</span><span style="font-size:13px;color:#6B766F">수변공원 · 510m · ★ 4.4</span></div>
+        <span style="font-family:'Jua',sans-serif;font-size:20px;color:#1C854B">×5</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="padding:14px 16px;border-radius:18px;background:#F7F8F3;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#6B766F">내 배지</span><span style="font-family:'Jua',sans-serif;font-size:22px;color:#1C854B">3개</span></div>
+        <div style="padding:14px 16px;border-radius:18px;background:#F2FAF4;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#6B766F">이달 순위</span><span style="font-family:'Jua',sans-serif;font-size:22px">6위</span></div>
+      </div>
+      <div style="position:relative;height:200px;border-radius:20px;background:#CFD8CB;overflow:hidden">
+        <div style="position:absolute;left:0;right:0;bottom:0;height:160px;border-radius:30px 30px 0 0;background:#FFFFFF;box-shadow:0 -8px 30px rgba(22,61,40,.14);padding:8px 18px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px">
+          <div style="align-self:center;width:40px;height:5px;border-radius:3px;background:#DCE3DE"></div>
+          <div style="height:16px;width:60%;border-radius:6px;background:#EEF2EF"></div>
+          <div style="height:10px;width:40%;border-radius:6px;background:#EEF2EF"></div>
+          <div style="height:44px;border-radius:16px;background:#E2F4E8"></div>
+        </div>
+      </div>
+      <span style="font-size:12px;line-height:1.5;color:#6B766F">바텀시트: 상단 r30, 그래버 40×5, 딤 #16281E 28%. 디텐트 medium(맵 보임) / large(716pt).</span>
+    </div>
+
+    <div id="2g" style="width:420px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2g" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2g</a><span style="font-size:17px;font-weight:800">지도 마커 3상태</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:24px 10px 18px;border-radius:20px;background:#EEF1E7">
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="width:44px;height:44px;border-radius:16px;background:#FFFFFF;border:2px solid #C3CCC6;box-sizing:border-box;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(22,61,40,.14)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8F9A93" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14z M5 19l7-7"></path></svg></div>
+          <div style="width:10px;height:10px;margin-top:-6px;transform:rotate(45deg);background:#FFFFFF;border-right:2px solid #C3CCC6;border-bottom:2px solid #C3CCC6;border-radius:0 0 3px 0"></div>
+          <span style="margin-top:10px;font-size:12px;font-weight:700">미획득</span><span style="font-size:11px;color:#6B766F;text-align:center">흰 바탕 · 회색 아이콘</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="position:relative;width:46px;height:46px;border-radius:16px;background:#34B36B;border:3px solid #FFFFFF;box-sizing:border-box;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 12px rgba(28,133,75,.35)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14z M5 19l7-7"></path></svg><div style="position:absolute;top:-9px;right:-11px;min-width:22px;height:22px;box-sizing:border-box;border-radius:11px;background:#FFFFFF;border:2px solid #34B36B;color:#1C854B;font-family:'Jua',sans-serif;font-size:13px;display:flex;align-items:center;justify-content:center">3</div></div>
+          <div style="width:10px;height:10px;margin-top:-7px;transform:rotate(45deg);background:#34B36B;border-right:3px solid #FFFFFF;border-bottom:3px solid #FFFFFF;border-radius:0 0 3px 0"></div>
+          <span style="margin-top:10px;font-size:12px;font-weight:700">받은 적 있음</span><span style="font-size:11px;color:#6B766F;text-align:center">초록 · 누적 개수</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center">
+          <div style="position:relative;width:46px;height:46px;border-radius:16px;background:#FFB627;border:3px solid #FFFFFF;box-sizing:border-box;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 14px rgba(224,143,0,.45)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A4A00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><div style="position:absolute;top:-10px;right:-18px;height:20px;padding:0 7px;border-radius:10px;background:#1E2420;color:#FFFFFF;font-size:10px;font-weight:700;display:flex;align-items:center">오늘</div></div>
+          <div style="width:10px;height:10px;margin-top:-7px;transform:rotate(45deg);background:#FFB627;border-right:3px solid #FFFFFF;border-bottom:3px solid #FFFFFF;border-radius:0 0 3px 0"></div>
+          <span style="margin-top:10px;font-size:12px;font-weight:700">오늘 받음</span><span style="font-size:11px;color:#6B766F;text-align:center">노랑 · 체크</span>
+        </div>
+      </div>
+      <span style="font-size:12px;line-height:1.5;color:#6B766F">색 + 아이콘 + 칩, 세 가지로 구분해 색맹에도 읽혀요. 아이콘은 공원 유형별(미획득·받은 적 있음). 선택 시 1.15배.</span>
+    </div>
+
+    <div id="2h" style="width:620px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2h" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2h</a><span style="font-size:17px;font-weight:800">배지</span><span style="font-size:12px;color:#6B766F">유형마다 실루엣이 달라서 도감에서 한눈에 구분돼요</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:18px 20px">
+        <dc-import name="ParkBadge" type="neighbor" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="kids" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="small" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="sports" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="water" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="culture" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="history" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:#6B766F">업적</span>
+      <div style="display:flex;flex-wrap:wrap;gap:18px 20px">
+        <dc-import name="ParkBadge" type="ach" label="첫" name="첫 배지" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="ach" label="10" name="공원 10곳" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="ach" label="20" name="공원 20곳" size="64" show-label="{{true}}" locked="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="ach" label="50" name="공원 50곳" size="64" show-label="{{true}}" locked="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="ach" label="100" name="공원 100곳" size="64" show-label="{{true}}" locked="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="ach" label="7일" name="7일 연속" size="64" show-label="{{true}}" hint-size="64px,86px"></dc-import>
+        <dc-import name="ParkBadge" type="culture" name="잠김" size="64" show-label="{{true}}" locked="{{true}}" hint-size="64px,86px"></dc-import>
+      </div>
+    </div>
+
+    <div id="2i" style="width:620px;padding:28px;border-radius:28px;background:#FFFFFF;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:baseline;gap:8px"><a href="#2i" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">2i</a><span style="font-size:17px;font-weight:800">캐릭터 8종</span><span style="font-size:12px;color:#6B766F">임시 형태 · 최종 일러스트로 교체</span></div>
+      <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><dc-import name="Critter" animal="cheese" size="60" hint-size="60px,60px"></dc-import><span style="font-size:12px;font-weight:700">치즈냥</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><dc-import name="Critter" animal="black" size="60" hint-size="60px,60px"></dc-import><span style="font-size:12px;font-weight:700">까망냥</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><dc-import name="Critter" animal="calico" size="60" hint-size="60px,60px"></dc-import><span style="font-size:12px;font-weight:700">삼색냥</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><dc-import name="Critter" animal="tuxedo" size="60" hint-size="60px,60px"></dc-import><span style="font-size:12px;font-weight:700">턱시도냥</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><dc-import name="Critter" animal="shiba" size="60" hint-size="60px,60px"></dc-import><span style="font-size:12px;font-weight:700">시바</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><dc-import name="Critter" animal="maltese" size="60" hint-size="60px,60px"></dc-import><span style="font-size:12px;font-weight:700">말티</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><dc-import name="Critter" animal="beagle" size="60" hint-size="60px,60px"></dc-import><span style="font-size:12px;font-weight:700">비글</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><dc-import name="Critter" animal="corgi" size="60" hint-size="60px,60px"></dc-import><span style="font-size:12px;font-weight:700">코기</span></div>
+      </div>
+      <div style="display:flex;gap:28px;align-items:center;padding:16px 20px;border-radius:20px;background:#F2FAF4">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><dc-import name="Critter" animal="{{ch}}" mood="happy" size="56" hint-size="56px,56px"></dc-import><span style="font-size:11px;color:#6B766F">기본</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><dc-import name="Critter" animal="{{ch}}" mood="sleep" size="56" hint-size="56px,56px"></dc-import><span style="font-size:11px;color:#6B766F">쉬는 중</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><dc-import name="Critter" animal="{{ch}}" mood="sad" size="56" hint-size="56px,56px"></dc-import><span style="font-size:11px;color:#6B766F">경고·실패</span></div>
+        <span style="font-size:12px;line-height:1.5;color:#6B766F;flex:1">표정 3종을 상태와 연결: 체크인 중엔 졸고, 이탈·실패엔 시무룩.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAP HOME -->
+<section id="t3" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t3" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">3</a><span style="font-size:22px;font-weight:800">지도 홈</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="3a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#3a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">3a</a>기본 · 반경 1km 마커</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="map" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="3b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#3b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">3b</a>체크인 진행 중 · 상단 배너</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="map-checking" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="3c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#3c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">3c</a>주변에 공원 없음</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="map-empty" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<!-- SHEET -->
+<section id="t4" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t4" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">4</a><span style="font-size:22px;font-weight:800">공원 상세 바텀시트 · 체크인 버튼 3상태</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="4a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#4a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">4a</a>활성 · 반경 안</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="sheet-active" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="4b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#4b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">4b</a>비활성 · 반경 밖</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="sheet-outside" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="4c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#4c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">4c</a>오늘 획득 완료</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="sheet-done" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<!-- CHECK-IN -->
+<section id="t5" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t5" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">5</a><span style="font-size:22px;font-weight:800">체크인 진행</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="5a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#5a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">5a</a>진행 중</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="checkin" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="5b" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#5b" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">5b</a>반경 이탈 경고</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="warning" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="5c" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#5c" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">5c</a>취소 확인</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="cancel" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="5d" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#5d" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">5d</a>실패 · 이탈</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="fail-leave" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+    <div id="5e" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#5e" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">5e</a>실패 · 자정 리셋</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="fail-midnight" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+</section>
+
+<!-- BADGE -->
+<section id="t6" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:10px"><a href="#t6" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2420;color:#fff;border-radius:4px">6</a><span style="font-size:22px;font-weight:800">배지 획득</span></div>
+  <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+    <div id="6a" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:baseline;gap:8px;font-size:13px;color:#6B766F"><a href="#6a" style="font:600 11px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1E2420;border-radius:5px">6a</a>배지 + 새 업적 + 이달 순위</div><div style="padding:10px;border-radius:58px;background:#1E2420;box-shadow:0 30px 60px rgba(30,36,32,.18)"><dc-import name="ParknicApp" scene="badge" interactive="{{false}}" character="{{ch}}" hint-size="393px,852px"></dc-import></div></div>
+  </div>
+  <p style="margin:8px 0 0;font-size:13px;color:#6B766F">다음으로: "도감 탭 만들어줘" · "<a href="#6a">6a</a> 배지 등장 모션을 더 크게" · "<a href="#4a">4a</a> 시트를 medium 디텐트 버전으로도"</p>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;character&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;cheese&quot;,&quot;black&quot;,&quot;calico&quot;,&quot;tuxedo&quot;,&quot;shiba&quot;,&quot;maltese&quot;,&quot;beagle&quot;,&quot;corgi&quot;],&quot;default&quot;:&quot;cheese&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;demoSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:1,&quot;max&quot;:120,&quot;step&quot;:1,&quot;default&quot;:60,&quot;tsType&quot;:&quot;number&quot;,&quot;unit&quot;:&quot;x&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { ch: this.props.character ?? 'cheese', speed: this.props.demoSpeed ?? 60 };
+  }
+}
+</script>
+</body>
+</html>

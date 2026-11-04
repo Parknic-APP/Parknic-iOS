@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# CocoaPods (네이버 지도 SDK 등을 Pods로 쓸 경우)
+Pods/
+
+# 비밀 값 (예시 파일만 커밋)
+Secrets.xcconfig
+!Secrets.example.xcconfig
+GoogleService-Info.plist
+*.p8
+*.p12
+*.mobileprovision
+.env
+.env.*
+
+# 로그·임시
+*.log

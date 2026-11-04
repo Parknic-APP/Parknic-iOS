@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="position:relative;width:{{px}};height:{{px}};flex:none;transform:{{tilt}}"><sc-for list="{{parts}}" as="pt" hint-placeholder-count="0"><div style="{{pt}}"></div></sc-for></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:120,&quot;height&quot;:120},&quot;animal&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;cheese&quot;,&quot;black&quot;,&quot;calico&quot;,&quot;tuxedo&quot;,&quot;shiba&quot;,&quot;maltese&quot;,&quot;beagle&quot;,&quot;corgi&quot;],&quot;default&quot;:&quot;cheese&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:64,&quot;tsType&quot;:&quot;number&quot;},&quot;mood&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;happy&quot;,&quot;sleep&quot;,&quot;sad&quot;],&quot;default&quot;:&quot;happy&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;look&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;soft&quot;,&quot;flat&quot;,&quot;sketch&quot;],&quot;default&quot;:&quot;soft&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const ALIAS = {squirrel:'cheese',rabbit:'maltese',bear:'beagle',cat:'tuxedo',dog:'shiba',duck:'corgi',frog:'calico',penguin:'black'};
+const PAL = {
+  cheese:{kind:'cat',c:'#F5B45E',d:'#DB913A',inner:'#FFC9B8',stripes:'#D98A33'},
+  black:{kind:'cat',c:'#3B3936',d:'#262422',inner:'#C98A86',eyeRing:'#E4EE8A'},
+  calico:{kind:'cat',c:'#FBF5EE',d:'#E4DACD',inner:'#F7BDB4',patches:[[16,20,32,30,'#F0A452','60% 40% 55% 45%'],[56,18,30,26,'#3B3936','45% 60% 40% 55%']]},
+  tuxedo:{kind:'cat',c:'#33363A',d:'#222427',inner:'#C98A86',mask:'#FFFFFF'},
+  shiba:{kind:'dog',ears:'tri',c:'#E39A4C',d:'#C47A30',inner:'#FFF1DE',cheeks:'#FFF4E4',brows:true},
+  maltese:{kind:'dog',ears:'flop',c:'#FFFFFF',d:'#E3DDD4',ec:'#F1EAE0',bow:'#FF8FA3'},
+  beagle:{kind:'dog',ears:'long',c:'#D9A066',d:'#B98245',ec:'#8E5B32',blaze:'#FFFFFF'},
+  corgi:{kind:'dog',ears:'big',c:'#F0A04B',d:'#D3832F',inner:'#FFE3C9',blaze:'#FFFFFF'}
+};
+class Component extends DCLogic {
+  renderVals() {
+    const s = Number(this.props.size ?? 64), mood = this.props.mood ?? 'happy', look = this.props.look ?? 'soft';
+    const key = PAL[this.props.animal] ? this.props.animal : (ALIAS[this.props.animal] || 'cheese');
+    const P = PAL[key], ink = look === 'sketch' ? '#2B2620' : '#2A2622', lw = Math.max(1.5, s * 0.035);
+    const sk = look === 'sketch', bw = Math.max(1.5, s * 0.032);
+    const line = sk ? {border:`${bw}px solid ${ink}`,boxSizing:'border-box'} : {};
+    const p = (l, t, w, h, x) => ({position:'absolute', left:l+'%', top:t+'%', width:w+'%', height:h+'%', ...x});
+    const parts = [], back = [], front = [];
+    const tri = 'polygon(50% 0,100% 100%,0 100%)';
+    const ears = P.kind === 'cat' ? 'cat' : P.ears;
+    if (ears === 'cat' || ears === 'tri' || ears === 'big') {
+      const big = ears === 'big';
+      const L = big ? [4,-8,36,48] : [10,2,32,36], R = big ? [60,-8,36,48] : [58,2,32,36];
+      [[L,-14],[R,14]].forEach(([b, r]) => {
+        if (sk) back.push(p(b[0]-2,b[1]-3,b[2]+4,b[3]+5,{background:ink,clipPath:tri,transform:`rotate(${r}deg)`}));
+        back.push(p(...b,{background:P.c,clipPath:tri,transform:`rotate(${r}deg)`}));
+        if (P.inner) back.push(p(b[0]+b[2]*.27,b[1]+b[3]*.3,b[2]*.46,b[3]*.5,{background:P.inner,clipPath:tri,transform:`rotate(${r}deg)`}));
+      });
+    }
+    if (ears === 'flop') {
+      front.push(p(-2,30,28,44,{background:P.ec,borderRadius:'50%',transform:'rotate(16deg)',...line}));
+      front.push(p(74,30,28,44,{background:P.ec,borderRadius:'50%',transform:'rotate(-16deg)',...line}));
+    }
+    if (ears === 'long') {
+      front.push(p(-4,26,26,56,{background:P.ec,borderRadius:'50% 50% 45% 45%',transform:'rotate(12deg)',...line}));
+      front.push(p(78,26,26,56,{background:P.ec,borderRadius:'50% 50% 45% 45%',transform:'rotate(-12deg)',...line}));
+    }
+    parts.push(...back);
+    const shade = look === 'soft' ? {boxShadow:`inset ${-s*0.05}px ${-s*0.06}px 0 ${P.d}66`} : {};
+    parts.push(p(7,14,86,84,{background:P.c,borderRadius:'50% 50% 46% 46% / 54% 54% 46% 46%',overflow:'hidden',...shade,...line}));
+    if (P.patches) P.patches.forEach(([l,t,w,h,c,r]) => parts.push(p(l,t,w,h,{background:c,borderRadius:r})));
+    if (P.stripes) [[44,17,4,10],[49,16,4,12],[54,17,4,10]].forEach(([l,t,w,h]) => parts.push(p(l,t,w,h,{background:P.stripes,borderRadius:'2px'})));
+    if (P.mask) parts.push(p(20,42,60,52,{background:P.mask,borderRadius:'50% 50% 46% 46% / 60% 60% 40% 40%'}));
+    if (P.cheeks) { parts.push(p(14,52,40,40,{background:P.cheeks,borderRadius:'50%'})); parts.push(p(46,52,40,40,{background:P.cheeks,borderRadius:'50%'})); }
+    if (P.blaze) { parts.push(p(44,18,12,40,{background:P.blaze,borderRadius:'6px 6px 50% 50%'})); parts.push(p(27,50,46,42,{background:P.blaze,borderRadius:'50%'})); }
+    if (P.bow) { parts.push(p(58,8,12,12,{background:P.bow,clipPath:'polygon(0 0,100% 50%,0 100%)'})); parts.push(p(70,8,12,12,{background:P.bow,clipPath:'polygon(100% 0,0 50%,100% 100%)'})); parts.push(p(67,11,5,6,{background:'#E8607A',borderRadius:'50%'})); }
+    parts.push(...front);
+    const eL = 31, eR = 61, eT = 46;
+    [eL, eR].forEach((x, i) => {
+      if (P.brows) parts.push(p(x+1,eT-8,7,4,{background:'#FFF4E4',borderRadius:'50%'}));
+      if (mood === 'sleep') parts.push(p(x-2,eT+3,12,5,{borderBottom:`${lw}px solid ${P.eyeRing ? '#E4EE8A' : ink}`,borderRadius:'0 0 50% 50%'}));
+      else {
+        if (P.eyeRing) parts.push(p(x-2.5,eT-2.5,13,15,{background:P.eyeRing,borderRadius:'50%'}));
+        parts.push(p(x,eT,8,10,{background:ink,borderRadius:'50%'}));
+        parts.push(p(x+4,eT+1.5,2.6,3,{background:'#fff',borderRadius:'50%'}));
+        if (mood === 'sad') parts.push(p(x-3,eT-7,13,0,{borderTop:`${lw}px solid ${P.eyeRing ? '#E4EE8A' : ink}`,transform:`rotate(${i ? 16 : -16}deg)`}));
+      }
+    });
+    if (look !== 'flat') {
+      parts.push(p(16,60,14,8,{background:'#FF9C8A',opacity:mood === 'sad' ? .3 : .5,borderRadius:'50%'}));
+      parts.push(p(70,60,14,8,{background:'#FF9C8A',opacity:mood === 'sad' ? .3 : .5,borderRadius:'50%'}));
+    }
+    const mc = P.eyeRing || (P.c === '#33363A' && !P.mask) ? '#E4EE8A' : ink;
+    if (P.kind === 'cat') {
+      parts.push(p(45.5,57,9,6,{background:'#FF8FA0',clipPath:'polygon(0 0,100% 0,50% 100%)'}));
+      if (mood === 'sad') parts.push(p(43,66,14,6,{borderTop:`${lw}px solid ${mc}`,borderRadius:'50% 50% 0 0'}));
+      else { parts.push(p(40.5,60,10,6,{borderBottom:`${lw}px solid ${mc}`,borderRadius:'0 0 50% 50%'})); parts.push(p(49.5,60,10,6,{borderBottom:`${lw}px solid ${mc}`,borderRadius:'0 0 50% 50%'})); }
+    } else {
+      parts.push(p(43,55,14,9,{background:ink,borderRadius:'50% 50% 45% 45% / 40% 40% 60% 60%'}));
+      if (mood === 'sad') parts.push(p(43,67,14,6,{borderTop:`${lw}px solid ${ink}`,borderRadius:'50% 50% 0 0'}));
+      else { parts.push(p(49.2,63,1.6,5,{background:ink})); parts.push(p(41,63,10,7,{borderBottom:`${lw}px solid ${ink}`,borderRadius:'0 0 50% 50%'})); parts.push(p(49,63,10,7,{borderBottom:`${lw}px solid ${ink}`,borderRadius:'0 0 50% 50%'})); }
+      if (mood === 'happy' && look !== 'flat') parts.push(p(46,69,8,8,{background:'#FF8C8C',borderRadius:'0 0 50% 50%'}));
+    }
+    return { px: s + 'px', parts, tilt: sk ? 'rotate(-3deg)' : 'none' };
+  }
+}
+</script>
+</body>
+</html>

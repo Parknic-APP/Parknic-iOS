@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:none"><div style="position:relative;width:{{px}};height:{{px}};filter:{{shadow}};transform:{{tilt}}"><sc-if value="{{isAch}}" hint-placeholder-val="{{false}}"><div style="{{ribL}}"></div><div style="{{ribR}}"></div></sc-if><div style="{{outer}}"></div><div style="{{inner}}"></div><sc-if value="{{isPark}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 24 24" fill="none" stroke="{{fg}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;inset:0;margin:auto;width:44%;height:44%"><path d="{{icon}}"></path></svg></sc-if><sc-if value="{{isAch}}" hint-placeholder-val="{{false}}"><div style="{{achText}}">{{label}}</div></sc-if></div><sc-if value="{{showLabel}}" hint-placeholder-val="{{false}}"><div style="font-size:12px;font-weight:600;color:#3D4741;white-space:nowrap;font-family:{{labelFont}}">{{name}}</div></sc-if></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:120,&quot;height&quot;:140},&quot;type&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;neighbor&quot;,&quot;kids&quot;,&quot;small&quot;,&quot;sports&quot;,&quot;water&quot;,&quot;culture&quot;,&quot;history&quot;,&quot;ach&quot;],&quot;default&quot;:&quot;neighbor&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:72,&quot;tsType&quot;:&quot;number&quot;},&quot;locked&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;label&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;10&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;name&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showLabel&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;look&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;soft&quot;,&quot;flat&quot;,&quot;sketch&quot;],&quot;default&quot;:&quot;soft&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const ICON = {
+  neighbor:'M5 19c0-8 6-14 14-14 0 8-6 14-14 14z M5 19l7-7',
+  kids:'M12 3l2.6 5.6 6.1.7-4.5 4.1 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.1 6.1-.7z',
+  small:'M12 21v-8 M12 13c0-4-3-7-7-7 0 4 3 7 7 7z M12 11c0-4 3-7 7-7 0 4-3 7-7 7z',
+  sports:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 3c-3.5 4-3.5 14 0 18 M12 3c3.5 4 3.5 14 0 18 M3 12h18',
+  water:'M3 8c2-2 4-2 6 0s4 2 6 0 4-2 6 0 M3 13c2-2 4-2 6 0s4 2 6 0 4-2 6 0 M3 18c2-2 4-2 6 0s4 2 6 0 4-2 6 0',
+  culture:'M9 18V6l10-2v12 M9 18a2.5 2.5 0 1 1-5 0a2.5 2.5 0 1 1 5 0z M19 16a2.5 2.5 0 1 1-5 0a2.5 2.5 0 1 1 5 0z',
+  history:'M3 8h18 M5 4.5h14 M6 8v12 M18 8v12 M10 20v-6h4v6 M3 20h18'
+};
+const scallop = (() => { const pts = []; for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2, r = i % 2 ? 44 : 50; pts.push(`${(50 + r * Math.cos(a)).toFixed(1)}% ${(50 + r * Math.sin(a)).toFixed(1)}%`); } return `polygon(${pts.join(',')})`; })();
+const T = {
+  neighbor:{name:'근린공원',c:'#34B36B',d:'#1C854B',shape:{borderRadius:'50%'}},
+  kids:{name:'어린이공원',c:'#FFB627',d:'#E08F00',shape:{borderRadius:'32%'}},
+  small:{name:'소공원',c:'#F58BA6',d:'#D9607F',shape:{clipPath:scallop}},
+  sports:{name:'체육공원',c:'#5C7CF0',d:'#3F5DD0',shape:{clipPath:'polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)'}},
+  water:{name:'수변공원',c:'#4FB3E8',d:'#2A8FC7',shape:{borderRadius:'50% 50% 50% 50% / 58% 58% 42% 42%'}},
+  culture:{name:'문화공원',c:'#A57FE6',d:'#8058C9',shape:{clipPath:'polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)'}},
+  history:{name:'역사공원',c:'#C9824F',d:'#A5612F',shape:{borderRadius:'22% 22% 50% 50% / 16% 16% 58% 58%'}},
+  ach:{name:'업적',c:'#FFC533',d:'#E39A00',shape:{borderRadius:'50%'}}
+};
+class Component extends DCLogic {
+  renderVals() {
+    const type = this.props.type ?? 'neighbor', s = Number(this.props.size ?? 72), locked = !!this.props.locked;
+    const t = T[type] || T.neighbor, isAch = type === 'ach', look = this.props.look ?? 'soft';
+    const flat = look === 'flat', sk = look === 'sketch';
+    const c = locked ? (sk ? '#F1EBDD' : '#DCE3DE') : t.c, d = locked ? '#C3CCC6' : t.d;
+    const base = {position:'absolute', ...t.shape};
+    const rib = (l, r) => ({position:'absolute',left:l,top:'60%',width:'22%',height:'44%',background:sk ? '#2B2620' : locked ? '#B5BFB8' : flat ? '#0F3B2B' : '#1C854B',transform:`rotate(${r}deg)`,clipPath:'polygon(0 0,100% 0,100% 100%,50% 80%,0 100%)'});
+    const innerBg = flat ? c : sk ? c : `radial-gradient(circle at 32% 26%, rgba(255,255,255,.38), rgba(255,255,255,0) 52%), ${c}`;
+    return {
+      px: s + 'px', isAch, isPark: !isAch, icon: ICON[type] || ICON.neighbor,
+      shadow: flat ? 'none' : sk ? 'drop-shadow(2px 3px 0 #2B2620)' : 'drop-shadow(0 6px 10px rgba(22,61,40,.18))',
+      tilt: sk ? 'rotate(-4deg)' : 'none', labelFont: sk ? "'Gaegu',cursive" : 'inherit',
+      fg: sk ? (locked ? '#A79C8C' : '#2B2620') : locked ? '#8F9A93' : '#fff', name: this.props.name ?? t.name, showLabel: !!this.props.showLabel,
+      outer: {...base, inset:0, background:sk ? '#2B2620' : flat ? c : d},
+      inner: {...base, inset:sk ? '6%' : flat ? '0' : '9%', background:innerBg},
+      ribL: rib('20%', 18), ribR: rib('58%', -18),
+      label: this.props.label ?? '10',
+      achText: {position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Jua',sans-serif",fontSize:(s * (String(this.props.label ?? '10').length > 2 ? 0.26 : 0.34)) + 'px',color:sk ? '#2B2620' : locked ? '#8F9A93' : flat ? '#0F3B2B' : '#7A4A00',lineHeight:1}
+    };
+  }
+}
+</script>
+</body>
+</html>

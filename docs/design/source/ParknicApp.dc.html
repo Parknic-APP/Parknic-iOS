@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap">
+<style>
+body{margin:0;background:#F7F8F3}
+a{color:#1C854B}a:hover{color:#163D28}
+@keyframes pk-pulse{0%{transform:translate(-50%,-50%) scale(.6);opacity:.55}100%{transform:translate(-50%,-50%) scale(2);opacity:0}}
+@keyframes pk-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes pk-fade{from{opacity:0}to{opacity:1}}
+@keyframes pk-bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-5px)}}
+@keyframes pk-z{0%{opacity:0;transform:translate(0,0)}30%{opacity:1}100%{opacity:0;transform:translate(16px,-28px)}}
+@keyframes pk-pop{0%{transform:scale(.2) rotate(-20deg);opacity:0}60%{transform:scale(1.12) rotate(6deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@keyframes pk-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes pk-fall{0%{transform:translateY(-40px) rotate(0)}100%{transform:translateY(900px) rotate(540deg)}}
+@keyframes pk-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pk-blink{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+</helmet>
+<div style="position:relative;width:393px;height:852px;overflow:hidden;border-radius:48px;background:#EEF1E7;font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-serif;color:#1E2420;-webkit-font-smoothing:antialiased;letter-spacing:-0.01em;user-select:none">
+
+  <!-- MAP -->
+  <sc-if value="{{softArt}}" hint-placeholder-val="{{true}}">
+  <svg width="393" height="852" viewBox="0 0 393 852" style="position:absolute;inset:0">
+    <rect width="393" height="852" fill="#EEF1E7"></rect>
+    <g fill="#E6E9DE"><rect x="60" y="20" width="90" height="56" rx="6"></rect><rect x="180" y="104" width="76" height="60" rx="6"></rect><rect x="56" y="196" width="92" height="56" rx="6"></rect><rect x="290" y="196" width="40" height="70" rx="6"></rect><rect x="56" y="640" width="94" height="70" rx="6"></rect><rect x="178" y="486" width="76" height="110" rx="6"></rect><rect x="290" y="640" width="80" height="80" rx="6"></rect><rect x="178" y="640" width="76" height="70" rx="6"></rect></g>
+    <path d="M352 -10 C 320 140, 372 250, 318 380 S 344 620, 392 860" stroke="#CBE4F1" stroke-width="28" fill="none" stroke-linecap="round"></path>
+    <g fill="#CDEAC8" opacity="{{parkOpacity}}"><rect x="96" y="316" width="158" height="128" rx="46"></rect><rect x="52" y="262" width="64" height="44" rx="18"></rect><rect x="186" y="200" width="72" height="44" rx="18"></rect><rect x="282" y="282" width="52" height="62" rx="22"></rect><rect x="80" y="516" width="66" height="48" rx="18"></rect><rect x="282" y="494" width="78" height="58" rx="22"></rect></g>
+    <ellipse cx="196" cy="398" rx="34" ry="18" fill="#CBE4F1" opacity="{{parkOpacity}}"></ellipse>
+    <g fill="none" stroke-linecap="round"><g stroke="#DADFD3" stroke-width="16"><path d="M-10 180 H410"></path><path d="M40 -10 V860"></path><path d="M-10 620 C120 600 260 650 410 610"></path><path d="M268 -10 V860"></path></g><g stroke="#FFFFFF" stroke-width="13"><path d="M-10 180 H410"></path><path d="M40 -10 V860"></path><path d="M-10 620 C120 600 260 650 410 610"></path><path d="M268 -10 V860"></path></g><g stroke="#FFFFFF" stroke-width="6"><path d="M-10 90 H410"></path><path d="M-10 478 H410"></path><path d="M160 -10 V310"></path><path d="M160 450 V860"></path><path d="M40 740 H410"></path></g></g>
+    <text x="60" y="173" font-size="10" font-weight="600" fill="#9AA39C">여의대방로</text>
+    <text x="300" y="604" font-size="10" font-weight="600" fill="#9AA39C">상도로</text>
+    <text x="330" y="420" font-size="10" font-weight="600" fill="#7FB3CF" transform="rotate(78 330 420)">도림천</text>
+    <text x="64" y="800" font-size="13" font-weight="700" fill="#A9B1AA">신대방동</text>
+  </svg>
+
+  <div style="position:absolute;left:15px;top:230px;width:380px;height:380px;border-radius:50%;border:2px dashed rgba(28,133,75,.45);background:rgba(52,179,107,.06);box-sizing:border-box"></div>
+  </sc-if>
+
+  <sc-if value="{{sketchArt}}" hint-placeholder-val="{{false}}">
+  <svg width="393" height="852" viewBox="0 0 393 852" style="position:absolute;inset:0">
+    <rect width="393" height="852" fill="#FBF8EE"></rect>
+    <path d="M352 -10 C 320 140, 372 250, 318 380 S 344 620, 392 860" stroke="#CBE4F1" stroke-width="26" fill="none" stroke-linecap="round"></path>
+    <path d="M352 -10 C 320 140, 372 250, 318 380 S 344 620, 392 860" stroke="#2B2620" stroke-width="1.5" stroke-dasharray="6 8" fill="none" opacity=".6"></path>
+    <g fill="none" stroke-linecap="round"><g stroke="#2B2620" stroke-width="15" opacity=".85"><path d="M-10 180 H410"></path><path d="M40 -10 V860"></path><path d="M-10 620 C120 600 260 650 410 610"></path><path d="M268 -10 V860"></path></g><g stroke="#FBF8EE" stroke-width="11"><path d="M-10 180 H410"></path><path d="M40 -10 V860"></path><path d="M-10 620 C120 600 260 650 410 610"></path><path d="M268 -10 V860"></path></g><g stroke="#2B2620" stroke-width="1.5" stroke-dasharray="3 7" opacity=".4"><path d="M-10 90 H410"></path><path d="M-10 478 H410"></path><path d="M160 -10 V310"></path><path d="M160 450 V860"></path><path d="M40 740 H410"></path></g></g>
+    <g fill="#CDEAC8" stroke="#2B2620" stroke-width="2"><path d="M104 330 Q 120 312 176 316 Q 250 312 252 350 Q 258 420 230 440 Q 170 452 110 436 Q 92 400 104 330 Z"></path><path d="M56 268 Q 84 258 114 266 Q 118 300 100 306 Q 64 308 54 294 Z"></path><path d="M190 204 Q 230 196 258 208 Q 262 238 236 244 Q 196 246 188 232 Z"></path><path d="M284 286 Q 318 280 334 294 Q 336 336 312 344 Q 284 342 282 320 Z"></path><path d="M82 520 Q 120 512 146 524 Q 148 556 124 564 Q 86 566 80 548 Z"></path><path d="M284 498 Q 334 490 360 504 Q 362 544 330 552 Q 290 554 282 530 Z"></path></g>
+    <g stroke="#2B2620" stroke-width="2" fill="#9FDDB5"><circle cx="128" cy="356" r="10"></circle><circle cx="236" cy="424" r="9"></circle><circle cx="120" cy="420" r="8"></circle></g>
+    <g stroke="#2B2620" stroke-width="2"><path d="M128 366 v8 M236 433 v7 M120 428 v7"></path></g>
+    <ellipse cx="196" cy="398" rx="30" ry="15" fill="#CBE4F1" stroke="#2B2620" stroke-width="2"></ellipse>
+    <circle cx="205" cy="420" r="190" fill="rgba(52,179,107,.07)" stroke="#1C854B" stroke-width="2" stroke-dasharray="10 8"></circle>
+    <text x="54" y="170" font-family="Gaegu" font-size="15" font-weight="700" fill="#6A5F52">여의대방로</text>
+    <text x="300" y="604" font-family="Gaegu" font-size="15" font-weight="700" fill="#6A5F52">상도로</text>
+    <text x="64" y="800" font-family="Gaegu" font-size="18" font-weight="700" fill="#8C8170">신대방동</text>
+  </svg>
+  </sc-if>
+
+  <sc-for list="{{markers}}" as="m" hint-placeholder-count="0">
+    <div onClick="{{m.onTap}}" style="position:absolute;left:{{m.left}};top:{{m.top}};transform:{{m.tf}};transform-origin:50% 100%;display:flex;flex-direction:column;align-items:center;cursor:pointer;z-index:5;transition:transform .2s">
+      <sc-if value="{{m.isNone}}" hint-placeholder-val="{{false}}">
+        <div style="position:relative;width:44px;height:44px;border-radius:16px;background:#FFFFFF;border:2px solid #C3CCC6;box-sizing:border-box;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(22,61,40,.14)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8F9A93" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{m.icon}}"></path></svg></div>
+        <div style="width:10px;height:10px;margin-top:-6px;transform:rotate(45deg);background:#FFFFFF;border-right:2px solid #C3CCC6;border-bottom:2px solid #C3CCC6;border-radius:0 0 3px 0"></div>
+      </sc-if>
+      <sc-if value="{{m.isCol}}" hint-placeholder-val="{{false}}">
+        <div style="position:relative;width:46px;height:46px;border-radius:16px;background:#34B36B;border:3px solid #FFFFFF;box-sizing:border-box;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 12px rgba(28,133,75,.35)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="{{m.icon}}"></path></svg><div style="position:absolute;top:-9px;right:-11px;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;border-radius:11px;background:#FFFFFF;border:2px solid #34B36B;color:#1C854B;font-family:'Jua',sans-serif;font-size:13px;display:flex;align-items:center;justify-content:center">{{m.count}}</div></div>
+        <div style="width:10px;height:10px;margin-top:-7px;transform:rotate(45deg);background:#34B36B;border-right:3px solid #FFFFFF;border-bottom:3px solid #FFFFFF;border-radius:0 0 3px 0"></div>
+      </sc-if>
+      <sc-if value="{{m.isToday}}" hint-placeholder-val="{{false}}">
+        <div style="position:relative;width:46px;height:46px;border-radius:16px;background:#FFB627;border:3px solid #FFFFFF;box-sizing:border-box;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 14px rgba(224,143,0,.45)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A4A00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><div style="position:absolute;top:-10px;right:-18px;height:20px;padding:0 7px;border-radius:10px;background:#1E2420;color:#FFFFFF;font-size:10px;font-weight:700;display:flex;align-items:center;white-space:nowrap">오늘</div></div>
+        <div style="width:10px;height:10px;margin-top:-7px;transform:rotate(45deg);background:#FFB627;border-right:3px solid #FFFFFF;border-bottom:3px solid #FFFFFF;border-radius:0 0 3px 0"></div>
+      </sc-if>
+      <div style="margin-top:3px;padding:3px 8px;border-radius:99px;background:rgba(255,255,255,.94);font-size:11px;font-weight:700;color:#3D4741;white-space:nowrap;box-shadow:0 1px 4px rgba(22,61,40,.12)">{{m.name}}</div>
+    </div>
+  </sc-for>
+
+  <div style="position:absolute;left:205px;top:420px;width:60px;height:60px;border-radius:50%;background:rgba(52,179,107,.35);animation:pk-pulse 2s ease-out infinite"></div>
+  <div style="position:absolute;left:205px;top:420px;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:#FFFFFF;box-shadow:0 4px 12px rgba(22,61,40,.25),0 0 0 3px #34B36B;display:flex;align-items:center;justify-content:center;z-index:6">
+    <dc-import name="Critter" look="{{art}}" animal="{{me}}" size="36" hint-size="36px,36px"></dc-import>
+  </div>
+
+  <sc-if value="{{showPill}}" hint-placeholder-val="{{true}}">
+    <div style="position:absolute;top:60px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:99px;background:#FFFFFF;box-shadow:0 4px 14px rgba(22,61,40,.12);white-space:nowrap;z-index:8">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1C854B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+      <span style="font-size:14px;font-weight:700">신대방동 주변 1km</span>
+      <span style="font-size:14px;font-weight:600;color:#1C854B">{{pillCount}}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{showBanner}}" hint-placeholder-val="{{false}}">
+    <div onClick="{{goCheckin}}" style="position:absolute;top:58px;left:12px;right:12px;display:flex;align-items:center;gap:12px;padding:12px 14px 12px 12px;border-radius:24px;background:#FFFFFF;box-shadow:0 8px 24px rgba(22,61,40,.16);cursor:pointer;z-index:9;animation:pk-rise .4s ease-out">
+      <div style="position:relative;width:48px;height:48px;flex:none">
+        <svg width="48" height="48" viewBox="0 0 48 48" style="transform:rotate(-90deg)"><circle cx="24" cy="24" r="20" fill="none" stroke="#E2F4E8" stroke-width="6"></circle><circle cx="24" cy="24" r="20" fill="none" stroke="#34B36B" stroke-width="6" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="{{bannerOffset}}"></circle></svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><dc-import name="Critter" look="{{art}}" animal="{{me}}" mood="sleep" size="26" hint-size="26px,26px"></dc-import></div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+        <span style="font-size:13px;font-weight:600;color:#6B766F">보라매공원에서 쉬는 중</span>
+        <span style="font-family:'Jua',sans-serif;font-size:24px;color:#1E2420;line-height:1.1">{{remain}} <span style="font-family:'Pretendard Variable',sans-serif;font-size:14px;font-weight:600;color:#1C854B">남음</span></span>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8F9A93" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{showLegend}}" hint-placeholder-val="{{true}}">
+    <div style="position:absolute;left:16px;bottom:99px;display:flex;flex-direction:column;gap:7px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 4px 14px rgba(22,61,40,.12);z-index:7">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#3D4741"><span style="width:14px;height:14px;border-radius:5px;background:#FFFFFF;border:2px solid #C3CCC6;box-sizing:border-box"></span>아직 안 받은 공원</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#3D4741"><span style="width:14px;height:14px;border-radius:5px;background:#34B36B"></span>배지 받은 공원</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#3D4741"><span style="width:14px;height:14px;border-radius:5px;background:#FFB627"></span>오늘 받은 공원</div>
+    </div>
+  </sc-if>
+  <div style="position:absolute;right:16px;bottom:99px;width:48px;height:48px;border-radius:50%;background:#FFFFFF;box-shadow:0 4px 14px rgba(22,61,40,.14);display:flex;align-items:center;justify-content:center;z-index:7">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1C854B" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="1.5" fill="#1C854B"></circle><path d="M12 2v3 M12 19v3 M2 12h3 M19 12h3"></path></svg>
+  </div>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div style="position:absolute;left:16px;right:16px;bottom:99px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:24px 20px 20px;border-radius:28px;background:#FFFFFF;box-shadow:0 10px 30px rgba(22,61,40,.16);z-index:8;text-align:center">
+      <dc-import name="Critter" look="{{art}}" animal="{{me}}" mood="sleep" size="72" hint-size="72px,72px"></dc-import>
+      <div style="margin-top:6px;font-size:19px;font-weight:700">반경 1km 안에 공원이 없어요</div>
+      <div style="font-size:14px;line-height:1.5;color:#6B766F;text-wrap:pretty">가장 가까운 공원까지 1.8km예요.<br>산책 삼아 걸어가 볼까요?</div>
+      <button onClick="{{showNearest}}" style="margin-top:12px;width:100%;height:52px;border:none;border-radius:18px;background:#E2F4E8;color:#1C854B;font:inherit;font-size:16px;font-weight:700;cursor:pointer">가장 가까운 공원 보기</button>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute;left:0;right:0;bottom:0;height:83px;background:#FFFFFF;border-top:1px solid #EEF2EF;display:grid;grid-template-columns:1fr 1fr 1fr;padding-top:8px;box-sizing:border-box;z-index:10">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#1C854B;font-size:11px;font-weight:700;cursor:pointer"><svg width="26" height="26" viewBox="0 0 24 24" fill="#E2F4E8" stroke="#1C854B" stroke-width="2" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"></path><path d="M9 4v14 M15 6v14" fill="none"></path></svg>지도</div>
+    <div onClick="{{tabDex}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6B766F;font-size:11px;font-weight:600;cursor:pointer"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8F9A93" stroke-width="2" stroke-linejoin="round"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"></path><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"></path><circle cx="12" cy="10" r="3"></circle></svg>도감</div>
+    <div onClick="{{tabMy}}" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6B766F;font-size:11px;font-weight:600;cursor:pointer"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8F9A93" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"></circle><path d="M4 20.5c0-4 3.6-6 8-6s8 2 8 6"></path></svg>마이</div>
+  </div>
+
+  <!-- PARK SHEET -->
+  <sc-if value="{{showSheet}}" hint-placeholder-val="{{false}}">
+    <div onClick="{{closeSheet}}" style="position:absolute;inset:0;background:rgba(22,40,30,.28);z-index:30;animation:pk-fade .25s"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:716px;background:#FFFFFF;border-radius:30px 30px 0 0;z-index:31;box-shadow:0 -8px 30px rgba(22,61,40,.14);display:flex;flex-direction:column;overflow:hidden;animation:pk-up .38s cubic-bezier(.2,.9,.3,1.08)">
+      <div style="display:flex;justify-content:center;padding:8px 0 4px"><div style="width:40px;height:5px;border-radius:3px;background:#DCE3DE"></div></div>
+      <div style="flex:1;overflow-y:auto;padding:10px 20px 48px;display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <dc-import name="ParkBadge" look="{{art}}" type="{{sp.type}}" size="64" hint-size="64px,64px"></dc-import>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+            <span style="align-self:flex-start;padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;background:{{sp.tagBg}};color:{{sp.tagFg}}">{{sp.typeName}}</span>
+            <span style="font-size:24px;font-weight:800;letter-spacing:-0.02em">{{sp.name}}</span>
+            <span style="font-size:13px;color:#6B766F">{{sp.addr}} · {{sp.dist}}</span>
+          </div>
+          <div onClick="{{closeSheet}}" style="align-self:flex-start;width:32px;height:32px;border-radius:50%;background:#EEF2EF;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B766F" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="padding:14px 16px;border-radius:18px;background:#F7F8F3;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#6B766F">평균 별점</span><span style="display:flex;align-items:center;gap:5px"><svg width="18" height="18" viewBox="0 0 24 24" fill="#FFB627"><path d="M12 2.8l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 17l-5.8 3.3 1.4-6.4-4.9-4.4 6.5-.7z"></path></svg><span style="font-family:'Jua',sans-serif;font-size:22px">{{sp.rating}}</span><span style="font-size:12px;color:#6B766F">리뷰 {{sp.reviews}}</span></span></div>
+          <div style="padding:14px 16px;border-radius:18px;background:#F7F8F3;display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#6B766F">내 배지</span><span style="display:flex;align-items:baseline;gap:3px"><span style="font-family:'Jua',sans-serif;font-size:22px;color:#1C854B">{{sp.count}}</span><span style="font-size:13px;font-weight:600;color:#3D4741">개 모았어요</span></span></div>
+        </div>
+
+        <sc-if value="{{ctaActive}}" hint-placeholder-val="{{false}}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button onClick="{{startCheckin}}" style="height:60px;border:none;border-radius:20px;background:#1C854B;color:#FFFFFF;font:inherit;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16),0 8px 16px rgba(28,133,75,.28);cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><path d="M9 9.5l2 2 4-4"></path></svg>{{ctaLabel}}</button>
+            <span style="text-align:center;font-size:13px;color:#6B766F">공원 안에 있어요 · 20분 머무르면 배지를 받아요</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ctaOutside}}" hint-placeholder-val="{{false}}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button style="height:60px;border:none;border-radius:20px;background:#EEF2EF;color:#8F9A93;font:inherit;font-size:18px;font-weight:700;cursor:not-allowed">체크인하기</button>
+            <span style="display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:600;color:#3D4741"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B766F" stroke-width="2.4" stroke-linecap="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>공원 안에서 체크인할 수 있어요 · 지금 {{sp.dist}}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ctaDone}}" hint-placeholder-val="{{false}}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="height:60px;border-radius:20px;background:#FFF2CF;color:#A86400;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A86400" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>오늘 배지를 받았어요</div>
+            <span style="text-align:center;font-size:13px;color:#6B766F">같은 공원은 하루 1개 · 내일 또 받을 수 있어요</span>
+          </div>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:14px;padding:18px 16px 16px;border-radius:24px;background:#F2FAF4">
+          <div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px;font-weight:800">이달의 시상대</span><span style="padding:2px 8px;border-radius:8px;background:#FFFFFF;font-size:12px;font-weight:700;color:#1C854B">10월</span><span onClick="{{showRanking}}" style="margin-left:auto;font-size:13px;font-weight:700;color:#1C854B;cursor:pointer">전체 랭킹 ›</span></div>
+          <div style="display:flex;align-items:flex-end;justify-content:center;gap:10px;padding-top:4px">
+            <sc-for list="{{podium}}" as="pd" hint-placeholder-count="3">
+              <div style="width:92px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                <dc-import name="Critter" look="{{art}}" animal="{{pd.animal}}" size="{{pd.size}}" hint-size="48px,48px"></dc-import>
+                <span style="font-size:12px;font-weight:700;color:#1E2420;white-space:nowrap">{{pd.name}}</span>
+                <span style="font-size:11px;font-weight:600;color:#6B766F">배지 {{pd.count}}개</span>
+                <div style="width:100%;height:{{pd.h}};margin-top:4px;border-radius:14px 14px 6px 6px;background:{{pd.bg}};display:flex;justify-content:center;padding-top:8px;box-sizing:border-box;box-shadow:inset 0 -4px 0 rgba(0,0,0,.08)"><span style="font-family:'Jua',sans-serif;font-size:24px;color:{{pd.fg}}">{{pd.rank}}</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#FFFFFF">
+            <dc-import name="Critter" look="{{art}}" animal="{{me}}" size="34" hint-size="34px,34px"></dc-import>
+            <div style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700">나뭇잎 (나) · {{myRank}}위</span><span style="font-size:12px;color:#6B766F">이달 배지 {{myMonthly}}개</span></div>
+            <span style="margin-left:auto;padding:5px 10px;border-radius:99px;background:#FFF2CF;font-size:12px;font-weight:700;color:#A86400;white-space:nowrap">시상대까지 {{toPodium}}개</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px;font-weight:800">리뷰</span><span style="font-size:14px;font-weight:600;color:#6B766F">{{sp.reviews}}개</span><span style="margin-left:auto;font-size:13px;font-weight:700;color:#1C854B">전체 보기 ›</span></div>
+          <sc-for list="{{keywords}}" as="kw" hint-placeholder-count="3">
+            <div style="position:relative;height:38px;border-radius:12px;background:#F7F8F3;overflow:hidden;display:flex;align-items:center;padding:0 14px">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:{{kw.w}};background:#E2F4E8"></div>
+              <span style="position:relative;font-size:14px;font-weight:600">{{kw.label}}</span>
+              <span style="position:relative;margin-left:auto;font-size:13px;font-weight:700;color:#1C854B">{{kw.n}}</span>
+            </div>
+          </sc-for>
+          <sc-for list="{{reviewList}}" as="rv" hint-placeholder-count="2">
+            <div style="display:flex;gap:10px;padding:14px 0;border-top:1px solid #EEF2EF">
+              <dc-import name="Critter" look="{{art}}" animal="{{rv.animal}}" size="36" hint-size="36px,36px"></dc-import>
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;font-weight:700">{{rv.name}} <span style="color:#E08F00">{{rv.stars}}</span></span><span style="font-size:14px;line-height:1.5;color:#3D4741;text-wrap:pretty">{{rv.text}}</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- CHECK-IN -->
+  <sc-if value="{{isCheckin}}" hint-placeholder-val="{{false}}">
+    <div style="position:absolute;inset:0;background:#F2FAF4;z-index:40;display:flex;flex-direction:column;padding-top:54px;animation:pk-fade .25s">
+      <div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px">
+        <div onClick="{{askCancel}}" style="width:44px;height:44px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(22,61,40,.08)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3D4741" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:12px;font-weight:700;color:#1C854B">근린공원</span><span style="font-size:17px;font-weight:800">보라매공원</span></div>
+        <div onClick="{{toMapKeep}}" style="width:44px;height:44px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(22,61,40,.08)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3D4741" stroke-width="2.2" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z M9 4v14 M15 6v14"></path></svg></div>
+      </div>
+
+      <sc-if value="{{softWait}}" hint-placeholder-val="{{true}}">
+        <div style="position:relative;margin:8px 16px 0;height:200px;border-radius:30px;background:linear-gradient(#DCEFF8,#EEF8F2);overflow:hidden">
+          <div style="position:absolute;right:40px;top:26px;width:52px;height:52px;border-radius:50%;background:#FFD77A;box-shadow:0 0 0 12px rgba(255,215,122,.28)"></div>
+          <div style="position:absolute;left:150px;top:36px;width:70px;height:20px;border-radius:10px;background:#FFFFFF;opacity:.9"></div>
+          <div style="position:absolute;left:176px;top:26px;width:34px;height:24px;border-radius:12px;background:#FFFFFF;opacity:.9"></div>
+          <div style="position:absolute;left:64px;bottom:60px;width:12px;height:60px;border-radius:6px;background:#B98A5E"></div>
+          <div style="position:absolute;left:30px;bottom:96px;width:80px;height:74px;border-radius:50%;background:#57B87B"></div>
+          <div style="position:absolute;left:52px;bottom:120px;width:56px;height:52px;border-radius:50%;background:#6CC48C"></div>
+          <div style="position:absolute;left:-40px;right:-40px;bottom:-130px;height:200px;border-radius:50%;background:#9FDDB5"></div>
+          <div style="position:absolute;left:50%;bottom:30px;animation:pk-bob 3s ease-in-out infinite"><dc-import name="Critter" look="{{art}}" animal="{{me}}" mood="sleep" size="100" hint-size="100px,100px"></dc-import></div>
+          <div style="position:absolute;left:236px;bottom:118px;font-family:'Jua',sans-serif;font-size:20px;color:#6B766F;animation:pk-z 2.4s ease-out infinite">z</div>
+          <div style="position:absolute;left:248px;bottom:132px;font-family:'Jua',sans-serif;font-size:15px;color:#6B766F;animation:pk-z 2.4s 1.2s ease-out infinite">z</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{sketchWait}}" hint-placeholder-val="{{false}}">
+        <div style="position:relative;margin:8px 16px 0;height:200px;border-radius:30px;background:#EEF7FB;overflow:hidden;border:2.5px solid #2B2620;box-sizing:border-box">
+          <svg width="361" height="200" viewBox="0 0 361 200" style="position:absolute;inset:0"><circle cx="300" cy="48" r="20" fill="#FFD77A" stroke="#2B2620" stroke-width="2"></circle><g stroke="#2B2620" stroke-width="2" stroke-linecap="round"><path d="M300 16 V8 M330 48 H338 M321 27 L327 21 M279 27 L273 21 M321 69 L327 75"></path></g><path d="M150 46 q 12 -12 26 0 q 12 -9 22 3 q 10 2 6 10 h-56 q -8 -6 2 -13 z" fill="#FFFFFF" stroke="#2B2620" stroke-width="2" stroke-linejoin="round"></path><path d="M-10 156 Q 90 116 180 142 T 371 134 V 210 H -10 Z" fill="#9FDDB5" stroke="#2B2620" stroke-width="2.5"></path><path d="M62 140 V 96" stroke="#2B2620" stroke-width="3" stroke-linecap="round"></path><path d="M62 52 q 26 -2 26 22 q 6 20 -18 26 q -16 6 -28 -4 q -14 -14 -2 -30 q 6 -14 22 -14 z" fill="#57B87B" stroke="#2B2620" stroke-width="2.5"></path><path d="M260 150 q 4 -10 8 0 M276 154 q 4 -10 8 0" stroke="#2B2620" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>
+          <div style="position:absolute;left:50%;bottom:26px;animation:pk-bob 3s ease-in-out infinite"><dc-import name="Critter" look="sketch" animal="{{me}}" mood="sleep" size="100" hint-size="100px,100px"></dc-import></div>
+          <div style="position:absolute;left:236px;bottom:118px;font-family:'Gaegu',cursive;font-weight:700;font-size:24px;color:#2B2620;animation:pk-z 2.4s ease-out infinite">z</div>
+          <div style="position:absolute;left:250px;bottom:134px;font-family:'Gaegu',cursive;font-weight:700;font-size:18px;color:#2B2620;animation:pk-z 2.4s 1.2s ease-out infinite">z</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{warnOn}}" hint-placeholder-val="{{false}}">
+        <div style="margin:8px 16px 0;height:200px;box-sizing:border-box;border-radius:30px;background:#FDE8E5;padding:20px;display:flex;gap:14px;align-items:stretch;border:2px solid #F7C3BD">
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+            <span style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:800;color:#C53A2F"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C53A2F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"></path><path d="M12 10v5 M12 18h.01"></path></svg>공원 밖으로 나갔어요</span>
+            <span style="font-size:21px;font-weight:800;line-height:1.3">1분 안에 공원으로<br>돌아오세요</span>
+            <span style="margin-top:auto;display:flex;align-items:flex-end;gap:8px"><dc-import name="Critter" look="{{art}}" animal="{{me}}" mood="sad" size="52" hint-size="52px,52px"></dc-import><span style="font-size:12px;line-height:1.4;color:#6B766F;padding-bottom:4px">밖에 있는 동안은<br>타이머가 멈춰요</span></span>
+          </div>
+          <div style="width:112px;border-radius:22px;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:12px;font-weight:700;color:#6B766F">남은 시간</span><span style="font-family:'Jua',sans-serif;font-size:46px;color:#C53A2F;line-height:1;animation:pk-blink 1s steps(2) infinite">{{warnText}}</span></div>
+        </div>
+      </sc-if>
+
+      <div style="position:relative;width:260px;height:260px;margin:28px auto 0">
+        <svg width="260" height="260" viewBox="0 0 260 260" style="transform:rotate(-90deg)"><circle cx="130" cy="130" r="114" fill="none" stroke="#DDEFE3" stroke-width="20"></circle><circle cx="130" cy="130" r="114" fill="none" stroke="{{ringColor}}" stroke-width="20" stroke-linecap="round" stroke-dasharray="716.3" stroke-dashoffset="{{ringOffset}}" style="transition:stroke-dashoffset .1s linear"></circle></svg>
+        <div style="position:absolute;inset:34px;border-radius:50%;background:#FFFFFF;box-shadow:0 8px 24px rgba(22,61,40,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+          <span style="font-size:14px;font-weight:700;color:{{ringLabelColor}}">{{ringLabel}}</span>
+          <span style="font-family:'Jua',sans-serif;font-size:62px;line-height:1;color:{{remainColor}}">{{remain}}</span>
+          <span style="font-size:13px;color:#6B766F">20분 중 {{stayedMin}}분 머물렀어요</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:center;margin-top:22px">
+        <sc-if value="{{notWarn}}" hint-placeholder-val="{{true}}"><span style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;background:#FFFFFF;font-size:14px;font-weight:700;color:#1C854B"><span style="width:8px;height:8px;border-radius:50%;background:#34B36B;box-shadow:0 0 0 4px rgba(52,179,107,.2)"></span>공원 안에 있어요 · 앱을 닫아도 기록돼요</span></sc-if>
+        <sc-if value="{{warnOn}}" hint-placeholder-val="{{false}}"><span style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;background:#FFFFFF;font-size:14px;font-weight:700;color:#C53A2F"><span style="width:8px;height:8px;border-radius:50%;background:#E5483D"></span>공원 경계에서 80m 벗어났어요</span></sc-if>
+      </div>
+
+      <div style="position:absolute;left:20px;right:20px;bottom:34px;display:flex;flex-direction:column;align-items:center;gap:10px">
+        <sc-if value="{{demoLeave}}" hint-placeholder-val="{{false}}"><button onClick="{{leavePark}}" style="height:32px;padding:0 14px;border-radius:99px;border:1.5px dashed #B5BFB8;background:transparent;font:inherit;font-size:12px;font-weight:600;color:#6B766F;cursor:pointer">데모 · 공원 밖으로 나가보기</button></sc-if>
+        <sc-if value="{{demoReturn}}" hint-placeholder-val="{{false}}"><button onClick="{{returnPark}}" style="height:32px;padding:0 14px;border-radius:99px;border:1.5px dashed #B5BFB8;background:transparent;font:inherit;font-size:12px;font-weight:600;color:#6B766F;cursor:pointer">데모 · 공원으로 돌아오기</button></sc-if>
+        <button onClick="{{askCancel}}" style="width:100%;height:56px;border:none;border-radius:20px;background:#FFFFFF;font:inherit;font-size:16px;font-weight:700;color:#3D4741;cursor:pointer;box-shadow:0 2px 8px rgba(22,61,40,.06)">체크인 그만두기</button>
+      </div>
+
+      <sc-if value="{{dialogOn}}" hint-placeholder-val="{{false}}">
+        <div style="position:absolute;inset:0;background:rgba(22,40,30,.42);display:flex;align-items:center;justify-content:center;animation:pk-fade .2s;z-index:5">
+          <div style="width:318px;box-sizing:border-box;padding:26px 22px 18px;border-radius:30px;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;animation:pk-rise .28s ease-out">
+            <dc-import name="Critter" look="{{art}}" animal="{{me}}" mood="sad" size="72" hint-size="72px,72px"></dc-import>
+            <span style="margin-top:6px;font-size:20px;font-weight:800">체크인을 그만둘까요?</span>
+            <span style="font-size:14px;line-height:1.55;color:#6B766F;text-wrap:pretty">지금까지 머문 {{stayedMin}}분은 저장되지 않아요.<br>20분을 채워야 배지를 받을 수 있어요.</span>
+            <button onClick="{{keepGoing}}" style="margin-top:14px;width:100%;height:54px;border:none;border-radius:18px;background:#1C854B;color:#FFFFFF;font:inherit;font-size:16px;font-weight:700;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16);cursor:pointer">계속 머무르기</button>
+            <button onClick="{{confirmCancel}}" style="width:100%;height:46px;border:none;border-radius:16px;background:transparent;color:#C53A2F;font:inherit;font-size:15px;font-weight:700;cursor:pointer">그만두기</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- FAIL -->
+  <sc-if value="{{isFail}}" hint-placeholder-val="{{false}}">
+    <div style="position:absolute;inset:0;background:#F7F8F3;z-index:40;display:flex;flex-direction:column;align-items:center;padding:150px 24px 0;box-sizing:border-box;text-align:center;animation:pk-fade .3s">
+      <div style="position:relative;width:180px;height:180px;border-radius:50%;background:#EEF2EF;display:flex;align-items:center;justify-content:center">
+        <dc-import name="Critter" look="{{art}}" animal="{{me}}" mood="sad" size="112" hint-size="112px,112px"></dc-import>
+        <sc-if value="{{failMidnight}}" hint-placeholder-val="{{false}}"><div style="position:absolute;top:6px;right:-4px;padding:6px 10px;border-radius:14px;background:#1E2420;color:#FFD77A;font-family:'Jua',sans-serif;font-size:18px">00:00</div></sc-if>
+        <sc-if value="{{failLeave}}" hint-placeholder-val="{{false}}"><div style="position:absolute;top:8px;right:0;width:44px;height:44px;border-radius:50%;background:#FDE8E5;border:3px solid #F7F8F3;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C53A2F" stroke-width="2.4" stroke-linecap="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><path d="M9.5 7l5 5M14.5 7l-5 5"></path></svg></div></sc-if>
+      </div>
+      <span style="margin-top:28px;font-size:24px;font-weight:800;letter-spacing:-0.02em">{{failTitle}}</span>
+      <span style="margin-top:10px;font-size:15px;line-height:1.6;color:#6B766F;max-width:300px;text-wrap:pretty">{{failBody}}</span>
+      <div style="margin-top:24px;width:100%;box-sizing:border-box;padding:6px 18px;border-radius:22px;background:#FFFFFF;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #EEF2EF;font-size:14px"><span style="color:#6B766F">공원</span><span style="font-weight:700">보라매공원</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #EEF2EF;font-size:14px"><span style="color:#6B766F">머문 시간</span><span style="font-weight:700">{{stayedText}}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;font-size:14px"><span style="color:#6B766F">끊긴 이유</span><span style="font-weight:700;color:#C53A2F">{{failReason}}</span></div>
+      </div>
+      <div style="position:absolute;left:20px;right:20px;bottom:40px;display:flex;flex-direction:column;gap:10px">
+        <button onClick="{{retry}}" style="height:58px;border:none;border-radius:20px;background:#1C854B;color:#FFFFFF;font:inherit;font-size:17px;font-weight:700;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16),0 8px 16px rgba(28,133,75,.25);cursor:pointer">{{retryLabel}}</button>
+        <button onClick="{{toMap}}" style="height:54px;border:none;border-radius:20px;background:#EEF2EF;color:#3D4741;font:inherit;font-size:16px;font-weight:700;cursor:pointer">지도로 돌아가기</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- BADGE -->
+  <sc-if value="{{isBadge}}" hint-placeholder-val="{{false}}">
+    <div style="position:absolute;inset:0;background:#1F7A47;z-index:40;overflow:hidden;display:flex;flex-direction:column;align-items:center;padding-top:104px;box-sizing:border-box;animation:pk-fade .3s">
+      <div style="position:absolute;left:50%;top:250px;width:820px;height:820px;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.08) 0deg 9deg, rgba(255,255,255,0) 9deg 18deg);-webkit-mask-image:radial-gradient(circle,#000 20%,transparent 62%);mask-image:radial-gradient(circle,#000 20%,transparent 62%);transform:translate(-50%,-50%);animation:pk-spin 40s linear infinite"></div>
+      <div style="position:absolute;left:50%;top:250px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,102,.5),rgba(255,214,102,0) 70%);transform:translate(-50%,-50%)"></div>
+      <sc-for list="{{confetti}}" as="cf" hint-placeholder-count="0"><div style="{{cf}}"></div></sc-for>
+      <div onClick="{{toMap}}" style="position:absolute;top:58px;right:18px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></div>
+      <span style="position:relative;padding:7px 14px;border-radius:99px;background:rgba(255,255,255,.16);font-size:14px;font-weight:700;color:#FFFFFF">짠! 새 배지를 받았어요</span>
+      <div style="position:relative;margin-top:22px;animation:pk-pop .8s cubic-bezier(.3,1.4,.5,1) both"><dc-import name="ParkBadge" look="{{art}}" type="neighbor" size="168" hint-size="168px,168px"></dc-import></div>
+      <span style="position:relative;margin-top:22px;font-family:'Jua',sans-serif;font-size:36px;color:#FFFFFF;animation:pk-rise .5s .3s both">근린공원 배지</span>
+      <span style="position:relative;margin-top:6px;font-size:15px;color:#E2F4E8;animation:pk-rise .5s .4s both">보라매공원 · 이 공원에서 4번째 배지예요</span>
+      <div style="position:relative;width:353px;margin-top:24px;display:flex;flex-direction:column;gap:10px;animation:pk-rise .5s .55s both">
+        <sc-if value="{{showAch}}" hint-placeholder-val="{{true}}">
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:24px;background:#FFFFFF">
+            <dc-import name="ParkBadge" look="{{art}}" type="ach" label="10" size="56" hint-size="56px,56px"></dc-import>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="align-self:flex-start;padding:2px 8px;border-radius:7px;background:#FFF2CF;font-size:11px;font-weight:800;color:#A86400">새 업적</span><span style="font-size:16px;font-weight:800">서로 다른 공원 10곳</span><span style="font-size:13px;color:#6B766F">공원 탐험가 업적을 달성했어요</span></div>
+          </div>
+        </sc-if>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:24px;background:#FFFFFF">
+          <dc-import name="Critter" look="{{art}}" animal="{{me}}" size="46" hint-size="46px,46px"></dc-import>
+          <div style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;color:#6B766F">이달 보라매공원 랭킹</span><span style="display:flex;align-items:center;gap:6px"><span style="font-family:'Jua',sans-serif;font-size:26px">5위</span><span style="padding:2px 7px;border-radius:7px;background:#E2F4E8;font-size:12px;font-weight:800;color:#1C854B">▲ 1</span></span></div>
+          <span style="font-size:12px;font-weight:700;color:#A86400;text-align:right;line-height:1.4">시상대까지<br>배지 3개</span>
+        </div>
+      </div>
+      <div style="position:absolute;left:20px;right:20px;bottom:40px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onClick="{{writeReview}}" style="height:58px;border:none;border-radius:20px;background:rgba(255,255,255,.16);color:#FFFFFF;font:inherit;font-size:17px;font-weight:700;cursor:pointer">리뷰 쓰기</button>
+        <button onClick="{{showRanking}}" style="height:58px;border:none;border-radius:20px;background:#FFB627;color:#1E2420;font:inherit;font-size:17px;font-weight:800;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12);cursor:pointer">랭킹 보기</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{toastOn}}" hint-placeholder-val="{{false}}">
+    <div style="position:absolute;left:50%;bottom:104px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:16px;background:#1E2420;color:#FFFFFF;font-size:14px;font-weight:600;white-space:nowrap;z-index:80;box-shadow:0 8px 20px rgba(0,0,0,.2);animation:pk-rise .25s ease-out"><span style="width:18px;height:18px;border-radius:50%;background:#34B36B;display:flex;align-items:center;justify-content:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>{{toast}}</div>
+  </sc-if>
+
+  <div style="position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 40px;box-sizing:border-box;z-index:90;color:{{sbColor}};pointer-events:none;font-size:17px;font-weight:700">
+    <span>9:41</span>
+    <div style="display:flex;gap:6px;align-items:center">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"></rect><rect x="5" y="5.5" width="3" height="6.5" rx="1"></rect><rect x="10" y="3" width="3" height="9" rx="1"></rect><rect x="15" y="0" width="3" height="12" rx="1"></rect></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l1.2-1.3A10.3 10.3 0 0 0 8 .7 10.3 10.3 0 0 0 .8 3.6L2 4.9a8.6 8.6 0 0 1 6-2.4zm0 3.6c1.3 0 2.5.5 3.4 1.3l1.2-1.3A6.8 6.8 0 0 0 8 4.3a6.8 6.8 0 0 0-4.6 1.8l1.2 1.3c.9-.8 2.1-1.3 3.4-1.3zm0 3.5a1.7 1.7 0 0 0-1.2.5L8 11.4l1.2-1.3A1.7 1.7 0 0 0 8 9.6z"></path></svg>
+      <div style="width:25px;height:12px;border-radius:4px;border:1.5px solid currentColor;opacity:.9;padding:1.5px;box-sizing:border-box"><div style="width:75%;height:100%;border-radius:1.5px;background:currentColor"></div></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:{{sbColor}};z-index:90;pointer-events:none"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:393,&quot;height&quot;:852},&quot;scene&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;map&quot;,&quot;map-checking&quot;,&quot;map-empty&quot;,&quot;sheet-active&quot;,&quot;sheet-outside&quot;,&quot;sheet-done&quot;,&quot;checkin&quot;,&quot;warning&quot;,&quot;cancel&quot;,&quot;fail-leave&quot;,&quot;fail-midnight&quot;,&quot;badge&quot;],&quot;default&quot;:&quot;map&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;interactive&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;character&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;cheese&quot;,&quot;black&quot;,&quot;calico&quot;,&quot;tuxedo&quot;,&quot;shiba&quot;,&quot;maltese&quot;,&quot;beagle&quot;,&quot;corgi&quot;],&quot;default&quot;:&quot;cheese&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;art&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;soft&quot;,&quot;sketch&quot;],&quot;default&quot;:&quot;soft&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;demoSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;min&quot;:1,&quot;max&quot;:120,&quot;step&quot;:1,&quot;default&quot;:60,&quot;tsType&quot;:&quot;number&quot;}}">
+const TYPES = {
+  neighbor:{name:'근린공원',fg:'#1C854B',bg:'#E2F4E8'}, kids:{name:'어린이공원',fg:'#A86400',bg:'#FFF2CF'},
+  small:{name:'소공원',fg:'#B23A5E',bg:'#FDE7EE'}, sports:{name:'체육공원',fg:'#3550C4',bg:'#E6EBFD'},
+  water:{name:'수변공원',fg:'#1F78A8',bg:'#E2F3FB'}, culture:{name:'문화공원',fg:'#6E45B8',bg:'#F0E9FC'},
+  history:{name:'역사공원',fg:'#8E5229',bg:'#F7EADF'}
+};
+const ICON = {
+  neighbor:'M5 19c0-8 6-14 14-14 0 8-6 14-14 14z M5 19l7-7',
+  kids:'M12 3l2.6 5.6 6.1.7-4.5 4.1 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.1 6.1-.7z',
+  small:'M12 21v-8 M12 13c0-4-3-7-7-7 0 4 3 7 7 7z M12 11c0-4 3-7 7-7 0 4-3 7-7 7z',
+  sports:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 3c-3.5 4-3.5 14 0 18 M12 3c3.5 4 3.5 14 0 18 M3 12h18',
+  water:'M3 8c2-2 4-2 6 0s4 2 6 0 4-2 6 0 M3 13c2-2 4-2 6 0s4 2 6 0 4-2 6 0 M3 18c2-2 4-2 6 0s4 2 6 0 4-2 6 0',
+  culture:'M9 18V6l10-2v12 M9 18a2.5 2.5 0 1 1-5 0a2.5 2.5 0 1 1 5 0z M19 16a2.5 2.5 0 1 1-5 0a2.5 2.5 0 1 1 5 0z',
+  history:'M3 8h18 M5 4.5h14 M6 8v12 M18 8v12 M10 20v-6h4v6 M3 20h18'
+};
+const PARKS = [
+  {id:'boramae',name:'보라매공원',type:'neighbor',addr:'동작구 여의대방로20길 33',dist:'지금 공원 안',x:175,y:372,st:'collected',count:3,inside:true,rating:'4.6',reviews:128},
+  {id:'sindaebang',name:'신대방어린이공원',type:'kids',addr:'동작구 신대방동 395',dist:'640m',x:84,y:292,st:'none',count:0,rating:'4.2',reviews:17},
+  {id:'sayuksin',name:'사육신역사공원',type:'history',addr:'동작구 노량진로 191',dist:'870m',x:222,y:232,st:'none',count:0,rating:'4.5',reviews:52},
+  {id:'dorim',name:'도림천수변공원',type:'water',addr:'동작구 도림천로 일대',dist:'510m',x:308,y:316,st:'today',count:5,rating:'4.4',reviews:89},
+  {id:'daebang',name:'대방소공원',type:'small',addr:'동작구 대방동 13-2',dist:'720m',x:113,y:546,st:'none',count:0,rating:'4.0',reviews:9},
+  {id:'sangdo',name:'상도체육공원',type:'sports',addr:'동작구 상도로 112',dist:'690m',x:321,y:530,st:'collected',count:1,rating:'4.3',reviews:34}
+];
+const SCENES = {
+  'map':{}, 'map-checking':{checking:true,elapsed:446}, 'map-empty':{empty:true},
+  'sheet-active':{sheet:'boramae'}, 'sheet-outside':{sheet:'sayuksin'}, 'sheet-done':{sheet:'dorim'},
+  'checkin':{screen:'checkin',checking:true,elapsed:446}, 'warning':{screen:'checkin',checking:true,elapsed:446,warn:42},
+  'cancel':{screen:'checkin',checking:true,elapsed:446,dialog:true},
+  'fail-leave':{screen:'fail',reason:'leave',elapsed:446}, 'fail-midnight':{screen:'fail',reason:'midnight',elapsed:446},
+  'badge':{screen:'badge',earned:true}
+};
+const CONF = Array.from({length:22}, (_, i) => {
+  const r = n => ((Math.sin(i * 12.9898 + n * 78.233) * 43758.5453) % 1 + 1) % 1;
+  const cols = ['#FFB627','#FFFFFF','#9FDDB5','#F58BA6','#4FB3E8','#FFD77A'];
+  return {position:'absolute',left:(r(1) * 100) + '%',top:'-30px',width:(6 + r(2) * 6) + 'px',height:(9 + r(3) * 9) + 'px',borderRadius:r(4) > .5 ? '3px' : '50%',background:cols[i % 6],opacity:.9,animation:`pk-fall ${4 + r(5) * 3}s ${-r(6) * 6}s linear infinite`};
+});
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+class Component extends DCLogic {
+  state = this.init(this.props.scene);
+  init(scene) {
+    return {screen:'map',sheet:null,checking:false,empty:false,elapsed:0,warn:0,dialog:false,reason:'leave',toast:null,earned:false, ...(SCENES[scene || 'map'] || {})};
+  }
+  live() { return this.props.interactive ?? true; }
+  componentDidMount() { this.iv = setInterval(() => this.tick(), 100); }
+  componentWillUnmount() { clearInterval(this.iv); clearTimeout(this.tt); }
+  componentDidUpdate(pp) { if (pp.scene !== this.props.scene) this.setState(this.init(this.props.scene)); }
+  tick() {
+    if (!this.live()) return;
+    const st = this.state, sp = Number(this.props.demoSpeed ?? 60);
+    if (!st.checking || st.dialog) return;
+    if (st.warn > 0) {
+      const w = st.warn - 0.1 * Math.max(1, sp / 10);
+      this.setState(w <= 0 ? {warn:0,checking:false,screen:'fail',reason:'leave'} : {warn:w});
+      return;
+    }
+    const e = st.elapsed + 0.1 * sp;
+    this.setState(e >= 1200 ? {elapsed:1200,checking:false,screen:'badge',earned:true} : {elapsed:e});
+  }
+  act(patch) { if (this.live()) this.setState(patch); }
+  toast(msg) { if (!this.live()) return; this.setState({toast:msg}); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({toast:null}), 2200); }
+  renderVals() {
+    const st = this.state, me = this.props.character ?? 'cheese';
+    const parks = PARKS.map(p => p.id === 'boramae' && st.earned ? {...p, st:'today', count:4} : p);
+    const markers = st.empty ? [] : parks.map(p => ({...p, left:p.x + 'px', top:p.y + 'px', icon:ICON[p.type], isNone:p.st === 'none', isCol:p.st === 'collected', isToday:p.st === 'today', tf: st.sheet === p.id ? 'translate(-50%,-100%) scale(1.15)' : 'translate(-50%,-100%)', onTap:() => this.act({sheet:p.id})}));
+    const s0 = parks.find(p => p.id === st.sheet) || parks[0], T = TYPES[s0.type];
+    const sp = {...s0, typeName:T.name, tagBg:T.bg, tagFg:T.fg};
+    const cta = sp.st === 'today' ? 'done' : sp.inside ? 'active' : 'outside';
+    const remainS = Math.max(0, 1200 - st.elapsed), warnOn = st.warn > 0;
+    const myMonthly = st.earned ? 4 : 3;
+    const pod = [
+      {rank:2,name:'초록발',animal:'frog',count:9,h:'70px',bg:'#DCE3DE',fg:'#3D4741',size:46},
+      {rank:1,name:'두부산책',animal:'dog',count:12,h:'96px',bg:'#FFB627',fg:'#7A4A00',size:56},
+      {rank:3,name:'오리걸음',animal:'duck',count:6,h:'54px',bg:'#F3C9A6',fg:'#8E5229',size:46}
+    ];
+    const isReason = st.reason === 'midnight';
+    const art = this.props.art ?? 'soft', sk = art === 'sketch';
+    return {
+      art, softArt: !sk, sketchArt: sk, softWait: !warnOn && !sk, sketchWait: !warnOn && sk,
+      me, markers, sp, podium:pod, confetti:CONF,
+      parkOpacity: st.empty ? 0 : 1,
+      pillCount: st.empty ? '공원 0곳' : '공원 6곳',
+      showPill: !st.checking, showBanner: st.checking && st.screen === 'map',
+      showLegend: !st.empty, isEmpty: st.empty,
+      showSheet: !!st.sheet && st.screen === 'map',
+      ctaActive: cta === 'active', ctaOutside: cta === 'outside', ctaDone: cta === 'done',
+      ctaLabel: st.checking ? '체크인 진행 중 · 이어서 보기' : '여기서 체크인하기',
+      myRank: st.earned ? 5 : 6, myMonthly, toPodium: 6 - myMonthly + 1,
+      keywords: [{label:'산책로가 좋아요',n:64,w:'78%'},{label:'그늘이 많아요',n:41,w:'52%'},{label:'강아지랑 오기 좋아요',n:23,w:'30%'}],
+      reviewList: [
+        {name:'두부산책',animal:'dog',stars:'★★★★★',text:'아침 일찍 오면 조용해요. 호수 한 바퀴 돌면 딱 20분!'},
+        {name:'구름빵',animal:'rabbit',stars:'★★★★',text:'벤치가 많아서 배지 기다리며 쉬기 좋아요.'}
+      ],
+      isCheckin: st.screen === 'checkin', isFail: st.screen === 'fail', isBadge: st.screen === 'badge',
+      remain: fmt(remainS), stayedMin: Math.floor(st.elapsed / 60), stayedText: `${Math.floor(st.elapsed / 60)}분 ${Math.floor(st.elapsed % 60)}초`,
+      ringOffset: (716.3 * remainS / 1200).toFixed(1), bannerOffset: (125.7 * remainS / 1200).toFixed(1),
+      ringColor: warnOn ? '#FFB627' : '#34B36B', ringLabel: warnOn ? '일시정지' : '남은 시간',
+      ringLabelColor: warnOn ? '#A86400' : '#6B766F', remainColor: warnOn ? '#8F9A93' : '#1E2420',
+      warnOn, notWarn: !warnOn, warnText: '0:' + String(Math.ceil(st.warn)).padStart(2, '0'),
+      dialogOn: st.dialog, demoLeave: this.live() && !warnOn, demoReturn: this.live() && warnOn,
+      failLeave: !isReason, failMidnight: isReason,
+      failTitle: isReason ? '자정이 지나 기록이 초기화됐어요' : '체크인이 끊겼어요',
+      failBody: isReason ? '배지는 하루 단위로 지급돼요. 자정을 넘긴 체크인은 오늘 날짜로 새로 시작해야 해요.' : '공원 밖에 1분 넘게 있어서 기록이 멈췄어요. 공원 안에서 다시 시작할 수 있어요.',
+      failReason: isReason ? '자정 리셋 (00:00)' : '공원 이탈 1분 초과',
+      retryLabel: isReason ? '새로 시작하기' : '다시 체크인하기',
+      showAch: true, sbColor: st.screen === 'badge' ? '#FFFFFF' : '#1E2420',
+      toastOn: !!st.toast, toast: st.toast,
+      closeSheet: () => this.act({sheet:null}),
+      startCheckin: () => this.act(st.checking ? {screen:'checkin',sheet:null} : {screen:'checkin',sheet:null,checking:true,elapsed:0,warn:0}),
+      goCheckin: () => this.act({screen:'checkin'}),
+      toMapKeep: () => this.act({screen:'map'}),
+      askCancel: () => this.act({dialog:true}),
+      keepGoing: () => this.act({dialog:false}),
+      confirmCancel: () => { this.act({dialog:false,checking:false,screen:'map',elapsed:0,warn:0}); this.toast('체크인을 그만뒀어요'); },
+      leavePark: () => this.act({warn:60}),
+      returnPark: () => { this.act({warn:0}); this.toast('공원으로 돌아왔어요. 다시 시작!'); },
+      retry: () => this.act({screen:'checkin',checking:true,elapsed:0,warn:0}),
+      toMap: () => this.act({screen:'map',sheet:null}),
+      showRanking: () => this.act({screen:'map',sheet:'boramae'}),
+      writeReview: () => this.toast('리뷰 작성 화면은 다음 단계에서 만들어요'),
+      showNearest: () => this.toast('가장 가까운 공원으로 지도를 옮겨요'),
+      tabDex: () => this.toast('도감 탭은 다음 단계에서 만들어요'),
+      tabMy: () => this.toast('마이 탭은 다음 단계에서 만들어요')
+    };
+  }
+}
+</script>
+</body>
+</html>
