@@ -17,6 +17,11 @@ targets:
       - path: Parknic
         excludes:
           - "**/README.md"
+    entitlements:
+      path: Parknic/App/Parknic.entitlements
+      properties:
+        com.apple.developer.applesignin:
+          - Default
     info:
       path: Parknic/App/Info.plist
       properties:
@@ -40,6 +45,8 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         # 서버 주소는 빌드 설정으로 구분한다. Release 주소는 서버 운영 주소가 정해지면 교체한다.
         API_BASE_URL: http://localhost:8080
+        # Xcode가 문구 카탈로그를 자동으로 고치지 않게 한다(문구는 직접 관리).
+        SWIFT_EMIT_LOC_STRINGS: NO
       configs:
         Release:
           API_BASE_URL: https://api.parknic.example
