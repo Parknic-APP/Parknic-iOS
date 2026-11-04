@@ -36,3 +36,6 @@ GoogleService-Info.plist
 
 # 로그·임시
 *.log
+
+# XcodeGen 생성물 (project.yml에서 `xcodegen generate`로 만든다)
+*.xcodeproj

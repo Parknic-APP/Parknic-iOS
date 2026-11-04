@@ -1,0 +1,44 @@
+name: Parknic
+options:
+  bundleIdPrefix: com.seongmo
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: ""
+targets:
+  Parknic:
+    type: application
+    platform: iOS
+    sources:
+      - path: Parknic
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.seongmo.parknic
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: 파크닉
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIUserInterfaceStyle: Light
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        TARGETED_DEVICE_FAMILY: "1"
+  ParknicTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ParknicTests
+    dependencies:
+      - target: Parknic
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.seongmo.parknic.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Parknic:
+    build:
+      targets:
+        Parknic: all
+    test:
+      targets:
+        - ParknicTests

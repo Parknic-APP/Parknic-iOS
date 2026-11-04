@@ -124,9 +124,10 @@ Parknic/
 - 작업 완료 전에 **빌드가 성공하고 테스트가 통과**해야 한다. 실행하지 못했으면 PR에 그렇게 적는다.
 - 지도·체크인은 시뮬레이터에 한계가 있다. Xcode의 위치 시뮬레이션(GPX 파일)으로 확인하고, 출시 전에는 **실기기 + 실제 공원**에서 테스트한다.
 - 체크인 20분 동안의 배터리 소모를 기록한다.
-- 빌드 예시 (스킴·시뮬레이터 이름은 프로젝트 생성 후 맞춘다):
+- 프로젝트는 XcodeGen으로 관리한다. 클론 후 `brew install xcodegen && xcodegen generate`로 `Parknic.xcodeproj`를 만든다(`project.yml`이 기준, 생성물은 커밋하지 않는다).
+- 빌드 예시 (시뮬레이터 이름은 설치된 기기에 맞춘다):
   ```
-  xcodebuild -scheme Parknic -destination 'platform=iOS Simulator,name=iPhone 16' build test
+  xcodebuild -scheme Parknic -destination 'platform=iOS Simulator,name=iPhone 17e' build test
   ```
 
 ## 9. Git 워크플로
@@ -190,7 +191,7 @@ Parknic/
 
 ## 11. 미결정 사항 (결정되면 이 문서를 갱신)
 
-- 앱 이름 확정(가칭 파크닉) 및 번들 ID
+- 앱 이름 확정(가칭 파크닉). 번들 ID는 `com.seongmo.parknic`으로 정함
 - 캐릭터·배지·일러스트 최종 손그림 에셋 제작 방식(직접 / 외주 / 임시 형태를 SVG로 추출)
 - 손그림 지도 스타일을 네이버 지도 SDK에서 구현할 수 있는지 확인
 - 최소 지원 iOS 버전 재확인(현재 17)
