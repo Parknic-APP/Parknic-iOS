@@ -5,7 +5,7 @@ import Foundation
 final class AppContainer {
     let session: AppSession
     let loginViewModel: LoginViewModel
-    private let userRepository: UserRepository
+    let onboardingViewModel: OnboardingViewModel
 
     init() {
         let tokenStore = KeychainTokenStore()
@@ -18,18 +18,15 @@ final class AppContainer {
 
         #if DEBUG
         let authRepository: AuthRepository = MockAuthRepository()
-        userRepository = MockUserRepository()
+        let userRepository: UserRepository = MockUserRepository()
         #else
         let authRepository: AuthRepository = RemoteAuthRepository(client: client, tokenStore: tokenStore)
-        userRepository = RemoteUserRepository(client: client)
+        let userRepository: UserRepository = RemoteUserRepository(client: client)
         #endif
 
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
             session.didLogin(result)
         }
-    }
-
-    func makeNicknameViewModel() -> NicknameViewModel {
-        NicknameViewModel(repository: userRepository)
+        onboardingViewModel = OnboardingViewModel(repository: userRepository) { session.didFinishOnboarding() }
     }
 }

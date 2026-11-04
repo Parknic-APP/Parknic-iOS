@@ -44,6 +44,8 @@
 
 닉네임 확인 응답(클라이언트 가정, 서버와 확정 필요): `{ "available": true }`. 중복이면 `available: false` 또는 409 `NICKNAME_DUPLICATED` 둘 다 중복으로 처리한다. 닉네임 규칙은 2~10자, 공백 불가로 가정한다.
 
+캐릭터 목록·프로필 저장(클라이언트 가정, 서버와 확정 필요): `GET /api/characters` → `{ "characters": [ { "id": 1, "name": "치즈냥" } ] }`(8종, 이미지는 앱의 `character-<id>` 에셋). `PATCH /api/users/me` 요청 `{ "nickname", "characterId" }`, 닉네임이 중복이면 409 `NICKNAME_DUPLICATED`.
+
 재발급 요청(클라이언트 가정, 서버와 확정 필요): `{ "refreshToken" }` → 응답: `{ "accessToken", "refreshToken" }`
 
 로그인 요청: `{ "token": "<소셜 SDK 토큰>" }` → 응답: `{ "accessToken", "refreshToken", "isNewUser" }`

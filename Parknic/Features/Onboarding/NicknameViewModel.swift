@@ -50,6 +50,12 @@ final class NicknameViewModel {
         startCheck(delay: .zero)
     }
 
+    /// 저장 단계에서 중복이 드러난 경우
+    func markDuplicated() {
+        checkTask?.cancel()
+        status = .duplicated(suggestions: Self.suggestions(for: trimmed))
+    }
+
     func select(suggestion: String) {
         text = suggestion
     }

@@ -6,6 +6,8 @@ private final class StubUserRepository: UserRepository, @unchecked Sendable {
     private var _checked: [String] = []
     var taken: Set<String> = []
     var error: APIError?
+    func characters() async throws -> [AvatarCharacter] { [] }
+    func updateProfile(nickname: String, characterID: Int) async throws {}
 
     var checked: [String] { lock.withLock { _checked } }
 

@@ -8,7 +8,7 @@ struct RootView: View {
         case .loggedOut:
             LoginView(viewModel: container.loginViewModel)
         case .onboarding:
-            OnboardingView(makeNicknameViewModel: container.makeNicknameViewModel)
+            OnboardingView(viewModel: container.onboardingViewModel)
         case .main:
             RootTabView()
         }
