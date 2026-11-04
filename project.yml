@@ -29,6 +29,8 @@ targets:
         NSLocationWhenInUseUsageDescription: 공원 안에 머무는 시간을 재려고 체크인하는 동안 현재 위치를 사용해요.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+        UIBackgroundModes:
+          - location
         UIAppFonts:
           - Pretendard-Regular.otf
           - Pretendard-SemiBold.otf

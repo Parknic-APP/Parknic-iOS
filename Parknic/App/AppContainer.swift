@@ -1,4 +1,5 @@
 import Foundation
+import UserNotifications
 
 /// 의존성 조립. 서버가 준비되기 전(Debug)에는 Mock Repository를 쓴다.
 @MainActor
@@ -6,6 +7,8 @@ final class AppContainer {
     let session: AppSession
     let loginViewModel: LoginViewModel
     let onboardingViewModel: OnboardingViewModel
+    let checkInCoordinator: CheckInCoordinator
+    private let notificationPresenter = ForegroundNotificationPresenter()
 
     init() {
         let tokenStore = KeychainTokenStore()
@@ -19,9 +22,11 @@ final class AppContainer {
         #if DEBUG
         let authRepository: AuthRepository = MockAuthRepository()
         let userRepository: UserRepository = MockUserRepository()
+        let checkInRepository: CheckInRepository = MockCheckInRepository()
         #else
         let authRepository: AuthRepository = RemoteAuthRepository(client: client, tokenStore: tokenStore)
         let userRepository: UserRepository = RemoteUserRepository(client: client)
+        let checkInRepository: CheckInRepository = RemoteCheckInRepository(client: client)
         #endif
 
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
@@ -31,5 +36,10 @@ final class AppContainer {
             repository: userRepository, location: CoreLocationPermissionRequester(),
             notification: UserNotificationPermissionRequester()
         ) { session.didFinishOnboarding() }
+
+        checkInCoordinator = CheckInCoordinator(
+            repository: checkInRepository, location: CoreLocationSampleSource(),
+            notifier: LocalCheckInNotifier(), store: UserDefaultsCheckInStore())
+        UNUserNotificationCenter.current().delegate = notificationPresenter
     }
 }
