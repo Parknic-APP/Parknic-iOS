@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 온보딩 흐름: 닉네임 → 캐릭터 → 권한 안내. 권한 안내는 다음 작업에서 구현한다.
+/// 온보딩 흐름: 닉네임 → 캐릭터 → 권한 안내
 struct OnboardingView: View {
     let viewModel: OnboardingViewModel
 
@@ -15,8 +15,7 @@ struct OnboardingView: View {
                     CharacterSelectView(viewModel: character)
                 }
             case .permission:
-                PKEmptyView(
-                    title: "권한 안내", message: "준비 중이에요", actionTitle: "시작하기", action: viewModel.finish)
+                PermissionGuideView(viewModel: viewModel.permission)
             }
         }
         .background(Color.white)
@@ -48,5 +47,8 @@ struct OnboardingView: View {
 }
 
 #Preview("닉네임") {
-    OnboardingView(viewModel: OnboardingViewModel(repository: MockUserRepository(), onFinished: {}))
+    OnboardingView(
+        viewModel: OnboardingViewModel(
+            repository: MockUserRepository(), location: CoreLocationPermissionRequester(),
+            notification: UserNotificationPermissionRequester(), onFinished: {}))
 }

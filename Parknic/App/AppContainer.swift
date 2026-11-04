@@ -27,6 +27,9 @@ final class AppContainer {
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
             session.didLogin(result)
         }
-        onboardingViewModel = OnboardingViewModel(repository: userRepository) { session.didFinishOnboarding() }
+        onboardingViewModel = OnboardingViewModel(
+            repository: userRepository, location: CoreLocationPermissionRequester(),
+            notification: UserNotificationPermissionRequester()
+        ) { session.didFinishOnboarding() }
     }
 }

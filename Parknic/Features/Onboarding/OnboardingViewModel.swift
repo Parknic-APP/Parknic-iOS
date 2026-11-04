@@ -12,17 +12,20 @@ final class OnboardingViewModel {
     private(set) var step: Step = .nickname
     let nickname: NicknameViewModel
     private(set) var character: CharacterSelectViewModel?
+    let permission: PermissionGuideViewModel
 
     private let repository: UserRepository
-    private let onFinished: () -> Void
 
-    init(repository: UserRepository, onFinished: @escaping () -> Void) {
+    init(
+        repository: UserRepository, location: LocationPermissionRequesting,
+        notification: NotificationPermissionRequesting, onFinished: @escaping () -> Void
+    ) {
         self.repository = repository
-        self.onFinished = onFinished
         self.nickname = NicknameViewModel(repository: repository)
+        self.permission = PermissionGuideViewModel(location: location, notification: notification, onFinished: onFinished)
     }
 
-    var canGoBack: Bool { step == .character }
+    var canGoBack: Bool { step != .nickname }
 
     func nicknameConfirmed() {
         guard let confirmed = nickname.confirmedNickname else { return }
@@ -37,11 +40,11 @@ final class OnboardingViewModel {
     }
 
     func goBack() {
-        if step == .character { step = .nickname }
-    }
-
-    func finish() {
-        onFinished()
+        switch step {
+        case .nickname: break
+        case .character: step = .nickname
+        case .permission: step = .character
+        }
     }
 
     /// 저장하는 사이 다른 사람이 같은 이름을 쓴 경우

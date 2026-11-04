@@ -7,7 +7,9 @@ final class OnboardingViewModelTests: XCTestCase {
         repository: UserRepository = MockUserRepository(takenNicknames: ["두부산책"], delay: .zero),
         finished: @escaping () -> Void = {}
     ) -> OnboardingViewModel {
-        OnboardingViewModel(repository: repository, onFinished: finished)
+        let permissions = StubPermissions()
+        return OnboardingViewModel(
+            repository: repository, location: permissions, notification: permissions, onFinished: finished)
     }
 
     private func confirmNickname(_ model: OnboardingViewModel, _ name: String) async {
@@ -52,7 +54,7 @@ final class OnboardingViewModelTests: XCTestCase {
         await model.character?.confirm()
         XCTAssertEqual(model.step, .permission)
 
-        model.finish()
+        model.permission.skip()
         XCTAssertTrue(finished)
     }
 
@@ -67,6 +69,18 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertEqual(model.step, .nickname)
         if case .duplicated = model.nickname.status {} else { XCTFail("중복 상태여야 한다: \(model.nickname.status)") }
         XCTAssertFalse(model.nickname.canProceed)
+    }
+
+    func test_권한_안내에서_뒤로_가면_캐릭터_단계로_간다() async {
+        let model = makeModel()
+        await confirmNickname(model, "나뭇잎")
+        await model.character?.loadIfNeeded()
+        await model.character?.confirm()
+        XCTAssertEqual(model.step, .permission)
+        XCTAssertTrue(model.canGoBack)
+
+        model.goBack()
+        XCTAssertEqual(model.step, .character)
     }
 
     func test_첫_단계에서는_뒤로_갈_수_없다() {
