@@ -223,6 +223,29 @@ final class CheckInTrackerTests: XCTestCase {
         XCTAssertEqual(tracker.tick().count, 1)
     }
 
+    func test_서버가_자정_경과로_거절하면_실패로_끝난다() {
+        startTracking()
+        clock.advance(by: 1200)
+        _ = tracker.tick()
+        tracker.completionFailed(.midnight)
+        XCTAssertEqual(tracker.state, .failed(session, .midnight))
+    }
+
+    func test_완료_요청_중이_아니면_서버_거절은_무시한다() {
+        startTracking()
+        tracker.completionFailed(.midnight)
+        tracker.completionAbandoned()
+        XCTAssertEqual(tracker.state, .inProgress(session))
+    }
+
+    func test_이미_받은_공원이면_배지_없이_취소로_끝낸다() {
+        startTracking()
+        clock.advance(by: 1200)
+        _ = tracker.tick()
+        tracker.completionAbandoned()
+        XCTAssertEqual(tracker.state, .cancelled(session))
+    }
+
     func test_이탈한_채_20분이_되어도_복귀하기_전에는_완료하지_않는다() {
         startTracking()
         clock.advance(by: 1180)

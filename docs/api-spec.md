@@ -46,6 +46,8 @@
 
 캐릭터 목록·프로필 저장(클라이언트 가정, 서버와 확정 필요): `GET /api/characters` → `{ "characters": [ { "id": 1, "name": "치즈냥" } ] }`(8종, 이미지는 앱의 `character-<id>` 에셋). `PATCH /api/users/me` 요청 `{ "nickname", "characterId" }`, 닉네임이 중복이면 409 `NICKNAME_DUPLICATED`.
 
+체크인 요청·응답(클라이언트 가정, 서버와 확정 필요): 시작 `POST /api/check-ins` 응답과 `GET /api/check-ins/current` 응답은 같은 세션 객체 `{ id, parkId, parkName, latitude, longitude, radiusM, startedAt }`(`startedAt`은 서버 시각, 이 값으로 경과 시간을 계산). 진행 중인 세션이 없으면 `current`는 404. 완료 요청 `{ lat, lng }`은 좌표를 못 구했으면 생략한다. 완료 거절 코드: `CHECKIN_TOO_EARLY`(재시도), `CHECKIN_EXPIRED_MIDNIGHT`·`CHECKIN_OUT_OF_RANGE`(실패로 종료), `BADGE_ALREADY_EARNED_TODAY`(배지 없이 종료).
+
 재발급 요청(클라이언트 가정, 서버와 확정 필요): `{ "refreshToken" }` → 응답: `{ "accessToken", "refreshToken" }`
 
 로그인 요청: `{ "token": "<소셜 SDK 토큰>" }` → 응답: `{ "accessToken", "refreshToken", "isNewUser" }`

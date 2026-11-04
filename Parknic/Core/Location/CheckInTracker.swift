@@ -87,6 +87,18 @@ struct CheckInTracker {
         state = .inProgress(session)
     }
 
+    /// 서버가 완료 요청을 거절하며 세션이 끝났다고 알려준 경우(자정 경과, 서버 기준 반경 밖)
+    mutating func completionFailed(_ reason: CheckInFailureReason) {
+        guard case .completing(let session) = state else { return }
+        state = .failed(session, reason)
+    }
+
+    /// 배지 없이 세션만 끝난 경우(예: 이미 오늘 받은 공원)
+    mutating func completionAbandoned() {
+        guard case .completing(let session) = state else { return }
+        state = .cancelled(session)
+    }
+
     // MARK: 입력
 
     /// 위치가 들어왔다. 정확도가 낮은 샘플은 위치로는 무시하지만 시간 판정은 항상 한다.
