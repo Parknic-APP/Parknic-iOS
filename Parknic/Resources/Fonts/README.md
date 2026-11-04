@@ -1,6 +1,6 @@
 # 폰트
 
-아래 폰트 파일을 이 폴더에 넣고, Xcode 타깃에 추가한 뒤 Info.plist의 `Fonts provided by application`(UIAppFonts)에 등록한다.
+아래 폰트 파일을 이 폴더에 넣는다. 타깃 포함은 자동이고, `project.yml`의 `UIAppFonts`에 파일 이름을 등록한다(폰트를 추가하면 거기도 추가). `FontTests`가 등록 여부를 검사한다.
 둘 다 SIL Open Font License라 앱에 포함해 배포할 수 있다.
 
 | 용도 | 파일 이름 (PostScript 이름과 일치해야 함) |
