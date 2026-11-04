@@ -1,0 +1,116 @@
+{
+  "sourceLanguage": "ko",
+  "strings": {
+    "공원 안에서 체크인할 수 있어요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공원 안에서 체크인할 수 있어요"
+          }
+        }
+      }
+    },
+    "이미 진행 중인 체크인이 있어요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이미 진행 중인 체크인이 있어요"
+          }
+        }
+      }
+    },
+    "오늘 이 공원의 배지는 이미 받았어요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘 이 공원의 배지는 이미 받았어요"
+          }
+        }
+      }
+    },
+    "아직 20분이 지나지 않았어요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 20분이 지나지 않았어요"
+          }
+        }
+      }
+    },
+    "날짜가 바뀌어 체크인이 끝났어요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "날짜가 바뀌어 체크인이 끝났어요"
+          }
+        }
+      }
+    },
+    "배지를 받은 공원에만 리뷰를 쓸 수 있어요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "배지를 받은 공원에만 리뷰를 쓸 수 있어요"
+          }
+        }
+      }
+    },
+    "이미 이 공원에 리뷰를 썼어요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이미 이 공원에 리뷰를 썼어요"
+          }
+        }
+      }
+    },
+    "이미 사용 중인 닉네임이에요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이미 사용 중인 닉네임이에요"
+          }
+        }
+      }
+    },
+    "로그인이 만료됐어요. 다시 로그인해주세요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인이 만료됐어요. 다시 로그인해주세요"
+          }
+        }
+      }
+    },
+    "문제가 생겼어요. 잠시 후 다시 시도해주세요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문제가 생겼어요. 잠시 후 다시 시도해주세요"
+          }
+        }
+      }
+    },
+    "인터넷 연결이 불안정해요. 연결 상태를 확인하고 다시 시도해주세요": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "인터넷 연결이 불안정해요. 연결 상태를 확인하고 다시 시도해주세요"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

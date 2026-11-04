@@ -42,6 +42,8 @@
 | GET | `/api/users/me/reviews` | 내 리뷰 목록 | P1 |
 | GET | `/api/users/{userId}` | 다른 유저 프로필 | P1 |
 
+재발급 요청(클라이언트 가정, 서버와 확정 필요): `{ "refreshToken" }` → 응답: `{ "accessToken", "refreshToken" }`
+
 로그인 요청: `{ "token": "<소셜 SDK 토큰>" }` → 응답: `{ "accessToken", "refreshToken", "isNewUser" }`
 `isNewUser`가 true면 온보딩(닉네임·캐릭터)으로 보낸다.
 
