@@ -42,6 +42,8 @@
 | GET | `/api/users/me/reviews` | 내 리뷰 목록 | P1 |
 | GET | `/api/users/{userId}` | 다른 유저 프로필 | P1 |
 
+닉네임 확인 응답(클라이언트 가정, 서버와 확정 필요): `{ "available": true }`. 중복이면 `available: false` 또는 409 `NICKNAME_DUPLICATED` 둘 다 중복으로 처리한다. 닉네임 규칙은 2~10자, 공백 불가로 가정한다.
+
 재발급 요청(클라이언트 가정, 서버와 확정 필요): `{ "refreshToken" }` → 응답: `{ "accessToken", "refreshToken" }`
 
 로그인 요청: `{ "token": "<소셜 SDK 토큰>" }` → 응답: `{ "accessToken", "refreshToken", "isNewUser" }`

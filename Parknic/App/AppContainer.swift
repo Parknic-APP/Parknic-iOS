@@ -5,6 +5,7 @@ import Foundation
 final class AppContainer {
     let session: AppSession
     let loginViewModel: LoginViewModel
+    private let userRepository: UserRepository
 
     init() {
         let tokenStore = KeychainTokenStore()
@@ -17,12 +18,18 @@ final class AppContainer {
 
         #if DEBUG
         let authRepository: AuthRepository = MockAuthRepository()
+        userRepository = MockUserRepository()
         #else
         let authRepository: AuthRepository = RemoteAuthRepository(client: client, tokenStore: tokenStore)
+        userRepository = RemoteUserRepository(client: client)
         #endif
 
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
             session.didLogin(result)
         }
+    }
+
+    func makeNicknameViewModel() -> NicknameViewModel {
+        NicknameViewModel(repository: userRepository)
     }
 }

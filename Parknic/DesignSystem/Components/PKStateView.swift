@@ -8,6 +8,7 @@ struct PKIllustration: View {
     /// Asset Catalog 이미지 이름. nil이거나 에셋이 없으면 `fallbackSymbol`을 쓴다.
     var assetName: String?
     var fallbackSymbol: String
+    var size: CGFloat = 140
 
     var body: some View {
         Group {
@@ -16,11 +17,11 @@ struct PKIllustration: View {
             } else {
                 Image(systemName: fallbackSymbol)
                     .resizable().scaledToFit()
-                    .padding(Spacing.s28)
+                    .padding(size * 0.2)
                     .foregroundStyle(Color.leaf600)
             }
         }
-        .frame(width: 140, height: 140)
+        .frame(width: size, height: size)
         .accessibilityHidden(true)
     }
 }

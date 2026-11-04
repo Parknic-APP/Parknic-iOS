@@ -44,12 +44,13 @@ struct PKButtonStyle: ButtonStyle {
             .foregroundStyle(foreground)
             .frame(maxWidth: fillsWidth ? .infinity : nil, minHeight: size.height)
             .padding(.horizontal, Spacing.s20)
+            .background(background, in: RoundedRectangle(cornerRadius: Radius.r20))
+            // 하단 두께는 면 뒤에 깔아 아래로 튀어나온 부분만 보이게 한다.
             .background(alignment: .bottom) {
                 RoundedRectangle(cornerRadius: Radius.r20)
                     .fill(depthColor)
                     .offset(y: depth)
             }
-            .background(background, in: RoundedRectangle(cornerRadius: Radius.r20))
             .overlay {
                 if kind == .secondary {
                     RoundedRectangle(cornerRadius: Radius.r20)
