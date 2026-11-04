@@ -61,7 +61,8 @@ enum CheckInEffect: Equatable, Sendable {
     /// 복귀했으니 경고 알림을 거둔다
     case clearOutOfRangeWarning
     /// `complete` API 요청. 좌표는 마지막으로 확인된 위치(시작·완료 시점 좌표만 서버로 보낸다).
-    case requestComplete(CheckInSession, at: Coordinate?)
+    /// `pausedSeconds`는 반경 밖에 있어 20분에서 뺀 시간이다.
+    case requestComplete(CheckInSession, at: Coordinate?, pausedSeconds: Int)
     case requestFail(CheckInSession, CheckInFailureReason)
     case requestCancel(CheckInSession)
 }

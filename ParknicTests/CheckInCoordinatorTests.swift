@@ -7,6 +7,7 @@ private final class FakeCheckInRepository: CheckInRepository, @unchecked Sendabl
     private let lock = NSLock()
     private var _calls: [String] = []
     private var _completeCoordinates: [Coordinate?] = []
+    private var _pausedSeconds: [Int] = []
     var startResult: Result<CheckInSession, APIError>
     var completeResults: [Result<CheckInResult, APIError>] = []
     var currentSession: CheckInSession?
@@ -16,6 +17,7 @@ private final class FakeCheckInRepository: CheckInRepository, @unchecked Sendabl
 
     var calls: [String] { lock.withLock { _calls } }
     var completeCoordinates: [Coordinate?] { lock.withLock { _completeCoordinates } }
+    var pausedSeconds: [Int] { lock.withLock { _pausedSeconds } }
 
     func start(parkID: Int, at coordinate: Coordinate) async throws -> CheckInSession {
         lock.withLock { _calls.append("start:\(parkID)") }
@@ -27,10 +29,11 @@ private final class FakeCheckInRepository: CheckInRepository, @unchecked Sendabl
         return currentSession
     }
 
-    func complete(sessionID: Int, at coordinate: Coordinate?) async throws -> CheckInResult {
+    func complete(sessionID: Int, at coordinate: Coordinate?, pausedSeconds: Int) async throws -> CheckInResult {
         let result = lock.withLock { () -> Result<CheckInResult, APIError> in
             _calls.append("complete:\(sessionID)")
             _completeCoordinates.append(coordinate)
+            _pausedSeconds.append(pausedSeconds)
             return completeResults.isEmpty ? .success(Self.sampleResult) : completeResults.removeFirst()
         }
         return try result.get()
@@ -195,6 +198,7 @@ final class CheckInCoordinatorTests: XCTestCase {
         await coordinator.tick()
 
         XCTAssertEqual(coordinator.state, .failed(session, .outOfRange))
+        XCTAssertEqual(coordinator.stayed, 0, "이탈한 시점까지 반경 안에 머문 시간만 센다")
         XCTAssertEqual(repository.calls.last, "fail:7:OUT_OF_RANGE")
         XCTAssertEqual(location.stopCount, 1)
         XCTAssertNil(store.load(), "끝난 세션은 복구 대상이 아니다")
@@ -218,6 +222,26 @@ final class CheckInCoordinatorTests: XCTestCase {
         XCTAssertEqual(notifier.events.last, "earned:보라매공원")
         XCTAssertEqual(location.stopCount, 1)
         XCTAssertNil(store.load())
+    }
+
+    func test_밖에_있던_시간은_완료_요청에_함께_보내고_그만큼_더_머물러야_한다() async {
+        let coordinator = await begun()
+        location.send(point(metersNorth: 300))
+        await waitUntil { self.notifier.events == ["warn"] }
+        clock.advance(by: 30)
+        location.send(point(metersNorth: 20))
+        await waitUntil { self.notifier.events == ["warn", "clear"] }
+
+        // 시작 후 1200초가 지났지만 밖에 30초 있었으므로 아직 20분이 안 됐다
+        clock.advance(by: 1170)
+        await coordinator.tick()
+        XCTAssertEqual(coordinator.state, .inProgress(session))
+        XCTAssertEqual(coordinator.remaining, 30)
+
+        clock.advance(by: 30)
+        await coordinator.tick()
+        XCTAssertEqual(coordinator.state, .completed(session))
+        XCTAssertEqual(repository.pausedSeconds, [30])
     }
 
     func test_서버가_아직_20분_미달이라고_하면_진행을_이어가고_나중에_다시_요청한다() async {

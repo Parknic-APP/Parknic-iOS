@@ -2,7 +2,8 @@ import Foundation
 
 /// 체크인 상태 머신. 위치와 시간 입력을 받아 상태를 바꾸고, 바깥에 시킬 일(`CheckInEffect`)을 돌려준다.
 ///
-/// - 경과 시간은 앱 타이머가 아니라 서버가 준 시작 시각과 현재 시각의 차이로 계산한다.
+/// - 경과 시간은 앱 타이머가 아니라 서버가 준 시작 시각과 현재 시각의 차이로 계산하고,
+///   반경 밖에 있던 시간은 뺀다(밖에 있는 동안 타이머가 멈춘다).
 /// - 시간 입력은 `AppClock`으로 받으므로 테스트에서 시각을 고정할 수 있다.
 /// - 최종 판정은 서버가 한다. 트래커는 조건이 맞으면 `complete`를 요청할 뿐이다.
 /// - 좌표는 보관하지 않는다(마지막 위치 한 건만 완료 요청에 쓴다).
@@ -21,6 +22,10 @@ struct CheckInTracker {
     private let clock: AppClock
     private var lastKnownCoordinate: Coordinate?
     private var completionRetryAfter: Date?
+    /// 반경 밖에 있었던 시간의 합(복귀를 마친 구간만). 이 시간은 20분에 포함하지 않는다.
+    private var pausedDuration: TimeInterval = 0
+    /// 끝난 체크인의 머문 시간(실패·취소 화면에 보여준다)
+    private var endedStayed: TimeInterval?
 
     init(clock: AppClock = SystemClock()) {
         self.clock = clock
@@ -28,10 +33,34 @@ struct CheckInTracker {
 
     // MARK: 조회
 
-    /// 남은 시간(초). 진행 중이 아니면 nil.
+    /// 남은 시간(초). 진행 중이 아니면 nil. 반경 밖에 있는 동안은 줄어들지 않는다.
     var remaining: TimeInterval? {
-        guard state.isActive, let session = state.session else { return nil }
-        return max(0, Self.requiredDuration - clock.now.timeIntervalSince(session.startedAt))
+        guard state.isActive else { return nil }
+        return max(0, Self.requiredDuration - effectiveElapsed(at: clock.now))
+    }
+
+    /// 지금까지 반경 안에서 머문 시간(초). 진행 중이면 현재 값, 끝났으면 끝난 시점의 값, 알 수 없으면 nil.
+    var stayed: TimeInterval? {
+        state.isActive ? effectiveElapsed(at: clock.now) : endedStayed
+    }
+
+    /// 서버에 알릴 반경 밖 체류 시간(초)
+    var pausedSeconds: Int { Int(pausedDuration.rounded()) }
+
+    /// 시작 시각부터 `date`까지의 시간에서 반경 밖에 있던 시간을 뺀 값.
+    private func effectiveElapsed(at date: Date) -> TimeInterval {
+        guard let session = state.session else { return 0 }
+        var elapsed = date.timeIntervalSince(session.startedAt) - pausedDuration
+        if case .outOfRange(_, let since) = state {
+            elapsed -= max(0, date.timeIntervalSince(since))
+        }
+        return max(0, elapsed)
+    }
+
+    /// 끝난 상태로 바꾸면서 머문 시간을 기록한다.
+    private mutating func end(_ newState: CheckInState, stayedAt date: Date? = nil) {
+        endedStayed = effectiveElapsed(at: date ?? clock.now)
+        state = newState
     }
 
     // MARK: 시작·종료
@@ -42,6 +71,8 @@ struct CheckInTracker {
         guard !state.isActive else { return false }
         lastKnownCoordinate = coordinate
         completionRetryAfter = nil
+        pausedDuration = 0
+        endedStayed = nil
         state = .inProgress(session)
         return true
     }
@@ -50,7 +81,7 @@ struct CheckInTracker {
     mutating func cancel() -> [CheckInEffect] {
         switch state {
         case .inProgress(let session), .outOfRange(let session, _):
-            state = .cancelled(session)
+            end(.cancelled(session))
             return [.requestCancel(session)]
         default:
             return []
@@ -60,6 +91,7 @@ struct CheckInTracker {
     /// 앱이 강제 종료됐다가 다시 실행된 경우. 측정이 끊겼으므로 실패 처리한다.
     mutating func recoverAfterTermination(of session: CheckInSession) -> [CheckInEffect] {
         guard !state.isActive else { return [] }
+        endedStayed = nil
         state = .failed(session, .appTerminated)
         return [.requestFail(session, .appTerminated)]
     }
@@ -70,6 +102,8 @@ struct CheckInTracker {
         state = .idle
         lastKnownCoordinate = nil
         completionRetryAfter = nil
+        pausedDuration = 0
+        endedStayed = nil
     }
 
     // MARK: 서버 응답
@@ -77,7 +111,7 @@ struct CheckInTracker {
     /// `complete` 요청이 성공했다.
     mutating func completionSucceeded() {
         guard case .completing(let session) = state else { return }
-        state = .completed(session)
+        end(.completed(session))
     }
 
     /// `complete` 요청이 거절됐다(예: 서버 기준으로 아직 20분 미달). 진행 중으로 돌아가 잠시 뒤 다시 시도한다.
@@ -90,13 +124,13 @@ struct CheckInTracker {
     /// 서버가 완료 요청을 거절하며 세션이 끝났다고 알려준 경우(자정 경과, 서버 기준 반경 밖)
     mutating func completionFailed(_ reason: CheckInFailureReason) {
         guard case .completing(let session) = state else { return }
-        state = .failed(session, reason)
+        end(.failed(session, reason))
     }
 
     /// 배지 없이 세션만 끝난 경우(예: 이미 오늘 받은 공원)
     mutating func completionAbandoned() {
         guard case .completing(let session) = state else { return }
-        state = .cancelled(session)
+        end(.cancelled(session))
     }
 
     // MARK: 입력
@@ -128,8 +162,10 @@ struct CheckInTracker {
             guard !isInside(session, coordinate) else { return evaluateCompletion() }
             state = .outOfRange(session, since: clock.now)
             return [.warnOutOfRange]
-        case .outOfRange(let session, _):
+        case .outOfRange(let session, let since):
             guard isInside(session, coordinate) else { return [] }
+            // 돌아왔으니 밖에 있던 시간만큼은 20분에서 제외한다.
+            pausedDuration += max(0, clock.now.timeIntervalSince(since))
             state = .inProgress(session)
             return [.clearOutOfRangeWarning] + evaluateCompletion()
         default:
@@ -142,14 +178,16 @@ struct CheckInTracker {
         let now = clock.now
         guard let session = state.session else { return [] }
 
-        if Calendar.kst.startOfDay(for: now) > session.startedAt {
-            state = .failed(session, .midnight)
+        let midnight = Calendar.kst.startOfDay(for: now)
+        if midnight > session.startedAt {
+            // 판정이 늦어도 머문 시간은 자정까지만 센다.
+            end(.failed(session, .midnight), stayedAt: midnight)
             return [.requestFail(session, .midnight)]
         }
         if case .outOfRange(_, let since) = state,
             now.timeIntervalSince(since) >= Self.outOfRangeGracePeriod
         {
-            state = .failed(session, .outOfRange)
+            end(.failed(session, .outOfRange))
             return [.requestFail(session, .outOfRange)]
         }
         return evaluateCompletion()
@@ -159,10 +197,10 @@ struct CheckInTracker {
     private mutating func evaluateCompletion() -> [CheckInEffect] {
         guard case .inProgress(let session) = state else { return [] }
         let now = clock.now
-        guard now.timeIntervalSince(session.startedAt) >= Self.requiredDuration else { return [] }
+        guard effectiveElapsed(at: now) >= Self.requiredDuration else { return [] }
         if let retryAfter = completionRetryAfter, now < retryAfter { return [] }
         state = .completing(session)
-        return [.requestComplete(session, at: lastKnownCoordinate)]
+        return [.requestComplete(session, at: lastKnownCoordinate, pausedSeconds: pausedSeconds)]
     }
 
     private func isInside(_ session: CheckInSession, _ coordinate: Coordinate) -> Bool {

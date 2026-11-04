@@ -8,6 +8,8 @@ final class CheckInCoordinator {
     private(set) var state: CheckInState = .idle
     /// 남은 시간(초). 진행 중이 아니면 nil.
     private(set) var remaining: TimeInterval?
+    /// 반경 안에서 머문 시간(초). 실패·취소 화면의 "머문 시간"에 쓴다.
+    private(set) var stayed: TimeInterval?
     /// 20분 달성으로 받은 결과(배지 획득 화면에 쓴다)
     private(set) var result: CheckInResult?
     /// 시작하지 못했을 때 보여줄 한국어 문구
@@ -133,8 +135,8 @@ final class CheckInCoordinator {
                 await notifier.warnOutOfRange()
             case .clearOutOfRangeWarning:
                 await notifier.clearOutOfRangeWarning()
-            case .requestComplete(let session, let coordinate):
-                await complete(session, at: coordinate)
+            case .requestComplete(let session, let coordinate, let pausedSeconds):
+                await complete(session, at: coordinate, pausedSeconds: pausedSeconds)
             case .requestFail(let session, let reason):
                 // 서버 기록은 최선을 다하되, 실패해도 사용자 흐름은 막지 않는다(서버가 세션을 만료시킨다).
                 try? await repository.fail(sessionID: session.id, reason: reason)
@@ -149,9 +151,10 @@ final class CheckInCoordinator {
         }
     }
 
-    private func complete(_ session: CheckInSession, at coordinate: Coordinate?) async {
+    private func complete(_ session: CheckInSession, at coordinate: Coordinate?, pausedSeconds: Int) async {
         do {
-            let result = try await repository.complete(sessionID: session.id, at: coordinate)
+            let result = try await repository.complete(
+                sessionID: session.id, at: coordinate, pausedSeconds: pausedSeconds)
             tracker.completionSucceeded()
             self.result = result
             await notifier.clearOutOfRangeWarning()
@@ -172,5 +175,6 @@ final class CheckInCoordinator {
     private func sync() {
         state = tracker.state
         remaining = tracker.remaining
+        stayed = tracker.stayed
     }
 }

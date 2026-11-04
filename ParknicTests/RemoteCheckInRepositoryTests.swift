@@ -65,7 +65,7 @@ final class RemoteCheckInRepositoryTests: XCTestCase {
              "canWriteReview":true}
             """
         let (repository, transport) = makeRepository { _ in (200, json) }
-        let result = try await repository.complete(sessionID: 7, at: Coordinate(latitude: 37.4, longitude: 126.9))
+        let result = try await repository.complete(sessionID: 7, at: Coordinate(latitude: 37.4, longitude: 126.9), pausedSeconds: 42)
 
         XCTAssertEqual(result.badge.parkType, .neighborhood)
         XCTAssertEqual(result.badge.earnedAt, kst("2026-11-04T15:32:10+09:00"))
@@ -74,6 +74,7 @@ final class RemoteCheckInRepositoryTests: XCTestCase {
         XCTAssertTrue(result.canWriteReview)
         XCTAssertEqual(transport.requests.first?.url?.path, "/api/check-ins/7/complete")
         XCTAssertEqual(try body(transport.requests.first)["lat"] as? Double, 37.4)
+        XCTAssertEqual(try body(transport.requests.first)["pausedSeconds"] as? Int, 42, "반경 밖에 있던 시간을 서버에 알린다")
     }
 
     func test_완료_요청은_좌표가_없으면_좌표를_보내지_않는다() async throws {
@@ -82,7 +83,7 @@ final class RemoteCheckInRepositoryTests: XCTestCase {
              "newAchievements":[],"monthlyRanking":{"rank":1,"badgeCount":1,"rankChange":0,"badgesToPodium":0},"canWriteReview":false}
             """
         let (repository, transport) = makeRepository { _ in (200, json) }
-        _ = try await repository.complete(sessionID: 7, at: nil)
+        _ = try await repository.complete(sessionID: 7, at: nil, pausedSeconds: 0)
         let sent = try body(transport.requests.first)
         XCTAssertNil(sent["lat"])
         XCTAssertNil(sent["lng"])
@@ -105,7 +106,7 @@ final class RemoteCheckInRepositoryTests: XCTestCase {
     func test_완료_거절_코드는_그대로_던진다() async {
         let (repository, _) = makeRepository { _ in (400, #"{"code":"CHECKIN_TOO_EARLY"}"#) }
         do {
-            _ = try await repository.complete(sessionID: 7, at: nil)
+            _ = try await repository.complete(sessionID: 7, at: nil, pausedSeconds: 0)
             XCTFail("에러가 나야 한다")
         } catch {
             XCTAssertEqual((error as? APIError)?.serverCode, .checkInTooEarly)

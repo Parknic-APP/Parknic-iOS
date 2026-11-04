@@ -120,13 +120,40 @@ final class CheckInTrackerTests: XCTestCase {
         XCTAssertEqual(tracker.state, .inProgress(session))
     }
 
-    func test_복귀해도_경과_시간은_처음부터_이어진다() {
+    func test_복귀하면_밖에_있던_시간을_뺀_채_이어서_센다() {
         startTracking()
         clock.advance(by: 600)
         _ = tracker.receive(sample(metersNorth: 260))
         clock.advance(by: 30)
         _ = tracker.receive(sample(metersNorth: 10))
-        XCTAssertEqual(tracker.remaining, 1200 - 630)
+        XCTAssertEqual(tracker.remaining, 1200 - 600, "밖에 있던 30초는 20분에 넣지 않는다")
+        XCTAssertEqual(tracker.stayed, 600)
+        XCTAssertEqual(tracker.pausedSeconds, 30)
+    }
+
+    func test_밖에_있는_동안은_남은_시간이_멈춘다() {
+        startTracking()
+        clock.advance(by: 300)
+        _ = tracker.receive(sample(metersNorth: 260))
+        let frozen = tracker.remaining
+        clock.advance(by: 40)
+        XCTAssertEqual(tracker.remaining, frozen)
+        XCTAssertEqual(frozen, 900)
+        XCTAssertEqual(tracker.stayed, 300)
+    }
+
+    func test_여러_번_나갔다_와도_밖에_있던_시간을_모두_합해_뺀다() {
+        startTracking()
+        clock.advance(by: 100)
+        _ = tracker.receive(sample(metersNorth: 260))
+        clock.advance(by: 20)
+        _ = tracker.receive(sample(metersNorth: 10))
+        clock.advance(by: 100)
+        _ = tracker.receive(sample(metersNorth: 260))
+        clock.advance(by: 25)
+        _ = tracker.receive(sample(metersNorth: 10))
+        XCTAssertEqual(tracker.pausedSeconds, 45)
+        XCTAssertEqual(tracker.stayed, 200)
     }
 
     func test_이탈_후_정확히_1분이_지나면_실패한다() {
@@ -189,7 +216,7 @@ final class CheckInTrackerTests: XCTestCase {
         let inside = sample(metersNorth: 40)
         _ = tracker.receive(inside)
         clock.advance(by: 1200)
-        XCTAssertEqual(tracker.tick(), [.requestComplete(session, at: inside.coordinate)])
+        XCTAssertEqual(tracker.tick(), [.requestComplete(session, at: inside.coordinate, pausedSeconds: 0)])
         XCTAssertEqual(tracker.state, .completing(session))
     }
 
@@ -255,14 +282,22 @@ final class CheckInTrackerTests: XCTestCase {
         XCTAssertEqual(tracker.state.session, session)
     }
 
-    func test_이탈한_뒤_복귀했을_때_이미_20분이_지났으면_바로_완료를_요청한다() {
+    func test_이탈했다_복귀하면_밖에_있던_시간만큼_더_머문_뒤에_완료를_요청한다() {
         startTracking()
         clock.advance(by: 1180)
         _ = tracker.receive(sample(metersNorth: 260))
         clock.advance(by: 30)
-        let effects = tracker.receive(sample(metersNorth: 10))
-        XCTAssertEqual(effects.first, .clearOutOfRangeWarning)
-        if case .requestComplete = effects.last {} else { XCTFail("완료를 요청해야 한다: \(effects)") }
+        let back = tracker.receive(sample(metersNorth: 10))
+        XCTAssertEqual(back, [.clearOutOfRangeWarning], "복귀 직후에는 아직 20분이 안 됐다")
+
+        clock.advance(by: 19)
+        XCTAssertEqual(tracker.tick(), [])
+        clock.advance(by: 1)
+        let effects = tracker.tick()
+        guard case .requestComplete(_, _, let paused)? = effects.first else {
+            return XCTFail("완료를 요청해야 한다: \(effects)")
+        }
+        XCTAssertEqual(paused, 30)
     }
 
     // MARK: 정확도
@@ -403,6 +438,68 @@ final class CheckInTrackerTests: XCTestCase {
         startTracking()
         tracker.reset()
         XCTAssertEqual(tracker.state, .inProgress(session))
+    }
+}
+
+final class CheckInStayedTests: XCTestCase {
+    private let center = Coordinate(latitude: 37.4934, longitude: 126.9209)
+    private let start = kst("2026-11-04T15:00:00+09:00")
+
+    private func makeTracker(startedAt: Date? = nil) -> (CheckInTracker, FixedClock, CheckInSession) {
+        let clock = FixedClock(startedAt ?? start)
+        var tracker = CheckInTracker(clock: clock)
+        let session = CheckInSession(
+            id: 7, parkID: 1, parkName: "보라매공원", center: center, radiusM: 180, startedAt: startedAt ?? start)
+        tracker.start(session)
+        return (tracker, clock, session)
+    }
+
+    private func outside() -> LocationSample {
+        LocationSample(coordinate: Coordinate(latitude: center.latitude + 0.0027, longitude: center.longitude), horizontalAccuracy: 10)
+    }
+
+    func test_이탈_1분_초과로_실패하면_이탈한_시점까지의_시간이_머문_시간이다() {
+        var (tracker, clock, session) = makeTracker()
+        clock.advance(by: 446)
+        _ = tracker.receive(outside())
+        clock.advance(by: 75)
+        _ = tracker.tick()
+        XCTAssertEqual(tracker.state, .failed(session, .outOfRange))
+        XCTAssertEqual(tracker.stayed, 446, "7분 26초처럼, 밖에 있던 75초는 넣지 않는다")
+    }
+
+    func test_자정_실패의_머문_시간은_자정까지만_센다() {
+        let begin = kst("2026-11-04T23:50:00+09:00")
+        var (tracker, clock, _) = makeTracker(startedAt: begin)
+        clock.set(kst("2026-11-05T00:05:00+09:00"))
+        _ = tracker.tick()
+        XCTAssertEqual(tracker.stayed, 600, "23:50부터 자정까지 10분")
+    }
+
+    func test_강제_종료로_끝난_체크인은_머문_시간을_알_수_없다() {
+        var tracker = CheckInTracker(clock: FixedClock(start))
+        let session = CheckInSession(id: 7, parkID: 1, parkName: "a", center: center, radiusM: 180, startedAt: start)
+        _ = tracker.recoverAfterTermination(of: session)
+        XCTAssertNil(tracker.stayed)
+    }
+
+    func test_취소하면_그때까지_머문_시간이_남는다() {
+        var (tracker, clock, _) = makeTracker()
+        clock.advance(by: 420)
+        _ = tracker.cancel()
+        XCTAssertEqual(tracker.stayed, 420)
+    }
+
+    func test_새로_시작하면_이전_기록이_사라진다() {
+        var (tracker, clock, _) = makeTracker()
+        clock.advance(by: 100)
+        _ = tracker.receive(outside())
+        clock.advance(by: 20)
+        _ = tracker.cancel()
+        let next = CheckInSession(id: 8, parkID: 1, parkName: "a", center: center, radiusM: 180, startedAt: clock.now)
+        tracker.start(next)
+        XCTAssertEqual(tracker.pausedSeconds, 0)
+        XCTAssertEqual(tracker.stayed, 0)
     }
 }
 

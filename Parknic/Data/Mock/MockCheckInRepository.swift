@@ -23,7 +23,7 @@ final class MockCheckInRepository: CheckInRepository, @unchecked Sendable {
         lock.withLock { _session }
     }
 
-    func complete(sessionID: Int, at coordinate: Coordinate?) async throws -> CheckInResult {
+    func complete(sessionID: Int, at coordinate: Coordinate?, pausedSeconds: Int) async throws -> CheckInResult {
         let session = lock.withLock { () -> CheckInSession? in
             defer { _session = nil }
             return _session

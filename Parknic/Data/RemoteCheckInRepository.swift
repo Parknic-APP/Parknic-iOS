@@ -10,6 +10,7 @@ struct RemoteCheckInRepository: CheckInRepository {
     private struct CompleteRequest: Encodable {
         let lat: Double?
         let lng: Double?
+        let pausedSeconds: Int
     }
     private struct FailRequest: Encodable { let reason: String }
 
@@ -78,10 +79,10 @@ struct RemoteCheckInRepository: CheckInRepository {
         }
     }
 
-    func complete(sessionID: Int, at coordinate: Coordinate?) async throws -> CheckInResult {
+    func complete(sessionID: Int, at coordinate: Coordinate?, pausedSeconds: Int) async throws -> CheckInResult {
         let endpoint = try Endpoint(
             .post, "/api/check-ins/\(sessionID)/complete",
-            body: CompleteRequest(lat: coordinate?.latitude, lng: coordinate?.longitude))
+            body: CompleteRequest(lat: coordinate?.latitude, lng: coordinate?.longitude, pausedSeconds: pausedSeconds))
         let dto: ResultDTO = try await client.send(endpoint)
         return dto.result
     }
