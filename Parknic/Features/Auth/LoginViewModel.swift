@@ -34,6 +34,14 @@ final class LoginViewModel {
         return false
     }
 
+    #if DEBUG
+    /// 개발용: 소셜 로그인·서버 없이 바로 로그인된 것으로 처리한다. Release 빌드에는 포함되지 않는다.
+    func loginForDevelopment(isNewUser: Bool) {
+        guard !isLoading else { return }
+        onLoggedIn(LoginResult(isNewUser: isNewUser))
+    }
+    #endif
+
     func login(with provider: AuthProvider) async {
         guard !isLoading, let socialProvider = providers[provider] else { return }
         state = .loading(provider)
