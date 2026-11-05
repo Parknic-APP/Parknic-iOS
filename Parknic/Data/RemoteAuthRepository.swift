@@ -23,4 +23,15 @@ struct RemoteAuthRepository: AuthRepository {
         }
         return LoginResult(isNewUser: response.isNewUser)
     }
+
+    func logout() async {
+        // 서버에서 Refresh 토큰을 지우도록 요청하되, 실패해도 기기에서는 로그아웃한다.
+        try? await client.send(Endpoint(.post, "/api/auth/logout"))
+        tokenStore.clear()
+    }
+
+    func deleteAccount() async throws {
+        try await client.send(Endpoint(.delete, "/api/users/me"))
+        tokenStore.clear()
+    }
 }

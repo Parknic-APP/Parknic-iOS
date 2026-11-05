@@ -77,18 +77,12 @@ struct LoginView: View {
     #endif
 
     private var terms: some View {
-        Text("계속하면 [이용약관](\(LegalLinks.terms.absoluteString))과 [개인정보 처리방침](\(LegalLinks.privacy.absoluteString))에 동의하게 돼요")
+        Text("계속하면 [이용약관](\(AppConfig.termsURL.absoluteString))과 [개인정보 처리방침](\(AppConfig.privacyPolicyURL.absoluteString))에 동의하게 돼요")
             .pkTextStyle(.callout)
             .foregroundStyle(Color.ink500)
             .tint(Color.ink500)
             .multilineTextAlignment(.center)
     }
-}
-
-/// 약관·개인정보처리방침 주소. 실제 주소가 정해지면 교체한다.
-enum LegalLinks {
-    static let terms = URL(string: "https://parknic.example/terms") ?? URL(filePath: "/")
-    static let privacy = URL(string: "https://parknic.example/privacy") ?? URL(filePath: "/")
 }
 
 private struct SocialLoginButton: View {

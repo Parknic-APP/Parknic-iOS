@@ -6,7 +6,9 @@ import UserNotifications
 final class AppContainer {
     let session: AppSession
     let loginViewModel: LoginViewModel
-    let onboardingViewModel: OnboardingViewModel
+    private(set) var onboardingViewModel: OnboardingViewModel
+    let myPageViewModel: MyPageViewModel
+    private let makeOnboarding: () -> OnboardingViewModel
     let checkInCoordinator: CheckInCoordinator
     let mapViewModel: MapHomeViewModel
     let profileStore: ProfileStore = UserDefaultsProfileStore()
@@ -40,10 +42,15 @@ final class AppContainer {
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
             session.didLogin(result)
         }
-        onboardingViewModel = OnboardingViewModel(
-            repository: userRepository, location: CoreLocationPermissionRequester(),
-            notification: UserNotificationPermissionRequester(), profileStore: profileStore
-        ) { session.didFinishOnboarding() }
+        let profileStore = self.profileStore
+        let makeOnboarding: () -> OnboardingViewModel = {
+            OnboardingViewModel(
+                repository: userRepository, location: CoreLocationPermissionRequester(),
+                notification: UserNotificationPermissionRequester(), profileStore: profileStore
+            ) { session.didFinishOnboarding() }
+        }
+        self.makeOnboarding = makeOnboarding
+        onboardingViewModel = makeOnboarding()
 
         let coordinator = CheckInCoordinator(
             repository: checkInRepository, location: CoreLocationSampleSource(),
@@ -52,6 +59,15 @@ final class AppContainer {
         mapViewModel = MapHomeViewModel(
             location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository),
             checkIn: coordinator, parks: parkRepository, rankings: rankingRepository, reviews: reviewRepository, profile: profileStore)
+        myPageViewModel = MyPageViewModel(
+            auth: authRepository, profile: profileStore, isCheckInActive: { coordinator.state.isActive },
+            onSignedOut: { session.didLogout() })
         UNUserNotificationCenter.current().delegate = notificationPresenter
+
+        // 로그아웃·탈퇴·세션 만료 뒤 다시 가입하면 이전 온보딩 입력이 남지 않게 새로 만든다.
+        session.onSignedOut = { [weak self] in
+            self?.profileStore.clear()
+            self?.onboardingViewModel = makeOnboarding()
+        }
     }
 }

@@ -18,6 +18,8 @@ private final class RecordingRepository: AuthRepository, @unchecked Sendable {
         lock.withLock { _calls.append((provider, socialToken)) }
         return try result.get()
     }
+    func logout() async {}
+    func deleteAccount() async throws {}
 }
 
 @MainActor

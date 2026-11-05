@@ -26,6 +26,8 @@ targets:
       path: Parknic/App/Info.plist
       properties:
         APIBaseURL: $(API_BASE_URL)
+        TermsURL: $(TERMS_URL)
+        PrivacyPolicyURL: $(PRIVACY_POLICY_URL)
         NSLocationWhenInUseUsageDescription: 공원 안에 머무는 시간을 재려고 체크인하는 동안 현재 위치를 사용해요.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
@@ -48,6 +50,9 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         # 서버 주소는 빌드 설정으로 구분한다. Release 주소는 서버 운영 주소가 정해지면 교체한다.
         API_BASE_URL: http://localhost:8080
+        # 약관·개인정보 처리방침 주소. 심사 제출 전에 실제 주소로 바꾼다(임시값).
+        TERMS_URL: https:/$()/parknic.example/terms
+        PRIVACY_POLICY_URL: https:/$()/parknic.example/privacy
         # Xcode가 문구 카탈로그를 자동으로 고치지 않게 한다(문구는 직접 관리).
         SWIFT_EMIT_LOC_STRINGS: NO
       configs:

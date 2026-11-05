@@ -9,4 +9,10 @@ struct MockAuthRepository: AuthRepository {
         try await Task.sleep(for: delay)
         return try result.get()
     }
+
+    func logout() async {}
+
+    func deleteAccount() async throws {
+        try await Task.sleep(for: delay)
+    }
 }
