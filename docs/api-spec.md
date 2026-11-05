@@ -48,6 +48,8 @@
 
 체크인 요청·응답(클라이언트 가정, 서버와 확정 필요): 시작 `POST /api/check-ins` 응답과 `GET /api/check-ins/current` 응답은 같은 세션 객체 `{ id, parkId, parkName, latitude, longitude, radiusM, startedAt }`(`startedAt`은 서버 시각, 이 값으로 경과 시간을 계산). 진행 중인 세션이 없으면 `current`는 404. 완료 요청 `{ lat, lng, pausedSeconds }`: 좌표를 못 구했으면 `lat`·`lng`를 생략하고, `pausedSeconds`는 반경 밖에 있어 20분에서 뺀 시간(초, 0 이상)이다. **반경 밖에 있던 시간은 20분에 포함하지 않으므로 서버도 `now - startedAt - pausedSeconds >= 20분`으로 검증해야 한다(서버와 확정 필요).** 완료 거절 코드: `CHECKIN_TOO_EARLY`(재시도), `CHECKIN_EXPIRED_MIDNIGHT`·`CHECKIN_OUT_OF_RANGE`(실패로 종료), `BADGE_ALREADY_EARNED_TODAY`(배지 없이 종료).
 
+공원 상세(클라이언트 가정, 서버와 확정 필요) `GET /api/parks/{parkId}` → `{ id, name, parkType, address, latitude, longitude, radiusM, averageRating, reviewCount, myStatus, myBadgeCount }`(`averageRating`은 리뷰가 없으면 null).
+
 재발급 요청(클라이언트 가정, 서버와 확정 필요): `{ "refreshToken" }` → 응답: `{ "accessToken", "refreshToken" }`
 
 로그인 요청: `{ "token": "<소셜 SDK 토큰>" }` → 응답: `{ "accessToken", "refreshToken", "isNewUser" }`
