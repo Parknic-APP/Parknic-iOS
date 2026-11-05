@@ -51,7 +51,7 @@
 
 도감(클라이언트 가정, 서버와 확정 필요): `GET /api/users/me/collection` → `{ "totalBadges": 23, "visitedParks": 11, "types": [ { "parkType": "NEIGHBORHOOD", "count": 9 } ], "achievements": [ { "code": "PARKS_10", "name": "서로 다른 공원 10곳", "label": "10", "achievedAt": "2026-10-19T12:00:00+09:00" | null, "progress": 11, "target": 20 } ] }`. `types`에 없는 유형은 0개로 보고, 알 수 없는 `parkType`은 무시한다. `achievedAt`이 null이면 미달성이며 `progress/target`으로 진행도를 그린다. `label`은 업적 배지 안에 들어가는 짧은 글자("첫", "10", "7일").
 
-캐릭터 목록·프로필 저장(클라이언트 가정, 서버와 확정 필요): `GET /api/characters` → `{ "characters": [ { "id": 1, "name": "치즈냥" } ] }`(8종, 이미지는 앱의 `character-<id>` 에셋). `PATCH /api/users/me` 요청 `{ "nickname", "characterId" }`, 닉네임이 중복이면 409 `NICKNAME_DUPLICATED`.
+캐릭터 목록·프로필 저장(클라이언트 가정, 서버와 확정 필요): `GET /api/characters` → `{ "characters": [ { "id": 1, "name": "치즈냥" } ] }`(8종, 이미지는 앱의 `character-<id>` 에셋). `PATCH /api/users/me` 요청 `{ "nickname", "characterId" }`, 닉네임이 중복이면 409 `NICKNAME_DUPLICATED`. 마이페이지 [수정]에서도 같은 API를 쓰며, 닉네임을 그대로 두고 캐릭터만 바꾸면 같은 닉네임이 다시 오므로 **본인의 현재 닉네임은 중복으로 보지 않아야 한다**(앱은 현재 닉네임이면 중복 확인 API를 부르지 않는다).
 
 체크인 요청·응답(클라이언트 가정, 서버와 확정 필요): 시작 `POST /api/check-ins` 응답과 `GET /api/check-ins/current` 응답은 같은 세션 객체 `{ id, parkId, parkName, latitude, longitude, radiusM, startedAt }`(`startedAt`은 서버 시각, 이 값으로 경과 시간을 계산). 진행 중인 세션이 없으면 `current`는 404. 완료 요청 `{ lat, lng, pausedSeconds }`: 좌표를 못 구했으면 `lat`·`lng`를 생략하고, `pausedSeconds`는 반경 밖에 있어 20분에서 뺀 시간(초, 0 이상)이다. **반경 밖에 있던 시간은 20분에 포함하지 않으므로 서버도 `now - startedAt - pausedSeconds >= 20분`으로 검증해야 한다(서버와 확정 필요).** 완료 거절 코드: `CHECKIN_TOO_EARLY`(재시도), `CHECKIN_EXPIRED_MIDNIGHT`·`CHECKIN_OUT_OF_RANGE`(실패로 종료), `BADGE_ALREADY_EARNED_TODAY`(배지 없이 종료).
 

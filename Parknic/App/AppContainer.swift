@@ -66,7 +66,8 @@ final class AppContainer {
             location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository),
             checkIn: coordinator, parks: parkRepository, rankings: rankingRepository, reviews: reviewRepository, profile: profileStore)
         myPageViewModel = MyPageViewModel(
-            auth: authRepository, profile: profileStore, repository: myPageRepository, isCheckInActive: { coordinator.state.isActive },
+            auth: authRepository, profile: profileStore, repository: myPageRepository, userRepository: userRepository,
+            isCheckInActive: { coordinator.state.isActive },
             onSignedOut: { session.didLogout() })
         collectionViewModel = CollectionViewModel(repository: collectionRepository)
         UNUserNotificationCenter.current().delegate = notificationPresenter

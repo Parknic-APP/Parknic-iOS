@@ -172,8 +172,8 @@ def critter(animal, mood="happy"):
 
 
 def character_svg(animal, mood="happy"):
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 116" width="224" height="232">'
-            f'<g transform="translate(6 12)">{critter(animal, mood)}</g></svg>')
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 116" width="248" height="232">'
+            f'<g transform="translate(12 12)">{critter(animal, mood)}</g></svg>')
 
 
 # ── 배지 ────────────────────────────────────────────────────────────────────

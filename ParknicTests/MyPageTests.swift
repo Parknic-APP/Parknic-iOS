@@ -29,7 +29,7 @@ final class MyPageViewModelTests: XCTestCase {
         signedOut = 0
         profile.save(nickname: "나뭇잎", characterID: 5)
         return MyPageViewModel(
-            auth: auth, profile: profile, repository: MockMyPageRepository(delay: .zero),
+            auth: auth, profile: profile, repository: MockMyPageRepository(delay: .zero), userRepository: MockUserRepository(),
             notificationStatus: StubNotificationStatus(enabled: true),
             isCheckInActive: { checkInActive }, onSignedOut: { [self] in signedOut += 1 })
     }

@@ -8,6 +8,7 @@ struct MyPageView: View {
     @State private var confirmsLogout = false
     @State private var withdrawStep: WithdrawStep?
     @State private var reviewsModel: MyReviewsViewModel?
+    @State private var profileEdit: ProfileEditViewModel?
 
     private enum WithdrawStep: Identifiable {
         case explain, final
@@ -44,6 +45,9 @@ struct MyPageView: View {
             }
         }
         .task { await viewModel.load() }
+        .fullScreenCover(isPresented: profileEditBinding) {
+            if let profileEdit { ProfileEditView(viewModel: profileEdit) { self.profileEdit = nil } }
+        }
         .overlay { if viewModel.isWorking { ProgressView().controlSize(.large).tint(.leaf600) } }
         .alert("로그아웃할까요?", isPresented: $confirmsLogout) {
             Button("로그아웃", role: .destructive) { Task { await viewModel.logout() } }
@@ -66,18 +70,34 @@ struct MyPageView: View {
     // MARK: 구성
 
     private var profileCard: some View {
-        HStack(spacing: Spacing.s16) {
-            PKIllustration(assetName: viewModel.characterAssetName, fallbackSymbol: "pawprint.fill", size: 72)
-                .padding(Spacing.s4).background(Color.leaf100, in: Circle())
-            VStack(alignment: .leading, spacing: Spacing.s4) {
-                Text(viewModel.nickname).pkTextStyle(.title1).foregroundStyle(Color.ink900)
-                Text(viewModel.subtitle).pkTextStyle(.callout).foregroundStyle(Color.ink500)
+        HStack(spacing: Spacing.s12) {
+            HStack(spacing: Spacing.s16) {
+                PKIllustration(assetName: viewModel.characterAssetName, fallbackSymbol: "pawprint.fill", size: 72)
+                    .padding(Spacing.s4).background(Color.leaf100, in: Circle())
+                VStack(alignment: .leading, spacing: Spacing.s4) {
+                    Text(viewModel.nickname).pkTextStyle(.title1).foregroundStyle(Color.ink900)
+                    Text(viewModel.subtitle).pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                }
             }
-            Spacer()
+            .accessibilityElement(children: .combine)
+            Spacer(minLength: 0)
+            Button("수정", action: startProfileEdit)
+                .buttonStyle(.pk(.tonal, size: .small, fillsWidth: false))
+                .accessibilityHint("닉네임과 캐릭터를 바꿔요")
         }
         .padding(Spacing.s20)
         .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r30))
-        .accessibilityElement(children: .combine)
+    }
+
+    private func startProfileEdit() {
+        profileEdit = viewModel.makeProfileEditViewModel {
+            profileEdit = nil
+            Task { await viewModel.load() }
+        }
+    }
+
+    private var profileEditBinding: Binding<Bool> {
+        Binding(get: { profileEdit != nil }, set: { if !$0 { profileEdit = nil } })
     }
 
     private var settingsCard: some View {
@@ -254,6 +274,7 @@ private func previewModel(
 ) -> MyPageViewModel {
     MyPageViewModel(
         auth: PreviewAuth(), profile: UserDefaultsProfileStore(), repository: repository,
+        userRepository: MockUserRepository(),
         notificationStatus: PreviewNotificationStatus(), initialState: initialState,
         isCheckInActive: { checkInActive }, onSignedOut: {})
 }

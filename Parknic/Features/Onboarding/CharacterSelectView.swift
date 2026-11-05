@@ -3,6 +3,8 @@ import SwiftUI
 /// 12f — 캐릭터 선택
 struct CharacterSelectView: View {
     let viewModel: CharacterSelectViewModel
+    /// 온보딩에서만 "나중에 바꿀 수 있어요" 안내를 보여준다.
+    var showsLaterHint = true
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: Spacing.s12), count: 4)
 
@@ -26,7 +28,9 @@ struct CharacterSelectView: View {
         VStack(alignment: .leading, spacing: Spacing.s20) {
             VStack(alignment: .leading, spacing: Spacing.s8) {
                 Text("함께 산책할 친구를\n골라주세요").pkTextStyle(.title1).foregroundStyle(Color.ink900)
-                Text("나중에 마이에서 바꿀 수 있어요").pkTextStyle(.body).foregroundStyle(Color.ink500)
+                if showsLaterHint {
+                    Text("나중에 마이페이지에서 바꿀 수 있어요").pkTextStyle(.body).foregroundStyle(Color.ink500)
+                }
             }
             preview
             LazyVGrid(columns: columns, spacing: Spacing.s12) {

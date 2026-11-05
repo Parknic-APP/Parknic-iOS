@@ -46,7 +46,7 @@ final class MyPageSummaryTests: XCTestCase {
         -> MyPageViewModel
     {
         MyPageViewModel(
-            auth: NoopAuth(), profile: store, repository: repository,
+            auth: NoopAuth(), profile: store, repository: repository, userRepository: MockUserRepository(),
             notificationStatus: StubNotificationStatus(enabled: notifications), clock: FixedClock(now),
             isCheckInActive: { false }, onSignedOut: {})
     }

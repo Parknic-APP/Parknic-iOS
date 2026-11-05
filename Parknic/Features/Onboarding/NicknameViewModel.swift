@@ -19,6 +19,8 @@ final class NicknameViewModel {
         didSet { textDidChange(from: oldValue) }
     }
 
+    /// 닉네임을 바꾸는 중이라면 지금 쓰는 이름. 같은 이름은 중복 확인 없이 쓸 수 있다.
+    private let ownNickname: String?
     private let repository: UserRepository
     private let clock: any Clock<Duration>
     private let debounce: Duration
@@ -26,8 +28,10 @@ final class NicknameViewModel {
 
     init(
         repository: UserRepository, clock: any Clock<Duration> = ContinuousClock(),
-        debounce: Duration = .milliseconds(500), initialText: String = "", initialStatus: Status = .empty
+        debounce: Duration = .milliseconds(500), initialText: String = "", initialStatus: Status = .empty,
+        ownNickname: String? = nil
     ) {
+        self.ownNickname = ownNickname
         self.repository = repository
         self.clock = clock
         self.debounce = debounce
@@ -46,7 +50,7 @@ final class NicknameViewModel {
 
     /// 「중복 확인」 버튼. 기다리지 않고 바로 확인한다.
     func checkNow() {
-        guard validate() else { return }
+        guard validate(), !confirmsOwnNickname() else { return }
         startCheck(delay: .zero)
     }
 
@@ -68,8 +72,16 @@ final class NicknameViewModel {
             return
         }
         guard text != old else { return }
-        guard validate() else { return }
+        guard validate(), !confirmsOwnNickname() else { return }
         startCheck(delay: debounce)
+    }
+
+    /// 지금 쓰는 이름 그대로면 서버에 묻지 않고 사용 가능으로 본다(서버는 자기 이름도 중복이라고 답한다).
+    private func confirmsOwnNickname() -> Bool {
+        guard let ownNickname, trimmed == ownNickname else { return false }
+        checkTask?.cancel()
+        status = .available
+        return true
     }
 
     /// 형식이 맞지 않으면 상태를 갱신하고 진행 중인 확인을 취소한다.

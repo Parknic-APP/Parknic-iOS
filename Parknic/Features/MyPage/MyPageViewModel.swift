@@ -20,13 +20,14 @@ final class MyPageViewModel {
     private let auth: AuthRepository
     private let profile: ProfileStore
     private let repository: MyPageRepository
+    private let userRepository: UserRepository
     private let notificationStatus: NotificationStatusReading
     let clock: AppClock
     private let isCheckInActive: () -> Bool
     private let onSignedOut: () -> Void
 
     init(
-        auth: AuthRepository, profile: ProfileStore, repository: MyPageRepository,
+        auth: AuthRepository, profile: ProfileStore, repository: MyPageRepository, userRepository: UserRepository,
         notificationStatus: NotificationStatusReading = UserNotificationStatusReader(),
         clock: AppClock = SystemClock(), initialState: SummaryState = .loading,
         isCheckInActive: @escaping () -> Bool, onSignedOut: @escaping () -> Void
@@ -34,6 +35,7 @@ final class MyPageViewModel {
         self.auth = auth
         self.profile = profile
         self.repository = repository
+        self.userRepository = userRepository
         self.notificationStatus = notificationStatus
         self.clock = clock
         self.summaryState = initialState
@@ -62,6 +64,13 @@ final class MyPageViewModel {
 
     /// 마이페이지에 보여줄 최근 리뷰(최대 3개)
     var recentReviews: [MyReview] { Array((summary?.recentReviews.reviews ?? []).prefix(3)) }
+
+    /// 닉네임·캐릭터 변경 흐름. 저장되면 `onFinished`가 불린다.
+    func makeProfileEditViewModel(onFinished: @escaping () -> Void) -> ProfileEditViewModel {
+        ProfileEditViewModel(
+            currentNickname: nickname, currentCharacterID: summary?.profile.characterID ?? profile.characterID,
+            repository: userRepository, profileStore: profile, onFinished: onFinished)
+    }
 
     func makeReviewsViewModel() -> MyReviewsViewModel { MyReviewsViewModel(repository: repository, clock: clock) }
 
