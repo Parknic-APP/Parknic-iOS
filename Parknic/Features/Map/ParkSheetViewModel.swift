@@ -11,13 +11,23 @@ final class ParkSheetViewModel {
 
     let park: Park
     private(set) var state: State
+    /// 이달의 시상대. 불러오지 못하면 nil이고 시트에는 랭킹 이동 행만 보인다.
+    private(set) var ranking: ParkRanking?
 
     private let repository: ParkRepository
+    private let rankingRepository: RankingRepository
+    private let clock: AppClock
 
-    init(park: Park, repository: ParkRepository, initialState: State = .loading) {
+    init(
+        park: Park, repository: ParkRepository, rankingRepository: RankingRepository = MockRankingRepository(delay: .zero),
+        clock: AppClock = SystemClock(), initialState: State = .loading, initialRanking: ParkRanking? = nil
+    ) {
         self.park = park
         self.repository = repository
+        self.rankingRepository = rankingRepository
+        self.clock = clock
         self.state = initialState
+        self.ranking = initialRanking
     }
 
     var detail: ParkDetail? {
@@ -32,5 +42,14 @@ final class ParkSheetViewModel {
         } catch {
             state = .failed((error as? APIError)?.userMessage ?? APIError.network.userMessage)
         }
+    }
+
+    /// 시상대는 시트의 보조 정보라 실패해도 에러를 띄우지 않는다.
+    func loadRanking() async {
+        ranking = try? await rankingRepository.ranking(parkID: park.id, month: YearMonth(date: clock.now))
+    }
+
+    func makeRankingViewModel() -> RankingViewModel {
+        RankingViewModel(parkID: park.id, parkName: park.name, repository: rankingRepository, clock: clock)
     }
 }

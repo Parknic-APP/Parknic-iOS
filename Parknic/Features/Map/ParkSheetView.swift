@@ -17,7 +17,11 @@ struct ParkSheetView: View {
                 header
                 stats
                 checkInSection
-                linkRow(symbol: "trophy", title: "이달의 랭킹 보기", action: onShowRanking)
+                if let ranking = viewModel.ranking {
+                    podiumSection(ranking)
+                } else {
+                    linkRow(symbol: "trophy", title: "이달의 랭킹 보기", action: onShowRanking)
+                }
                 linkRow(symbol: "text.bubble", title: reviewTitle, action: onShowReviews)
                 if case .failed(let message) = viewModel.state {
                     detailError(message)
@@ -26,10 +30,43 @@ struct ParkSheetView: View {
             .padding(Spacing.s20)
         }
         .background(Color.white)
-        .task { await viewModel.load() }
+        .task {
+            async let detail: Void = viewModel.load()
+            async let ranking: Void = viewModel.loadRanking()
+            _ = await (detail, ranking)
+        }
     }
 
     // MARK: 구성
+
+    private func podiumSection(_ ranking: ParkRanking) -> some View {
+        VStack(spacing: Spacing.s12) {
+            HStack {
+                Text("이달의 시상대").pkTextStyle(.title2).foregroundStyle(Color.ink900)
+                PKTag(text: "\(ranking.month.month)월", style: .neutral)
+                Spacer()
+                Button(action: onShowRanking) {
+                    HStack(spacing: Spacing.s4) {
+                        Text("전체 랭킹")
+                        Image(systemName: "chevron.right")
+                    }
+                    .pkTextStyle(.callout).foregroundStyle(Color.leaf600)
+                    .frame(minHeight: TouchTarget.minimum)
+                }
+            }
+            PodiumView(ranking: ranking, myRank: ranking.me?.rank)
+            let footer = MyRankingFooter.make(for: ranking)
+            VStack(alignment: .leading, spacing: Spacing.s4) {
+                Text(footer.title).pkTextStyle(.headline).foregroundStyle(Color.ink900)
+                Text(footer.subtitle).pkTextStyle(.callout).foregroundStyle(Color.sun700)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(Spacing.s16)
+            .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r20))
+        }
+        .padding(Spacing.s16)
+        .background(Color.leaf50, in: RoundedRectangle(cornerRadius: Radius.r24))
+    }
 
     private var header: some View {
         HStack(alignment: .top, spacing: Spacing.s16) {

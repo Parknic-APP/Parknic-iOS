@@ -26,11 +26,13 @@ final class AppContainer {
         let userRepository: UserRepository = MockUserRepository()
         let checkInRepository: CheckInRepository = MockCheckInRepository()
         let parkRepository: ParkRepository = MockParkRepository()
+        let rankingRepository: RankingRepository = MockRankingRepository()
         #else
         let authRepository: AuthRepository = RemoteAuthRepository(client: client, tokenStore: tokenStore)
         let userRepository: UserRepository = RemoteUserRepository(client: client)
         let checkInRepository: CheckInRepository = RemoteCheckInRepository(client: client)
         let parkRepository: ParkRepository = RemoteParkRepository(client: client)
+        let rankingRepository: RankingRepository = RemoteRankingRepository(client: client)
         #endif
 
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
@@ -47,7 +49,7 @@ final class AppContainer {
         checkInCoordinator = coordinator
         mapViewModel = MapHomeViewModel(
             location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository),
-            checkIn: coordinator, parks: parkRepository)
+            checkIn: coordinator, parks: parkRepository, rankings: rankingRepository, profile: profileStore)
         UNUserNotificationCenter.current().delegate = notificationPresenter
     }
 }

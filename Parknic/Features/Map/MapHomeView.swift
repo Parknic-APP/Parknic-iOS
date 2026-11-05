@@ -184,6 +184,7 @@ private struct ParkSheetHost: View {
     let park: Park
     let viewModel: MapHomeViewModel
     @State private var sheetModel: ParkSheetViewModel
+    @State private var showsRanking = false
 
     init(park: Park, viewModel: MapHomeViewModel) {
         self.park = park
@@ -194,18 +195,24 @@ private struct ParkSheetHost: View {
     var body: some View {
         // 목록이 새로 조회되면 최신 상태(오늘 받음 등)로 보여준다.
         let current = viewModel.nearby.parks.first { $0.id == park.id } ?? park
-        ParkSheetView(
-            viewModel: sheetModel, availability: viewModel.availability(for: current),
-            isStartingCheckIn: viewModel.isStartingCheckIn, distanceM: viewModel.distanceM(to: current),
-            onCheckIn: { Task { await viewModel.checkInTapped(on: current) } },
-            onShowRanking: {}, onShowReviews: {}, onClose: { viewModel.selectedParkID = nil })
-            .sheet(isPresented: chooserBinding) {
-                ParkChooserSheet(
-                    parks: viewModel.chooserParks ?? [], location: viewModel.nearby.currentLocation,
-                    onSelect: { chosen in Task { await viewModel.chooseForCheckIn(chosen) } },
-                    onCancel: { viewModel.chooserParks = nil })
-                    .presentationDetents([.medium])
-            }
+        NavigationStack {
+            ParkSheetView(
+                viewModel: sheetModel, availability: viewModel.availability(for: current),
+                isStartingCheckIn: viewModel.isStartingCheckIn, distanceM: viewModel.distanceM(to: current),
+                onCheckIn: { Task { await viewModel.checkInTapped(on: current) } },
+                onShowRanking: { showsRanking = true }, onShowReviews: {}, onClose: { viewModel.selectedParkID = nil })
+                .toolbar(.hidden, for: .navigationBar)
+                .navigationDestination(isPresented: $showsRanking) {
+                    RankingView(viewModel: sheetModel.makeRankingViewModel(), myCharacterAssetName: viewModel.characterAssetName)
+                }
+        }
+        .sheet(isPresented: chooserBinding) {
+            ParkChooserSheet(
+                parks: viewModel.chooserParks ?? [], location: viewModel.nearby.currentLocation,
+                onSelect: { chosen in Task { await viewModel.chooseForCheckIn(chosen) } },
+                onCancel: { viewModel.chooserParks = nil })
+                .presentationDetents([.medium])
+        }
     }
 
     private var chooserBinding: Binding<Bool> {
