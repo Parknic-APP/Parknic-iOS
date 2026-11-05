@@ -44,6 +44,18 @@ struct CheckInTracker {
         state.isActive ? effectiveElapsed(at: clock.now) : endedStayed
     }
 
+    /// 마지막으로 확인된 위치가 공원 경계에서 벗어난 거리(m). 반경 밖에 있을 때만 값이 있다.
+    var metersOutside: Double? {
+        guard case .outOfRange(let session, _) = state, let coordinate = lastKnownCoordinate else { return nil }
+        return max(0, session.center.distance(to: coordinate) - session.radiusM)
+    }
+
+    /// 돌아올 수 있는 남은 시간(초). 반경 밖에 있을 때만 값이 있다.
+    var outOfRangeGraceRemaining: TimeInterval? {
+        guard case .outOfRange(_, let since) = state else { return nil }
+        return max(0, Self.outOfRangeGracePeriod - clock.now.timeIntervalSince(since))
+    }
+
     /// 서버에 알릴 반경 밖 체류 시간(초)
     var pausedSeconds: Int { Int(pausedDuration.rounded()) }
 

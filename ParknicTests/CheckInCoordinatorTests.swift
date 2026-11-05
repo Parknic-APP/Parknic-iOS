@@ -370,6 +370,52 @@ final class CheckInCoordinatorTests: XCTestCase {
         XCTAssertFalse(repository.calls.contains { $0.hasPrefix("fail") })
     }
 
+    // MARK: 화면에 넘기는 값
+
+    func test_진행_중이_아니면_화면_값이_없다() async {
+        let coordinator = makeCoordinator()
+        XCTAssertNil(CheckInProgressDisplay.make(from: coordinator, parkType: .neighborhood))
+    }
+
+    func test_공원_안에서는_남은_시간과_머문_시간을_보여준다() async throws {
+        let coordinator = await begun()
+        clock.advance(by: 446)
+        await coordinator.tick()
+
+        let display = try XCTUnwrap(CheckInProgressDisplay.make(from: coordinator, parkType: .neighborhood))
+        XCTAssertEqual(display.phase, .inside)
+        XCTAssertEqual(display.parkName, "보라매공원")
+        XCTAssertEqual(display.remaining, 754)
+        XCTAssertEqual(display.stayedMinutes, 7)
+        XCTAssertEqual(display.progress, 446.0 / 1200.0, accuracy: 0.001)
+    }
+
+    func test_반경_밖에서는_벗어난_거리와_돌아올_시간을_보여주고_타이머는_멈춘다() async throws {
+        let coordinator = await begun()
+        clock.advance(by: 300)
+        location.send(point(metersNorth: 260))
+        await waitUntil { self.notifier.events == ["warn"] }
+        clock.advance(by: 18)
+        await coordinator.tick()
+
+        let display = try XCTUnwrap(CheckInProgressDisplay.make(from: coordinator, parkType: .neighborhood))
+        guard case .outOfRange(let meters, let grace) = display.phase else { return XCTFail("이탈 단계여야 한다") }
+        XCTAssertEqual(Double(meters), 80, accuracy: 2)
+        XCTAssertEqual(grace, 42)
+        XCTAssertEqual(display.remaining, 900, "밖에 있는 동안 남은 시간은 줄지 않는다")
+    }
+
+    func test_20분을_채우면_배지_확인_중으로_보인다() async throws {
+        repository.completeResults = [.failure(.network)]
+        let coordinator = await begun()
+        clock.advance(by: 1200)
+        await coordinator.tick()
+        // 연결 실패로 진행 상태로 돌아온 직후에는 남은 시간이 0이다
+        let display = try XCTUnwrap(CheckInProgressDisplay.make(from: coordinator, parkType: .neighborhood))
+        XCTAssertEqual(display.remaining, 0)
+        XCTAssertEqual(display.progress, 1)
+    }
+
     // MARK: 마무리
 
     func test_안내를_닫으면_처음_상태로_돌아가고_다시_시작할_수_있다() async {

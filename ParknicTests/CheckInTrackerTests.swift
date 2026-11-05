@@ -441,6 +441,53 @@ final class CheckInTrackerTests: XCTestCase {
     }
 }
 
+final class CheckInOutOfRangeInfoTests: XCTestCase {
+    private let center = Coordinate(latitude: 37.4934, longitude: 126.9209)
+    private let start = kst("2026-11-04T15:00:00+09:00")
+
+    private func make() -> (CheckInTracker, FixedClock) {
+        let clock = FixedClock(start)
+        var tracker = CheckInTracker(clock: clock)
+        tracker.start(CheckInSession(id: 7, parkID: 1, parkName: "a", center: center, radiusM: 180, startedAt: start))
+        return (tracker, clock)
+    }
+
+    private func sample(metersNorth: Double) -> LocationSample {
+        LocationSample(
+            coordinate: Coordinate(latitude: center.latitude + metersNorth / 111_195, longitude: center.longitude),
+            horizontalAccuracy: 10)
+    }
+
+    func test_반경_안에서는_이탈_정보가_없다() {
+        var (tracker, _) = make()
+        _ = tracker.receive(sample(metersNorth: 100))
+        XCTAssertNil(tracker.metersOutside)
+        XCTAssertNil(tracker.outOfRangeGraceRemaining)
+    }
+
+    func test_경계에서_벗어난_거리를_알려준다() throws {
+        var (tracker, _) = make()
+        _ = tracker.receive(sample(metersNorth: 260))
+        XCTAssertEqual(try XCTUnwrap(tracker.metersOutside), 80, accuracy: 2, "중심에서 260m, 반경 180m → 경계에서 80m")
+    }
+
+    func test_돌아올_수_있는_남은_시간이_줄어든다() {
+        var (tracker, clock) = make()
+        _ = tracker.receive(sample(metersNorth: 260))
+        XCTAssertEqual(tracker.outOfRangeGraceRemaining, 60)
+        clock.advance(by: 18)
+        XCTAssertEqual(tracker.outOfRangeGraceRemaining, 42)
+    }
+
+    func test_복귀하면_이탈_정보가_사라진다() {
+        var (tracker, _) = make()
+        _ = tracker.receive(sample(metersNorth: 260))
+        _ = tracker.receive(sample(metersNorth: 10))
+        XCTAssertNil(tracker.metersOutside)
+        XCTAssertNil(tracker.outOfRangeGraceRemaining)
+    }
+}
+
 final class CheckInStayedTests: XCTestCase {
     private let center = Coordinate(latitude: 37.4934, longitude: 126.9209)
     private let start = kst("2026-11-04T15:00:00+09:00")
@@ -519,5 +566,28 @@ final class CoordinateTests: XCTestCase {
         let cityHall = Coordinate(latitude: 37.5663, longitude: 126.9779)
         let gangnam = Coordinate(latitude: 37.4979, longitude: 127.0276)
         XCTAssertEqual(cityHall.distance(to: gangnam), 8_800, accuracy: 400)
+    }
+}
+
+final class CheckInProgressDisplayTests: XCTestCase {
+    private func display(remaining: TimeInterval, stayed: TimeInterval) -> CheckInProgressDisplay {
+        CheckInProgressDisplay(
+            parkName: "보라매공원", parkType: .neighborhood, remaining: remaining, stayed: stayed, phase: .inside)
+    }
+
+    func test_진행률은_0에서_1_사이다() {
+        XCTAssertEqual(display(remaining: 1200, stayed: 0).progress, 0)
+        XCTAssertEqual(display(remaining: 600, stayed: 600).progress, 0.5)
+        XCTAssertEqual(display(remaining: 0, stayed: 1200).progress, 1)
+    }
+
+    func test_범위를_벗어난_값도_안전하게_자른다() {
+        XCTAssertEqual(display(remaining: -5, stayed: 1300).progress, 1)
+        XCTAssertEqual(display(remaining: 5000, stayed: 0).progress, 0)
+    }
+
+    func test_머문_분은_내림해서_보여준다() {
+        XCTAssertEqual(display(remaining: 754, stayed: 446).stayedMinutes, 7)
+        XCTAssertEqual(display(remaining: 1190, stayed: 10).stayedMinutes, 0)
     }
 }

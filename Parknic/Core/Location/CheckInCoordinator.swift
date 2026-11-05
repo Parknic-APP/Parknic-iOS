@@ -10,11 +10,18 @@ final class CheckInCoordinator {
     private(set) var remaining: TimeInterval?
     /// 반경 안에서 머문 시간(초). 실패·취소 화면의 "머문 시간"에 쓴다.
     private(set) var stayed: TimeInterval?
+    /// 반경 밖에 있을 때만 값이 있다(경계에서 벗어난 거리, 돌아올 수 있는 남은 시간).
+    private(set) var outOfRange: OutOfRangeInfo?
     /// 20분 달성으로 받은 결과(배지 획득 화면에 쓴다)
     private(set) var result: CheckInResult?
     /// 시작하지 못했을 때 보여줄 한국어 문구
     private(set) var startErrorMessage: String?
     private(set) var isStarting = false
+
+    struct OutOfRangeInfo: Equatable {
+        let metersOutside: Double
+        let graceRemaining: TimeInterval
+    }
 
     private var tracker: CheckInTracker
 
@@ -176,5 +183,10 @@ final class CheckInCoordinator {
         state = tracker.state
         remaining = tracker.remaining
         stayed = tracker.stayed
+        if let meters = tracker.metersOutside, let grace = tracker.outOfRangeGraceRemaining {
+            outOfRange = OutOfRangeInfo(metersOutside: meters, graceRemaining: grace)
+        } else {
+            outOfRange = nil
+        }
     }
 }
