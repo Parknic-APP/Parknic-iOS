@@ -9,6 +9,7 @@ final class AppContainer {
     let onboardingViewModel: OnboardingViewModel
     let checkInCoordinator: CheckInCoordinator
     let mapViewModel: MapHomeViewModel
+    let profileStore: ProfileStore = UserDefaultsProfileStore()
     private let notificationPresenter = ForegroundNotificationPresenter()
 
     init() {
@@ -37,7 +38,7 @@ final class AppContainer {
         }
         onboardingViewModel = OnboardingViewModel(
             repository: userRepository, location: CoreLocationPermissionRequester(),
-            notification: UserNotificationPermissionRequester()
+            notification: UserNotificationPermissionRequester(), profileStore: profileStore
         ) { session.didFinishOnboarding() }
 
         let coordinator = CheckInCoordinator(

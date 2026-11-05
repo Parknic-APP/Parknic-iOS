@@ -3,13 +3,16 @@ import XCTest
 
 @MainActor
 final class OnboardingViewModelTests: XCTestCase {
+    private let profileStore = MemoryProfileStore()
+
     private func makeModel(
         repository: UserRepository = MockUserRepository(takenNicknames: ["두부산책"], delay: .zero),
         finished: @escaping () -> Void = {}
     ) -> OnboardingViewModel {
         let permissions = StubPermissions()
         return OnboardingViewModel(
-            repository: repository, location: permissions, notification: permissions, onFinished: finished)
+            repository: repository, location: permissions, notification: permissions, profileStore: profileStore,
+            onFinished: finished)
     }
 
     private func confirmNickname(_ model: OnboardingViewModel, _ name: String) async {
@@ -58,6 +61,24 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertTrue(finished)
     }
 
+    func test_저장에_성공하면_고른_캐릭터를_기기에_남긴다() async {
+        let model = makeModel()
+        await confirmNickname(model, "나뭇잎")
+        await model.character?.loadIfNeeded()
+        model.character?.select(MockUserRepository.characters[4])
+        await model.character?.confirm()
+        XCTAssertEqual(profileStore.nickname, "나뭇잎")
+        XCTAssertEqual(profileStore.characterID, MockUserRepository.characters[4].id)
+    }
+
+    func test_저장에_실패하면_기기에_남기지_않는다() async {
+        let model = makeModel(repository: LateDuplicateRepository())
+        await confirmNickname(model, "나뭇잎")
+        await model.character?.loadIfNeeded()
+        await model.character?.confirm()
+        XCTAssertNil(profileStore.characterID)
+    }
+
     func test_저장_중_중복이_드러나면_닉네임_단계로_돌아가_안내한다() async {
         // 확인 때는 쓸 수 있었지만 저장 시점에 다른 사람이 쓰고 있는 상황
         let model = makeModel(repository: LateDuplicateRepository())
@@ -98,4 +119,14 @@ private struct LateDuplicateRepository: UserRepository {
     func updateProfile(nickname: String, characterID: Int) async throws {
         throw APIError.server(status: 409, code: "NICKNAME_DUPLICATED")
     }
+}
+
+final class MemoryProfileStore: ProfileStore, @unchecked Sendable {
+    private let lock = NSLock()
+    private var _nickname: String?
+    private var _characterID: Int?
+    var nickname: String? { lock.withLock { _nickname } }
+    var characterID: Int? { lock.withLock { _characterID } }
+    func save(nickname: String, characterID: Int) { lock.withLock { _nickname = nickname; _characterID = characterID } }
+    func clear() { lock.withLock { _nickname = nil; _characterID = nil } }
 }

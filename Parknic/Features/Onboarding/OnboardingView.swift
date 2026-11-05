@@ -50,5 +50,5 @@ struct OnboardingView: View {
     OnboardingView(
         viewModel: OnboardingViewModel(
             repository: MockUserRepository(), location: CoreLocationPermissionRequester(),
-            notification: UserNotificationPermissionRequester(), onFinished: {}))
+            notification: UserNotificationPermissionRequester(), profileStore: UserDefaultsProfileStore(), onFinished: {}))
 }

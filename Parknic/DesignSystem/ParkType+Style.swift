@@ -28,3 +28,8 @@ extension ParkType {
         }
     }
 }
+
+extension ParkType {
+    /// 배지 이미지 에셋 이름(최종 손그림 에셋으로 교체해도 코드는 그대로)
+    var badgeAssetName: String { "badge-\(rawValue.lowercased())" }
+}

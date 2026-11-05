@@ -25,6 +25,8 @@ struct MapHomeView: View {
         .fullScreenCover(isPresented: $viewModel.showsCheckInFlow) {
             CheckInFlowView(
                 coordinator: viewModel.checkIn, parkType: viewModel.checkInParkType,
+                badgeNumberAtPark: viewModel.badgeNumberAtPark, characterAssetName: viewModel.characterAssetName,
+                onWriteReview: viewModel.openParkAfterBadge, onShowRanking: viewModel.openParkAfterBadge,
                 onRetry: { viewModel.retryCheckIn(parkID: lastParkID) },
                 onBackToMap: { viewModel.showsCheckInFlow = false })
         }

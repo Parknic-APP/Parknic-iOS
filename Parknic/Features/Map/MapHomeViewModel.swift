@@ -24,9 +24,14 @@ final class MapHomeViewModel {
 
     private let location: LocationProviding
     private let parkRepository: ParkRepository
+    private let profile: ProfileStore
     private var hasCentered = false
 
-    init(location: LocationProviding, nearby: NearbyParksViewModel, checkIn: CheckInCoordinator, parks: ParkRepository) {
+    init(
+        location: LocationProviding, nearby: NearbyParksViewModel, checkIn: CheckInCoordinator, parks: ParkRepository,
+        profile: ProfileStore = UserDefaultsProfileStore()
+    ) {
+        self.profile = profile
         self.location = location
         self.nearby = nearby
         self.checkIn = checkIn
@@ -145,6 +150,25 @@ final class MapHomeViewModel {
     func retryCheckIn(parkID: Int?) {
         showsCheckInFlow = false
         if let parkID, nearby.parks.contains(where: { $0.id == parkID }) { selectedParkID = parkID }
+    }
+
+    /// 배지 획득 화면의 "N번째 배지". 목록의 내 배지 수에 이번에 받은 1개를 더한다.
+    var badgeNumberAtPark: Int? {
+        guard let id = checkIn.result?.badge.parkID else { return nil }
+        return nearby.parks.first { $0.id == id }.map { $0.badgeCount + 1 }
+    }
+
+    var characterAssetName: String? {
+        profile.characterID.map { "character-\($0)" }
+    }
+
+    /// 배지 획득 화면에서 랭킹·리뷰로 가려는 경우: 체크인 화면을 닫고 그 공원 시트를 연다.
+    func openParkAfterBadge() {
+        let parkID = checkIn.result?.badge.parkID
+        checkIn.dismiss()
+        showsCheckInFlow = false
+        nearby.refresh()
+        if let parkID { selectedParkID = parkID }
     }
 
     /// 지도 위 진행 중 배너와 체크인 화면에 쓰는 값

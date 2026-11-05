@@ -97,6 +97,8 @@ private final class CountingCheckInRepository: CheckInRepository, @unchecked Sen
     private let lock = NSLock()
     private var _started: [Int] = []
     var startError: APIError?
+    var clock: AppClock = SystemClock()
+    var completeResult: CheckInResult?
     var started: [Int] { lock.withLock { _started } }
 
     func start(parkID: Int, at coordinate: Coordinate) async throws -> CheckInSession {
@@ -104,10 +106,13 @@ private final class CountingCheckInRepository: CheckInRepository, @unchecked Sen
         lock.withLock { _started.append(parkID) }
         return CheckInSession(
             id: 7, parkID: parkID, parkName: "공원\(parkID)", center: coordinate, radiusM: 180,
-            startedAt: Date())
+            startedAt: clock.now)
     }
     func current() async throws -> CheckInSession? { nil }
-    func complete(sessionID: Int, at coordinate: Coordinate?, pausedSeconds: Int) async throws -> CheckInResult { throw APIError.network }
+    func complete(sessionID: Int, at coordinate: Coordinate?, pausedSeconds: Int) async throws -> CheckInResult {
+        guard let completeResult else { throw APIError.network }
+        return completeResult
+    }
     func fail(sessionID: Int, reason: CheckInFailureReason) async throws {}
     func cancel(sessionID: Int) async throws {}
 }
@@ -158,10 +163,13 @@ final class MapHomeCheckInTests: XCTestCase {
         Park(id: id, name: "공원\(id)", type: .small, coordinate: at(meters: meters), radiusM: radius, status: status, badgeCount: 0)
     }
 
+    private let clock = FixedClock(Date(timeIntervalSince1970: 1_793_773_930))
+
     private func make(parks: [Park], location: Coordinate?) async -> MapHomeViewModel {
+        repository.clock = clock
         let coordinator = CheckInCoordinator(
             repository: repository, location: SilentLocationSource(), notifier: SilentNotifier(), store: MemoryStore(),
-            sleep: { _ in try await Task.sleep(for: .seconds(3600)) })
+            clock: clock, sleep: { _ in try await Task.sleep(for: .seconds(3600)) })
         let model = MapHomeViewModel(
             location: SilentLocationProvider(), nearby: NearbyParksViewModel(repository: ListRepository(parks: parks)),
             checkIn: coordinator, parks: ListRepository(parks: parks))
@@ -306,5 +314,49 @@ final class MapHomeCheckInTests: XCTestCase {
         let model = await make(parks: [park(1, meters: 0)], location: center)
         model.retryCheckIn(parkID: 99)
         XCTAssertNil(model.selectedParkID)
+    }
+
+    // MARK: 배지 획득 이후
+
+    private func completedResult(parkID: Int) -> CheckInResult {
+        CheckInResult(
+            badge: EarnedBadge(parkID: parkID, parkName: "공원\(parkID)", parkType: .small, earnedAt: clock.now),
+            newAchievements: [], monthlyRanking: MonthlyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
+            canWriteReview: true)
+    }
+
+    private func completeCheckIn(_ model: MapHomeViewModel, park: Park) async {
+        repository.completeResult = completedResult(parkID: park.id)
+        await model.checkInTapped(on: park)
+        clock.advance(by: 1200)
+        await model.checkIn.tick()
+    }
+
+    func test_배지_순번은_목록의_내_배지_수에_이번_배지를_더한다() async {
+        let target = Park(id: 1, name: "공원1", type: .small, coordinate: center, radiusM: 100, status: .earned, badgeCount: 3)
+        let model = await make(parks: [target], location: center)
+        await completeCheckIn(model, park: target)
+
+        XCTAssertEqual(model.checkIn.state.isActive, false)
+        XCTAssertEqual(model.badgeNumberAtPark, 4)
+    }
+
+    func test_배지_화면에서_랭킹이나_리뷰로_가면_체크인_화면을_닫고_그_공원_시트를_연다() async {
+        let target = park(1, meters: 0)
+        let model = await make(parks: [target], location: center)
+        await completeCheckIn(model, park: target)
+        model.showsCheckInFlow = true
+
+        model.openParkAfterBadge()
+
+        XCTAssertFalse(model.showsCheckInFlow)
+        XCTAssertEqual(model.selectedParkID, 1)
+        XCTAssertNil(model.checkIn.result, "결과 화면을 닫았으니 정리된다")
+        XCTAssertEqual(model.checkIn.state, .idle)
+    }
+
+    func test_결과가_없으면_배지_순번을_모른다() async {
+        let model = await make(parks: [park(1, meters: 0)], location: center)
+        XCTAssertNil(model.badgeNumberAtPark)
     }
 }
