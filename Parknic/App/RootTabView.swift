@@ -24,5 +24,9 @@ struct RootTabView: View {
 #Preview {
     RootTabView(
         mapViewModel: MapHomeViewModel(
-            location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: MockParkRepository())))
+            location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: MockParkRepository()),
+            checkIn: CheckInCoordinator(
+                repository: MockCheckInRepository(), location: CoreLocationSampleSource(), notifier: LocalCheckInNotifier(),
+                store: UserDefaultsCheckInStore()),
+            parks: MockParkRepository()))
 }

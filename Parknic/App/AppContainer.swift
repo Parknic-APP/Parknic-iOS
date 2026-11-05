@@ -40,10 +40,13 @@ final class AppContainer {
             notification: UserNotificationPermissionRequester()
         ) { session.didFinishOnboarding() }
 
-        checkInCoordinator = CheckInCoordinator(
+        let coordinator = CheckInCoordinator(
             repository: checkInRepository, location: CoreLocationSampleSource(),
             notifier: LocalCheckInNotifier(), store: UserDefaultsCheckInStore())
-        mapViewModel = MapHomeViewModel(location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository))
+        checkInCoordinator = coordinator
+        mapViewModel = MapHomeViewModel(
+            location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository),
+            checkIn: coordinator, parks: parkRepository)
         UNUserNotificationCenter.current().delegate = notificationPresenter
     }
 }

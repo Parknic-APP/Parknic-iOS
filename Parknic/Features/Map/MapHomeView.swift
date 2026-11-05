@@ -14,7 +14,41 @@ struct MapHomeView: View {
             }
         }
         .task { await viewModel.run() }
+        .onChange(of: viewModel.checkIn.state) { _, state in viewModel.checkInStateDidChange(state) }
+        .sheet(item: parkBinding) { park in
+            ParkSheetHost(park: park, viewModel: viewModel)
+                .presentationDetents([.medium, .large])
+                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(Radius.r30)
+        }
+        .fullScreenCover(isPresented: $viewModel.showsCheckInFlow) {
+            CheckInFlowView(
+                coordinator: viewModel.checkIn, parkType: viewModel.checkInParkType,
+                onRetry: { viewModel.retryCheckIn(parkID: lastParkID) },
+                onBackToMap: { viewModel.showsCheckInFlow = false })
+        }
+        .alert("체크인을 시작하지 못했어요", isPresented: startErrorBinding) {
+            Button("확인", role: .cancel) {}
+        } message: {
+            Text(viewModel.startErrorMessage ?? "")
+        }
     }
+
+    private var parkBinding: Binding<Park?> {
+        Binding(
+            get: { viewModel.selectedPark },
+            set: { if $0 == nil { viewModel.selectedParkID = nil } })
+    }
+
+    private var startErrorBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.startErrorMessage != nil },
+            set: { if !$0 { viewModel.startErrorMessage = nil } })
+    }
+
+    /// 실패 화면에서 「다시 체크인하기」를 누를 때 열 공원
+    private var lastParkID: Int? { viewModel.checkIn.state.session?.parkID }
 
     private var mapLayer: some View {
         ZStack {
@@ -23,6 +57,9 @@ struct MapHomeView: View {
                 selectedParkID: viewModel.selectedParkID, recenterToken: viewModel.recenterToken,
                 onSelect: { viewModel.selectedParkID = $0.id })
             VStack {
+                if let display = viewModel.checkInDisplay, !viewModel.showsCheckInFlow {
+                    CheckInBanner(display: display) { viewModel.showsCheckInFlow = true }
+                }
                 summaryPill
                 if viewModel.isBrowsingWithoutLocation { permissionBanner }
                 Spacer()
@@ -140,6 +177,42 @@ struct MapHomeView: View {
     }
 }
 
+/// 공원 시트 한 번의 표시 동안 같은 ViewModel을 유지하고, 반경이 겹칠 때의 선택 시트를 위에 띄운다.
+private struct ParkSheetHost: View {
+    let park: Park
+    let viewModel: MapHomeViewModel
+    @State private var sheetModel: ParkSheetViewModel
+
+    init(park: Park, viewModel: MapHomeViewModel) {
+        self.park = park
+        self.viewModel = viewModel
+        _sheetModel = State(initialValue: viewModel.makeSheetViewModel(for: park))
+    }
+
+    var body: some View {
+        // 목록이 새로 조회되면 최신 상태(오늘 받음 등)로 보여준다.
+        let current = viewModel.nearby.parks.first { $0.id == park.id } ?? park
+        ParkSheetView(
+            viewModel: sheetModel, availability: viewModel.availability(for: current),
+            isStartingCheckIn: viewModel.isStartingCheckIn, distanceM: viewModel.distanceM(to: current),
+            onCheckIn: { Task { await viewModel.checkInTapped(on: current) } },
+            onShowRanking: {}, onShowReviews: {}, onClose: { viewModel.selectedParkID = nil })
+            .sheet(isPresented: chooserBinding) {
+                ParkChooserSheet(
+                    parks: viewModel.chooserParks ?? [], location: viewModel.nearby.currentLocation,
+                    onSelect: { chosen in Task { await viewModel.chooseForCheckIn(chosen) } },
+                    onCancel: { viewModel.chooserParks = nil })
+                    .presentationDetents([.medium])
+            }
+    }
+
+    private var chooserBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.chooserParks != nil },
+            set: { if !$0 { viewModel.chooserParks = nil } })
+    }
+}
+
 // MARK: - Preview
 
 private struct PreviewLocation: LocationProviding {
@@ -159,7 +232,11 @@ private func previewModel(
 ) -> MapHomeViewModel {
     MapHomeViewModel(
         location: PreviewLocation(authorization: authorization),
-        nearby: NearbyParksViewModel(repository: MockParkRepository(delay: .seconds(60)), initialState: state))
+        nearby: NearbyParksViewModel(repository: MockParkRepository(delay: .seconds(60)), initialState: state),
+        checkIn: CheckInCoordinator(
+            repository: MockCheckInRepository(), location: CoreLocationSampleSource(), notifier: LocalCheckInNotifier(),
+            store: UserDefaultsCheckInStore()),
+        parks: MockParkRepository(delay: .zero))
 }
 
 #Preview("공원 있음") { MapHomeView(viewModel: previewModel(.loaded(MockParkRepository.sample))) }

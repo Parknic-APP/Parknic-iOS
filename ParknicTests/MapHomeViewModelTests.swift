@@ -26,7 +26,7 @@ final class MapHomeViewModelTests: XCTestCase {
 
     private func make() -> (MapHomeViewModel, FakeLocationProvider, Task<Void, Never>) {
         let provider = FakeLocationProvider()
-        let model = MapHomeViewModel(location: provider, nearby: NearbyParksViewModel(repository: FixedParks()))
+        let model = MapHomeViewModel(location: provider, nearby: NearbyParksViewModel(repository: FixedParks()), checkIn: CheckInCoordinator(repository: MockCheckInRepository(), location: CoreLocationSampleSource(), notifier: LocalCheckInNotifier(), store: UserDefaultsCheckInStore(defaults: UserDefaults(suiteName: "tests.map") ?? .standard)), parks: FixedParks())
         let task = Task { await model.run() }
         return (model, provider, task)
     }
@@ -66,7 +66,7 @@ final class MapHomeViewModelTests: XCTestCase {
 
     func test_현위치_버튼을_누르면_다시_옮긴다() {
         let provider = FakeLocationProvider()
-        let model = MapHomeViewModel(location: provider, nearby: NearbyParksViewModel(repository: FixedParks()))
+        let model = MapHomeViewModel(location: provider, nearby: NearbyParksViewModel(repository: FixedParks()), checkIn: CheckInCoordinator(repository: MockCheckInRepository(), location: CoreLocationSampleSource(), notifier: LocalCheckInNotifier(), store: UserDefaultsCheckInStore(defaults: UserDefaults(suiteName: "tests.map") ?? .standard)), parks: FixedParks())
         model.recenter()
         XCTAssertEqual(model.recenterToken, 1)
     }
