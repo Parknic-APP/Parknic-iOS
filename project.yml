@@ -31,6 +31,10 @@ targets:
         NSLocationWhenInUseUsageDescription: 공원 안에 머무는 시간을 재려고 체크인하는 동안 현재 위치를 사용해요.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+        # HTTPS 표준 암호화만 쓰므로 수출 규정 질문에 "아니오"로 답한다(업로드마다 묻지 않게).
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
         UIBackgroundModes:
           - location
         UIAppFonts:
@@ -44,7 +48,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.seongmo.parknic
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: 파크닉
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIUserInterfaceStyle: Light
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
         TARGETED_DEVICE_FAMILY: "1"
