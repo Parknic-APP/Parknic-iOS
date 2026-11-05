@@ -8,6 +8,7 @@ final class AppContainer {
     let loginViewModel: LoginViewModel
     let onboardingViewModel: OnboardingViewModel
     let checkInCoordinator: CheckInCoordinator
+    let mapViewModel: MapHomeViewModel
     private let notificationPresenter = ForegroundNotificationPresenter()
 
     init() {
@@ -23,10 +24,12 @@ final class AppContainer {
         let authRepository: AuthRepository = MockAuthRepository()
         let userRepository: UserRepository = MockUserRepository()
         let checkInRepository: CheckInRepository = MockCheckInRepository()
+        let parkRepository: ParkRepository = MockParkRepository()
         #else
         let authRepository: AuthRepository = RemoteAuthRepository(client: client, tokenStore: tokenStore)
         let userRepository: UserRepository = RemoteUserRepository(client: client)
         let checkInRepository: CheckInRepository = RemoteCheckInRepository(client: client)
+        let parkRepository: ParkRepository = RemoteParkRepository(client: client)
         #endif
 
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
@@ -40,6 +43,7 @@ final class AppContainer {
         checkInCoordinator = CheckInCoordinator(
             repository: checkInRepository, location: CoreLocationSampleSource(),
             notifier: LocalCheckInNotifier(), store: UserDefaultsCheckInStore())
+        mapViewModel = MapHomeViewModel(location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository))
         UNUserNotificationCenter.current().delegate = notificationPresenter
     }
 }
