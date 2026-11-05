@@ -29,18 +29,21 @@ struct RootTabView: View {
     @State private var selection: Tab = .map
 
     var body: some View {
-        TabView(selection: $selection) {
-            MapHomeView(viewModel: mapViewModel)
-                .tag(Tab.map)
-                .toolbar(.hidden, for: .tabBar)
-            CollectionView(viewModel: collectionViewModel)
-                .tag(Tab.collection)
-                .toolbar(.hidden, for: .tabBar)
-            MyPageView(viewModel: myPageViewModel)
-                .tag(Tab.myPage)
-                .toolbar(.hidden, for: .tabBar)
+        // `safeAreaInset`은 탭 안쪽 화면(지도 범례 등)에 전달되지 않아 탭바 뒤로 가려지므로 위아래로 쌓는다.
+        VStack(spacing: 0) {
+            TabView(selection: $selection) {
+                MapHomeView(viewModel: mapViewModel)
+                    .tag(Tab.map)
+                    .toolbar(.hidden, for: .tabBar)
+                CollectionView(viewModel: collectionViewModel)
+                    .tag(Tab.collection)
+                    .toolbar(.hidden, for: .tabBar)
+                MyPageView(viewModel: myPageViewModel)
+                    .tag(Tab.myPage)
+                    .toolbar(.hidden, for: .tabBar)
+            }
+            PKTabBar(selection: $selection)
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { PKTabBar(selection: $selection) }
     }
 }
 

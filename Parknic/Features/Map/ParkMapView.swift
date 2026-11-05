@@ -27,6 +27,12 @@ struct ParkMapView: View {
                     .stroke(Color.leaf600.opacity(0.6), style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
             }
             ForEach(parks) { park in
+                // 시안의 초록 공원 면처럼, 체크인 판정 반경을 공원 영역으로 보여준다.
+                MapCircle(center: park.coordinate.clLocation, radius: Double(park.radiusM))
+                    .foregroundStyle(Color.leaf300.opacity(0.5))
+                    .stroke(Color.ink900.opacity(0.55), lineWidth: 1.5)
+            }
+            ForEach(parks) { park in
                 Annotation(park.name, coordinate: park.coordinate.clLocation, anchor: .bottom) {
                     ParkMarker(park: park, isSelected: park.id == selectedParkID)
                         .onTapGesture { onSelect(park) }
@@ -34,6 +40,8 @@ struct ParkMapView: View {
                 .annotationTitles(.hidden)
             }
         }
+        // 시안은 상점·역 같은 장소 표시 없이 길과 공원만 보이므로 장소 표시를 끄고 지도를 흐리게 쓴다.
+        .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
         .mapControls {}
         .onChange(of: recenterToken) { recenter() }
         .onAppear { if userLocation != nil { recenter() } }
