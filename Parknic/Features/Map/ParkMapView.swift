@@ -12,7 +12,17 @@ struct ParkMapView: View {
     var characterAssetName: String?
     let onSelect: (Park) -> Void
 
-    @State private var position: MapCameraPosition = .automatic
+    /// 처음 들어올 때와 현위치 버튼을 누를 때 지도에 보이는 가로 폭(m). 내 주변 1km 반경이 화면 폭의 2/3쯤 차지한다.
+    static let visibleWidthM = 3000.0
+
+    private static let koreaVeil: [CLLocationCoordinate2D] = [
+        CLLocationCoordinate2D(latitude: 32.5, longitude: 123.5), CLLocationCoordinate2D(latitude: 32.5, longitude: 132.5),
+        CLLocationCoordinate2D(latitude: 39.5, longitude: 132.5), CLLocationCoordinate2D(latitude: 39.5, longitude: 123.5),
+    ]
+
+    /// 위치가 아직 오지 않았어도 권한이 있으면 처음부터 내 위치 근처로 시작한다(한국 전체가 먼저 보이지 않게).
+    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var hasPlacedCamera = false
 
     var body: some View {
         Map(position: $position) {
@@ -21,16 +31,20 @@ struct ParkMapView: View {
             } else {
                 UserAnnotation()
             }
+            // 시안의 평평한 크림색 바탕에 가깝도록, 한국 전체를 덮는 옅은 크림색 막으로 지도 색을 눌러준다.
+            MapPolygon(coordinates: Self.koreaVeil)
+                .foregroundStyle(Color.mapVeil.opacity(0.55))
+                .mapOverlayLevel(level: .aboveRoads)
             if let userLocation {
                 MapCircle(center: userLocation.clLocation, radius: Double(NearbyParksViewModel.searchRadiusM))
                     .foregroundStyle(Color.leaf500.opacity(0.08))
                     .stroke(Color.leaf600.opacity(0.6), style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
             }
             ForEach(parks) { park in
-                // 시안의 초록 공원 면처럼, 체크인 판정 반경을 공원 영역으로 보여준다.
-                MapCircle(center: park.coordinate.clLocation, radius: Double(park.radiusM))
-                    .foregroundStyle(Color.leaf300.opacity(0.5))
-                    .stroke(Color.ink900.opacity(0.55), lineWidth: 1.5)
+                // 시안의 초록 공원 면처럼, 체크인 판정 반경을 둘레로 살짝 일렁이는 공원 영역으로 보여준다.
+                MapPolygon(coordinates: ParkArea.outline(for: park).map(\.clLocation))
+                    .foregroundStyle(Color.leaf300.opacity(0.6))
+                    .stroke(Color.ink900.opacity(0.6), lineWidth: 1.5)
             }
             ForEach(parks) { park in
                 Annotation(park.name, coordinate: park.coordinate.clLocation, anchor: .bottom) {
@@ -43,15 +57,23 @@ struct ParkMapView: View {
         // 시안은 상점·역 같은 장소 표시 없이 길과 공원만 보이므로 장소 표시를 끄고 지도를 흐리게 쓴다.
         .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
         .mapControls {}
-        .onChange(of: recenterToken) { recenter() }
-        .onAppear { if userLocation != nil { recenter() } }
+        .onChange(of: recenterToken) { recenter(animated: hasPlacedCamera) }
+        .onChange(of: userLocation) { _, new in
+            if !hasPlacedCamera, new != nil { recenter(animated: false) }
+        }
+        .onAppear { if userLocation != nil { recenter(animated: false) } }
     }
 
-    private func recenter() {
+    /// 내 위치를 중심으로 가로 `visibleWidthM`만 보이게 옮긴다. 처음 맞출 때는 애니메이션 없이 바로 놓는다.
+    private func recenter(animated: Bool) {
         guard let userLocation else { return }
-        withAnimation {
-            position = .region(
-                MKCoordinateRegion(center: userLocation.clLocation, latitudinalMeters: 2600, longitudinalMeters: 2600))
+        let region = MKCoordinateRegion(
+            center: userLocation.clLocation, latitudinalMeters: Self.visibleWidthM, longitudinalMeters: Self.visibleWidthM)
+        hasPlacedCamera = true
+        if animated {
+            withAnimation { position = .region(region) }
+        } else {
+            position = .region(region)
         }
     }
 }

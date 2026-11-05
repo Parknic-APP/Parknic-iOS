@@ -46,4 +46,6 @@ extension Color {
     static let ink100 = Color(hex: 0xEEF2EF)
     /// 화면 배경
     static let canvas = Color(hex: 0xF7F8F3)
+    /// 지도 바탕 크림색(혼합안 시안의 지도 배경). 지도 위에 옅게 덮어 색을 눌러준다.
+    static let mapVeil = Color(hex: 0xFBF6EA)
 }

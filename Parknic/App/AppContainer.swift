@@ -64,7 +64,8 @@ final class AppContainer {
         checkInCoordinator = coordinator
         mapViewModel = MapHomeViewModel(
             location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository),
-            checkIn: coordinator, parks: parkRepository, rankings: rankingRepository, reviews: reviewRepository, profile: profileStore)
+            checkIn: coordinator, parks: parkRepository, rankings: rankingRepository, reviews: reviewRepository, profile: profileStore,
+            neighborhood: GeocoderNeighborhoodNamer())
         myPageViewModel = MyPageViewModel(
             auth: authRepository, profile: profileStore, repository: myPageRepository, userRepository: userRepository,
             isCheckInActive: { coordinator.state.isActive },

@@ -80,10 +80,16 @@ struct MapHomeView: View {
 
     // MARK: 구성
 
+    /// "신대방동 주변 1km"(동네 이름을 모르면 "내 주변 1km")
+    private var summaryTitle: String {
+        guard let name = viewModel.neighborhoodName else { return String(localized: "내 주변 1km") }
+        return String(localized: "\(name) 주변 1km")
+    }
+
     private var summaryPill: some View {
         Label {
             HStack(spacing: Spacing.s4) {
-                Text("내 주변 1km").foregroundStyle(Color.ink900)
+                Text(summaryTitle).foregroundStyle(Color.ink900)
                 Text("공원 \(viewModel.nearby.parks.count)곳").foregroundStyle(Color.leaf600)
             }
             .pkTextStyle(.headline)
@@ -129,8 +135,8 @@ struct MapHomeView: View {
 
     private var locateButton: some View {
         Button(action: viewModel.recenter) {
-            Image(systemName: "location.fill")
-                .font(.title3).foregroundStyle(Color.leaf600)
+            Image(systemName: "scope")
+                .font(.title2.weight(.semibold)).foregroundStyle(Color.leaf600)
                 .frame(width: 52, height: 52).background(Color.white, in: Circle()).pkShadow(.soft2)
         }
         .accessibilityLabel("내 위치로 이동")

@@ -13,6 +13,8 @@ final class MapHomeViewModel {
     private(set) var recenterToken = 0
     /// 사용자가 「둘러보기만 할게요」를 눌러 권한 안내를 닫았다
     private(set) var isBrowsingWithoutLocation = false
+    /// 지금 있는 동네 이름("신대방동"). 아직 모르거나 구하지 못하면 nil
+    private(set) var neighborhoodName: String?
 
     /// 체크인 화면(진행·실패·완료)을 전체 화면으로 보여주는지
     var showsCheckInFlow = false
@@ -27,13 +29,18 @@ final class MapHomeViewModel {
     private let rankingRepository: RankingRepository
     private let reviewRepository: ReviewRepository
     private let profile: ProfileStore
+    private let neighborhoodNamer: NeighborhoodNaming
+    private var lastNamedLocation: Coordinate?
+    private var nameTask: Task<Void, Never>?
     private var hasCentered = false
 
     init(
         location: LocationProviding, nearby: NearbyParksViewModel, checkIn: CheckInCoordinator, parks: ParkRepository,
         rankings: RankingRepository = MockRankingRepository(delay: .zero),
-        reviews: ReviewRepository = MockReviewRepository(delay: .zero), profile: ProfileStore = UserDefaultsProfileStore()
+        reviews: ReviewRepository = MockReviewRepository(delay: .zero), profile: ProfileStore = UserDefaultsProfileStore(),
+        neighborhood: NeighborhoodNaming = NoNeighborhoodNamer()
     ) {
+        self.neighborhoodNamer = neighborhood
         self.rankingRepository = rankings
         self.reviewRepository = reviews
         self.profile = profile
@@ -62,6 +69,7 @@ final class MapHomeViewModel {
                 if value == .authorized { isBrowsingWithoutLocation = false }
             case .location(let coordinate):
                 nearby.locationDidUpdate(coordinate)
+                updateNeighborhoodName(at: coordinate)
                 if !hasCentered {
                     hasCentered = true
                     recenterToken += 1
@@ -72,6 +80,19 @@ final class MapHomeViewModel {
 
     func recenter() {
         recenterToken += 1
+    }
+
+    /// 주변 공원을 다시 조회하는 기준(300m)만큼 움직였을 때만 동네 이름을 다시 구한다.
+    /// 이름을 못 구하면(네트워크·조회 한도) 이전 이름을 그대로 둔다.
+    private func updateNeighborhoodName(at coordinate: Coordinate) {
+        if let last = lastNamedLocation, last.distance(to: coordinate) < NearbyParksViewModel.refetchDistanceM { return }
+        lastNamedLocation = coordinate
+        nameTask?.cancel()
+        nameTask = Task { [neighborhoodNamer] in
+            let name = await neighborhoodNamer.name(at: coordinate)
+            guard !Task.isCancelled, let name else { return }
+            neighborhoodName = name
+        }
     }
 
     func browseWithoutLocation() {
