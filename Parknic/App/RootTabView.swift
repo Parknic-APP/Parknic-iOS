@@ -84,5 +84,6 @@ private struct PKTabBar: View {
             parks: MockParkRepository()),
         collectionViewModel: CollectionViewModel(repository: MockCollectionRepository(delay: .zero)),
         myPageViewModel: MyPageViewModel(
-            auth: MockAuthRepository(), profile: UserDefaultsProfileStore(), isCheckInActive: { false }, onSignedOut: {}))
+            auth: MockAuthRepository(), profile: UserDefaultsProfileStore(), repository: MockMyPageRepository(delay: .zero),
+            isCheckInActive: { false }, onSignedOut: {}))
 }

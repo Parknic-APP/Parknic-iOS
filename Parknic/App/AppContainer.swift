@@ -33,6 +33,7 @@ final class AppContainer {
         let rankingRepository: RankingRepository = MockRankingRepository()
         let reviewRepository: ReviewRepository = MockReviewRepository()
         let collectionRepository: CollectionRepository = MockCollectionRepository()
+        let myPageRepository: MyPageRepository = MockMyPageRepository()
         #else
         let authRepository: AuthRepository = RemoteAuthRepository(client: client, tokenStore: tokenStore)
         let userRepository: UserRepository = RemoteUserRepository(client: client)
@@ -41,6 +42,7 @@ final class AppContainer {
         let rankingRepository: RankingRepository = RemoteRankingRepository(client: client)
         let reviewRepository: ReviewRepository = RemoteReviewRepository(client: client)
         let collectionRepository: CollectionRepository = RemoteCollectionRepository(client: client)
+        let myPageRepository: MyPageRepository = RemoteMyPageRepository(client: client)
         #endif
 
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
@@ -64,7 +66,7 @@ final class AppContainer {
             location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository),
             checkIn: coordinator, parks: parkRepository, rankings: rankingRepository, reviews: reviewRepository, profile: profileStore)
         myPageViewModel = MyPageViewModel(
-            auth: authRepository, profile: profileStore, isCheckInActive: { coordinator.state.isActive },
+            auth: authRepository, profile: profileStore, repository: myPageRepository, isCheckInActive: { coordinator.state.isActive },
             onSignedOut: { session.didLogout() })
         collectionViewModel = CollectionViewModel(repository: collectionRepository)
         UNUserNotificationCenter.current().delegate = notificationPresenter

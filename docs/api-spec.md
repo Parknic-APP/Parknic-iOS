@@ -44,6 +44,11 @@
 
 닉네임 확인 응답(클라이언트 가정, 서버와 확정 필요): `{ "available": true }`. 중복이면 `available: false` 또는 409 `NICKNAME_DUPLICATED` 둘 다 중복으로 처리한다. 닉네임 규칙은 2~10자, 공백 불가로 가정한다.
 
+마이페이지(클라이언트 가정, 서버와 확정 필요):
+- `GET /api/users/me` → `{ "nickname": "나뭇잎", "characterId": 1, "characterName": "치즈냥", "createdAt": "2026-09-02T12:00:00+09:00" }` (`createdAt`은 "2026년 9월부터 산책 중"에 쓴다)
+- `GET /api/users/me/stats` → `{ "totalBadges": 23, "visitedParks": 11, "currentStreak": 5, "bestStreak": 9, "podiumParks": 2 }` (`podiumParks`는 시상대 1~3등에 오른 공원 수)
+- `GET /api/users/me/reviews?cursor=` → `{ "reviews": [ { "id": 7, "parkId": 1024, "parkName": "보라매공원", "rating": 5, "content": "...", "createdAt": "..." } ], "totalCount": 3, "nextCursor": null }` (최신순, 커서 기반)
+
 도감(클라이언트 가정, 서버와 확정 필요): `GET /api/users/me/collection` → `{ "totalBadges": 23, "visitedParks": 11, "types": [ { "parkType": "NEIGHBORHOOD", "count": 9 } ], "achievements": [ { "code": "PARKS_10", "name": "서로 다른 공원 10곳", "label": "10", "achievedAt": "2026-10-19T12:00:00+09:00" | null, "progress": 11, "target": 20 } ] }`. `types`에 없는 유형은 0개로 보고, 알 수 없는 `parkType`은 무시한다. `achievedAt`이 null이면 미달성이며 `progress/target`으로 진행도를 그린다. `label`은 업적 배지 안에 들어가는 짧은 글자("첫", "10", "7일").
 
 캐릭터 목록·프로필 저장(클라이언트 가정, 서버와 확정 필요): `GET /api/characters` → `{ "characters": [ { "id": 1, "name": "치즈냥" } ] }`(8종, 이미지는 앱의 `character-<id>` 에셋). `PATCH /api/users/me` 요청 `{ "nickname", "characterId" }`, 닉네임이 중복이면 409 `NICKNAME_DUPLICATED`.

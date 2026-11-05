@@ -15,6 +15,11 @@ private final class SpyAuthRepository: AuthRepository, @unchecked Sendable {
     }
 }
 
+struct StubNotificationStatus: NotificationStatusReading {
+    var enabled: Bool
+    func isEnabled() async -> Bool { enabled }
+}
+
 @MainActor
 final class MyPageViewModelTests: XCTestCase {
     private var signedOut = 0
@@ -23,7 +28,10 @@ final class MyPageViewModelTests: XCTestCase {
     private func make(_ auth: SpyAuthRepository, checkInActive: Bool = false) -> MyPageViewModel {
         signedOut = 0
         profile.save(nickname: "나뭇잎", characterID: 5)
-        return MyPageViewModel(auth: auth, profile: profile, isCheckInActive: { checkInActive }, onSignedOut: { [self] in signedOut += 1 })
+        return MyPageViewModel(
+            auth: auth, profile: profile, repository: MockMyPageRepository(delay: .zero),
+            notificationStatus: StubNotificationStatus(enabled: true),
+            isCheckInActive: { checkInActive }, onSignedOut: { [self] in signedOut += 1 })
     }
 
     func test_프로필을_보여준다() {

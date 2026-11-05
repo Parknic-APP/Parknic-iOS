@@ -1,30 +1,94 @@
 import Foundation
 import Observation
 
-/// 마이페이지(12i·09c). 1차는 프로필과 설정(알림·위치 권한·약관·로그아웃·회원 탈퇴)만 둔다.
+/// 마이페이지(12i·09b·09c): 프로필, 통계, 내 리뷰, 설정(알림·위치 권한·약관·로그아웃·회원 탈퇴).
 @MainActor @Observable
 final class MyPageViewModel {
+    enum SummaryState: Equatable {
+        case loading
+        case loaded(MyPageSummary)
+        case failed(String)
+    }
+
     private(set) var isWorking = false
+    private(set) var summaryState: SummaryState
+    /// nil이면 아직 확인하지 못했다.
+    private(set) var notificationsEnabled: Bool?
     /// 탈퇴에 실패했을 때의 안내 문구
     var errorMessage: String?
 
     private let auth: AuthRepository
     private let profile: ProfileStore
+    private let repository: MyPageRepository
+    private let notificationStatus: NotificationStatusReading
+    let clock: AppClock
     private let isCheckInActive: () -> Bool
     private let onSignedOut: () -> Void
 
     init(
-        auth: AuthRepository, profile: ProfileStore, isCheckInActive: @escaping () -> Bool,
-        onSignedOut: @escaping () -> Void
+        auth: AuthRepository, profile: ProfileStore, repository: MyPageRepository,
+        notificationStatus: NotificationStatusReading = UserNotificationStatusReader(),
+        clock: AppClock = SystemClock(), initialState: SummaryState = .loading,
+        isCheckInActive: @escaping () -> Bool, onSignedOut: @escaping () -> Void
     ) {
         self.auth = auth
         self.profile = profile
+        self.repository = repository
+        self.notificationStatus = notificationStatus
+        self.clock = clock
+        self.summaryState = initialState
         self.isCheckInActive = isCheckInActive
         self.onSignedOut = onSignedOut
     }
 
-    var nickname: String { profile.nickname ?? String(localized: "산책러") }
-    var characterAssetName: String? { profile.characterID.map { "character-\($0)" } }
+    var summary: MyPageSummary? {
+        if case .loaded(let summary) = summaryState { return summary }
+        return nil
+    }
+
+    /// 서버에서 받은 값이 있으면 그것을, 없으면 기기에 저장된 값을 쓴다.
+    var nickname: String { summary?.profile.nickname ?? profile.nickname ?? String(localized: "산책러") }
+    var characterAssetName: String? {
+        (summary?.profile.characterID ?? profile.characterID).map { "character-\($0)" }
+    }
+
+    /// "치즈냥 · 2026년 9월부터 산책 중"(프로필을 못 받았으면 "파크닉에서 산책 중")
+    var subtitle: String {
+        guard let profile = summary?.profile else { return String(localized: "파크닉에서 산책 중") }
+        let parts = Calendar.kst.dateComponents([.year, .month], from: profile.joinedAt)
+        guard let year = parts.year, let month = parts.month else { return profile.characterName }
+        return String(localized: "\(profile.characterName) · \(String(year))년 \(month)월부터 산책 중")
+    }
+
+    /// 마이페이지에 보여줄 최근 리뷰(최대 3개)
+    var recentReviews: [MyReview] { Array((summary?.recentReviews.reviews ?? []).prefix(3)) }
+
+    func makeReviewsViewModel() -> MyReviewsViewModel { MyReviewsViewModel(repository: repository, clock: clock) }
+
+    func relativeTime(of review: MyReview) -> String {
+        RelativeTimeFormatter.text(from: review.createdAt, now: clock.now)
+    }
+
+    /// 프로필·통계·내 리뷰를 함께 불러온다. 이미 보여주는 내용이 있으면 실패해도 그대로 둔다.
+    func load() async {
+        notificationsEnabled = await notificationStatus.isEnabled()
+        if summary == nil { summaryState = .loading }
+        do {
+            async let loadedProfile = repository.profile()
+            async let loadedStats = repository.stats()
+            async let loadedReviews = repository.reviews(cursor: nil)
+            let result = MyPageSummary(
+                profile: try await loadedProfile, stats: try await loadedStats, recentReviews: try await loadedReviews)
+            profile.save(nickname: result.profile.nickname, characterID: result.profile.characterID)
+            summaryState = .loaded(result)
+        } catch is CancellationError {
+            return
+        } catch {
+            if summary == nil {
+                summaryState = .failed((error as? APIError)?.userMessage ?? APIError.network.userMessage)
+            }
+        }
+    }
 
     /// 체크인 중에는 로그아웃·탈퇴로 측정이 끊기지 않게 막는다.
     var blocksAccountActions: Bool { isCheckInActive() }

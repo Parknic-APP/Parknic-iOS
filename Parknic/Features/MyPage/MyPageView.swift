@@ -1,12 +1,13 @@
 import SwiftUI
 
-/// 12i·09c — 마이페이지. 심사 필수 항목(로그아웃, 앱 안 회원 탈퇴, 약관·개인정보 링크)을 포함한다.
+/// 12i·09b·09c — 마이페이지. 심사 필수 항목(로그아웃, 앱 안 회원 탈퇴, 약관·개인정보 링크)을 포함한다.
 struct MyPageView: View {
     @Bindable var viewModel: MyPageViewModel
     @Environment(\.openURL) private var openURL
 
     @State private var confirmsLogout = false
     @State private var withdrawStep: WithdrawStep?
+    @State private var reviewsModel: MyReviewsViewModel?
 
     private enum WithdrawStep: Identifiable {
         case explain, final
@@ -14,27 +15,35 @@ struct MyPageView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.s20) {
-                Text("마이페이지").pkTextStyle(.display).foregroundStyle(Color.ink900)
-                profileCard
-                Text("설정").pkTextStyle(.title2).foregroundStyle(Color.ink900)
-                settingsCard
-                accountCard
-                if viewModel.blocksAccountActions {
-                    Label("체크인 중에는 로그아웃하거나 탈퇴할 수 없어요", systemImage: "info.circle")
-                        .pkTextStyle(.callout).foregroundStyle(Color.ink500)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.s20) {
+                    Text("마이페이지").pkTextStyle(.display).foregroundStyle(Color.ink900)
+                    profileCard
+                    summarySections
+                    Text("설정").pkTextStyle(.title2).foregroundStyle(Color.ink900)
+                    settingsCard
+                    accountCard
+                    if viewModel.blocksAccountActions {
+                        Label("체크인 중에는 로그아웃하거나 탈퇴할 수 없어요", systemImage: "info.circle")
+                            .pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                    }
+                    if let message = viewModel.errorMessage {
+                        Label(message, systemImage: "exclamationmark.circle.fill")
+                            .pkTextStyle(.callout).foregroundStyle(Color.danger600)
+                    }
+                    Text(viewModel.appVersion)
+                        .pkTextStyle(.callout).foregroundStyle(Color.ink500).frame(maxWidth: .infinity)
                 }
-                if let message = viewModel.errorMessage {
-                    Label(message, systemImage: "exclamationmark.circle.fill")
-                        .pkTextStyle(.callout).foregroundStyle(Color.danger600)
-                }
-                Text(viewModel.appVersion)
-                    .pkTextStyle(.callout).foregroundStyle(Color.ink500).frame(maxWidth: .infinity)
+                .padding(Spacing.s16)
             }
-            .padding(Spacing.s16)
+            .background(Color.canvas.ignoresSafeArea())
+            .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(isPresented: reviewsBinding) {
+                if let reviewsModel { MyReviewsView(viewModel: reviewsModel) }
+            }
         }
-        .background(Color.canvas.ignoresSafeArea())
+        .task { await viewModel.load() }
         .overlay { if viewModel.isWorking { ProgressView().controlSize(.large).tint(.leaf600) } }
         .alert("로그아웃할까요?", isPresented: $confirmsLogout) {
             Button("로그아웃", role: .destructive) { Task { await viewModel.logout() } }
@@ -62,7 +71,7 @@ struct MyPageView: View {
                 .padding(Spacing.s4).background(Color.leaf100, in: Circle())
             VStack(alignment: .leading, spacing: Spacing.s4) {
                 Text(viewModel.nickname).pkTextStyle(.title1).foregroundStyle(Color.ink900)
-                Text("파크닉에서 산책 중").pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                Text(viewModel.subtitle).pkTextStyle(.callout).foregroundStyle(Color.ink500)
             }
             Spacer()
         }
@@ -73,7 +82,7 @@ struct MyPageView: View {
 
     private var settingsCard: some View {
         VStack(spacing: 0) {
-            row("알림", detail: "설정에서 바꾸기", action: openSystemSettings)
+            row("알림", detail: notificationDetail, action: openSystemSettings)
             Divider()
             row("위치 권한", detail: "앱을 사용하는 동안", action: openSystemSettings)
             Divider()
@@ -83,6 +92,109 @@ struct MyPageView: View {
         }
         .padding(.horizontal, Spacing.s16)
         .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r24))
+    }
+
+    private var notificationDetail: LocalizedStringKey {
+        switch viewModel.notificationsEnabled {
+        case true?: "켜짐"
+        case false?: "꺼짐"
+        case nil: "설정에서 바꾸기"
+        }
+    }
+
+    // MARK: 통계·내 리뷰
+
+    @ViewBuilder
+    private var summarySections: some View {
+        switch viewModel.summaryState {
+        case .loading:
+            ProgressView().tint(.leaf600).frame(maxWidth: .infinity, minHeight: 160)
+        case .failed(let message):
+            VStack(spacing: Spacing.s12) {
+                Label(message, systemImage: "exclamationmark.circle.fill")
+                    .pkTextStyle(.callout).foregroundStyle(Color.danger600)
+                Button("다시 시도") { Task { await viewModel.load() } }.buttonStyle(.pk(.tonal))
+            }
+            .padding(Spacing.s20)
+            .frame(maxWidth: .infinity)
+            .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r24))
+        case .loaded(let summary):
+            statsGrid(summary.stats)
+            reviewsSection(summary.recentReviews)
+        }
+    }
+
+    private func statsGrid(_ stats: UserStats) -> some View {
+        Grid(horizontalSpacing: Spacing.s12, verticalSpacing: Spacing.s12) {
+            GridRow {
+                statCard("총 배지", value: stats.totalBadges, unit: "개", valueColor: .leaf600)
+                statCard("방문한 공원", value: stats.visitedParks, unit: "곳")
+            }
+            GridRow {
+                statCard(
+                    "연속 산책", value: stats.currentStreak, unit: "일", note: "최고 \(stats.bestStreak)일",
+                    labelColor: .sun700, background: .sun100)
+                statCard("시상대에 오른 공원", value: stats.podiumParks, unit: "곳")
+            }
+        }
+    }
+
+    private func statCard(
+        _ title: LocalizedStringKey, value: Int, unit: LocalizedStringKey, note: String? = nil,
+        valueColor: Color = .ink900, labelColor: Color = .ink500, background: Color = .white
+    ) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.s4) {
+            Text(title).pkTextStyle(.callout).foregroundStyle(labelColor)
+            HStack(alignment: .firstTextBaseline, spacing: Spacing.s4) {
+                Text("\(value)").pkTextStyle(.display).foregroundStyle(valueColor)
+                Text(unit).pkTextStyle(.headline).foregroundStyle(Color.ink900)
+                if let note { Text(note).pkTextStyle(.callout).foregroundStyle(labelColor) }
+            }
+        }
+        .padding(Spacing.s16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(background, in: RoundedRectangle(cornerRadius: Radius.r24))
+        .accessibilityElement(children: .combine)
+    }
+
+    private func reviewsSection(_ page: MyReviewPage) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.s12) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("내 리뷰").pkTextStyle(.title2).foregroundStyle(Color.ink900)
+                Text("\(page.totalCount)").pkTextStyle(.title2).foregroundStyle(Color.ink500)
+                Spacer()
+                if page.totalCount > 0 {
+                    Button { reviewsModel = viewModel.makeReviewsViewModel() } label: {
+                        HStack(spacing: Spacing.s4) {
+                            Text("전체")
+                            Image(systemName: "chevron.right").font(.caption.weight(.bold))
+                        }
+                        .pkTextStyle(.callout).foregroundStyle(Color.leaf600)
+                        .frame(minWidth: 44, minHeight: 44)
+                    }
+                }
+            }
+            if viewModel.recentReviews.isEmpty {
+                Text("아직 쓴 리뷰가 없어요. 공원에서 배지를 받으면 리뷰를 남길 수 있어요")
+                    .pkTextStyle(.body).foregroundStyle(Color.ink500)
+                    .padding(Spacing.s20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r24))
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(viewModel.recentReviews.enumerated()), id: \.element.id) { index, review in
+                        if index > 0 { Divider() }
+                        MyReviewRow(review: review, timeText: viewModel.relativeTime(of: review))
+                    }
+                }
+                .padding(.horizontal, Spacing.s16)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r24))
+            }
+        }
+    }
+
+    private var reviewsBinding: Binding<Bool> {
+        Binding(get: { reviewsModel != nil }, set: { if !$0 { reviewsModel = nil } })
     }
 
     private var accountCard: some View {
@@ -131,10 +243,29 @@ private struct PreviewAuth: AuthRepository {
     func deleteAccount() async throws {}
 }
 
+private struct PreviewNotificationStatus: NotificationStatusReading {
+    func isEnabled() async -> Bool { true }
+}
+
 @MainActor
-private func previewModel(checkInActive: Bool = false) -> MyPageViewModel {
-    MyPageViewModel(auth: PreviewAuth(), profile: UserDefaultsProfileStore(), isCheckInActive: { checkInActive }, onSignedOut: {})
+private func previewModel(
+    checkInActive: Bool = false, repository: MockMyPageRepository = MockMyPageRepository(delay: .zero),
+    initialState: MyPageViewModel.SummaryState = .loading
+) -> MyPageViewModel {
+    MyPageViewModel(
+        auth: PreviewAuth(), profile: UserDefaultsProfileStore(), repository: repository,
+        notificationStatus: PreviewNotificationStatus(), initialState: initialState,
+        isCheckInActive: { checkInActive }, onSignedOut: {})
 }
 
 #Preview("기본") { MyPageView(viewModel: previewModel()) }
 #Preview("체크인 중") { MyPageView(viewModel: previewModel(checkInActive: true)) }
+#Preview("신규 회원(기록 없음)") {
+    MyPageView(viewModel: previewModel(repository: MockMyPageRepository(delay: .zero, isNewcomer: true)))
+}
+#Preview("불러오기 실패") {
+    MyPageView(
+        viewModel: previewModel(
+            repository: MockMyPageRepository(delay: .zero, failure: .network),
+            initialState: .failed(APIError.network.userMessage)))
+}
