@@ -16,15 +16,17 @@ final class ParkSheetViewModel {
 
     private let repository: ParkRepository
     private let rankingRepository: RankingRepository
+    private let reviewRepository: ReviewRepository
     private let clock: AppClock
 
     init(
         park: Park, repository: ParkRepository, rankingRepository: RankingRepository = MockRankingRepository(delay: .zero),
-        clock: AppClock = SystemClock(), initialState: State = .loading, initialRanking: ParkRanking? = nil
+        reviewRepository: ReviewRepository = MockReviewRepository(delay: .zero), clock: AppClock = SystemClock(), initialState: State = .loading, initialRanking: ParkRanking? = nil
     ) {
         self.park = park
         self.repository = repository
         self.rankingRepository = rankingRepository
+        self.reviewRepository = reviewRepository
         self.clock = clock
         self.state = initialState
         self.ranking = initialRanking
@@ -51,5 +53,9 @@ final class ParkSheetViewModel {
 
     func makeRankingViewModel() -> RankingViewModel {
         RankingViewModel(parkID: park.id, parkName: park.name, repository: rankingRepository, clock: clock)
+    }
+
+    func makeReviewListViewModel() -> ReviewListViewModel {
+        ReviewListViewModel(parkID: park.id, parkName: park.name, repository: reviewRepository)
     }
 }

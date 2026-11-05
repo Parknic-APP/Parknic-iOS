@@ -185,6 +185,7 @@ private struct ParkSheetHost: View {
     let viewModel: MapHomeViewModel
     @State private var sheetModel: ParkSheetViewModel
     @State private var showsRanking = false
+    @State private var showsReviews = false
 
     init(park: Park, viewModel: MapHomeViewModel) {
         self.park = park
@@ -200,8 +201,13 @@ private struct ParkSheetHost: View {
                 viewModel: sheetModel, availability: viewModel.availability(for: current),
                 isStartingCheckIn: viewModel.isStartingCheckIn, distanceM: viewModel.distanceM(to: current),
                 onCheckIn: { Task { await viewModel.checkInTapped(on: current) } },
-                onShowRanking: { showsRanking = true }, onShowReviews: {}, onClose: { viewModel.selectedParkID = nil })
+                onShowRanking: { showsRanking = true }, onShowReviews: { showsReviews = true }, onClose: { viewModel.selectedParkID = nil })
                 .toolbar(.hidden, for: .navigationBar)
+                .navigationDestination(isPresented: $showsReviews) {
+                    ReviewListView(
+                        viewModel: sheetModel.makeReviewListViewModel(), averageRating: sheetModel.detail?.averageRating,
+                        reviewCount: sheetModel.detail?.reviewCount)
+                }
                 .navigationDestination(isPresented: $showsRanking) {
                     RankingView(viewModel: sheetModel.makeRankingViewModel(), myCharacterAssetName: viewModel.characterAssetName)
                 }

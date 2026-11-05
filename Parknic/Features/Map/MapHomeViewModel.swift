@@ -25,14 +25,17 @@ final class MapHomeViewModel {
     private let location: LocationProviding
     private let parkRepository: ParkRepository
     private let rankingRepository: RankingRepository
+    private let reviewRepository: ReviewRepository
     private let profile: ProfileStore
     private var hasCentered = false
 
     init(
         location: LocationProviding, nearby: NearbyParksViewModel, checkIn: CheckInCoordinator, parks: ParkRepository,
-        rankings: RankingRepository = MockRankingRepository(delay: .zero), profile: ProfileStore = UserDefaultsProfileStore()
+        rankings: RankingRepository = MockRankingRepository(delay: .zero),
+        reviews: ReviewRepository = MockReviewRepository(delay: .zero), profile: ProfileStore = UserDefaultsProfileStore()
     ) {
         self.rankingRepository = rankings
+        self.reviewRepository = reviews
         self.profile = profile
         self.location = location
         self.nearby = nearby
@@ -78,7 +81,7 @@ final class MapHomeViewModel {
     // MARK: 공원 시트
 
     func makeSheetViewModel(for park: Park) -> ParkSheetViewModel {
-        ParkSheetViewModel(park: park, repository: parkRepository, rankingRepository: rankingRepository)
+        ParkSheetViewModel(park: park, repository: parkRepository, rankingRepository: rankingRepository, reviewRepository: reviewRepository)
     }
 
     func availability(for park: Park) -> CheckInAvailability {
