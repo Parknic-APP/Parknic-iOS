@@ -8,13 +8,19 @@ struct ParkMapView: View {
     let selectedParkID: Int?
     /// 값이 바뀌면 내 위치로 이동한다.
     let recenterToken: Int
+    /// 내 위치에 올릴 캐릭터 에셋 이름. 없으면 기본 파란 점을 쓴다.
+    var characterAssetName: String?
     let onSelect: (Park) -> Void
 
     @State private var position: MapCameraPosition = .automatic
 
     var body: some View {
         Map(position: $position) {
-            UserAnnotation()
+            if let characterAssetName, UIImage(named: characterAssetName) != nil {
+                UserAnnotation { UserAvatarMarker(assetName: characterAssetName) }
+            } else {
+                UserAnnotation()
+            }
             if let userLocation {
                 MapCircle(center: userLocation.clLocation, radius: Double(NearbyParksViewModel.searchRadiusM))
                     .foregroundStyle(Color.leaf500.opacity(0.08))
@@ -39,6 +45,23 @@ struct ParkMapView: View {
             position = .region(
                 MKCoordinateRegion(center: userLocation.clLocation, latitudinalMeters: 2600, longitudinalMeters: 2600))
         }
+    }
+}
+
+/// 내 위치 표시: 흰 원 + 초록 테두리 안에 내 캐릭터.
+private struct UserAvatarMarker: View {
+    let assetName: String
+
+    var body: some View {
+        Image(assetName)
+            .resizable()
+            .scaledToFit()
+            .padding(4)
+            .frame(width: 44, height: 44)
+            .background(Color.white, in: Circle())
+            .overlay(Circle().stroke(Color.leaf600, lineWidth: 3))
+            .pkShadow(.soft2)
+            .accessibilityLabel("내 위치")
     }
 }
 

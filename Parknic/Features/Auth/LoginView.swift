@@ -20,15 +20,31 @@ struct LoginView: View {
     }
 
     private var hero: some View {
-        VStack(spacing: Spacing.s8) {
+        VStack(spacing: 0) {
             Spacer()
-            PKIllustration(assetName: "login-hero", fallbackSymbol: "leaf.fill")
-            Text("파크닉").pkTextStyle(.timer).foregroundStyle(Color.leaf600)
-            Text("공원에서 20분, 배지 하나").pkTextStyle(.headline).foregroundStyle(Color.ink700)
+            VStack(spacing: Spacing.s8) {
+                Text("파크닉").pkTextStyle(.timer).foregroundStyle(Color.leaf600)
+                Text("공원에서 20분, 배지 하나").pkTextStyle(.headline).foregroundStyle(Color.ink700)
+            }
+            .accessibilityElement(children: .combine)
             Spacer()
+            illustration
         }
         .frame(maxWidth: .infinity)
-        .accessibilityElement(children: .combine)
+    }
+
+    /// 언덕이 아래 시트에 맞닿도록 화면 폭에 맞춘다. 에셋이 없으면 잎 아이콘으로 대신한다.
+    @ViewBuilder
+    private var illustration: some View {
+        if UIImage(named: "login-hero") != nil {
+            Image("login-hero")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .accessibilityHidden(true)
+        } else {
+            PKIllustration(assetName: nil, fallbackSymbol: "leaf.fill").padding(.bottom, Spacing.s28)
+        }
     }
 
     private var sheet: some View {

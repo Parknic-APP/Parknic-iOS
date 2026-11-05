@@ -57,6 +57,7 @@ struct MapHomeView: View {
             ParkMapView(
                 parks: viewModel.nearby.parks, userLocation: viewModel.nearby.currentLocation,
                 selectedParkID: viewModel.selectedParkID, recenterToken: viewModel.recenterToken,
+                characterAssetName: viewModel.characterAssetName,
                 onSelect: { viewModel.selectedParkID = $0.id })
             VStack {
                 if let display = viewModel.checkInDisplay, !viewModel.showsCheckInFlow {
@@ -70,6 +71,7 @@ struct MapHomeView: View {
                     Spacer()
                     locateButton
                 }
+                .padding(.bottom, Spacing.s28)  // Apple 지도 로고·법적 정보 링크를 가리지 않는다
             }
             .padding(Spacing.s16)
             stateOverlay

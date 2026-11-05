@@ -15,6 +15,22 @@ extension ParkType {
     }
 }
 
+/// 물방울 모양 핀. 위쪽은 원, 아래쪽 뾰족한 끝이 공원 위치를 가리킨다.
+struct MarkerPinShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let radius = rect.width / 2
+        let circle = Path(ellipseIn: CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.width))
+        var tail = Path()
+        let dx = radius * 0.64
+        let dy = radius + radius * 0.77
+        tail.move(to: CGPoint(x: rect.midX - dx, y: rect.minY + dy))
+        tail.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        tail.addLine(to: CGPoint(x: rect.midX + dx, y: rect.minY + dy))
+        tail.closeSubpath()
+        return circle.union(tail)
+    }
+}
+
 /// 마커 3상태: 미획득(흰 바탕 · 회색 아이콘) / 받은 적 있음(초록 · 누적 개수 칩) / 오늘 받음(노랑 · 체크).
 /// 색 + 아이콘 + 칩으로 구분해 색만으로 정보를 전달하지 않는다.
 struct ParkMarker: View {
@@ -46,8 +62,9 @@ struct ParkMarker: View {
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(iconColor)
                 .frame(width: 44, height: 44)
-                .background(fill, in: RoundedRectangle(cornerRadius: Radius.r16))
-                .overlay(RoundedRectangle(cornerRadius: Radius.r16).stroke(stroke, lineWidth: 2))
+                .frame(width: 44, height: 54, alignment: .top)
+                .background(fill, in: MarkerPinShape())
+                .overlay(MarkerPinShape().stroke(stroke, style: StrokeStyle(lineWidth: 2, lineJoin: .round)))
                 .pkShadow(.soft1)
             if park.status == .earned, park.badgeCount > 0 {
                 Text("\(park.badgeCount)")
