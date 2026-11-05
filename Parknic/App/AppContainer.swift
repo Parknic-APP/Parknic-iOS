@@ -8,6 +8,7 @@ final class AppContainer {
     let loginViewModel: LoginViewModel
     private(set) var onboardingViewModel: OnboardingViewModel
     let myPageViewModel: MyPageViewModel
+    let collectionViewModel: CollectionViewModel
     private let makeOnboarding: () -> OnboardingViewModel
     let checkInCoordinator: CheckInCoordinator
     let mapViewModel: MapHomeViewModel
@@ -31,6 +32,7 @@ final class AppContainer {
         let parkRepository: ParkRepository = MockParkRepository()
         let rankingRepository: RankingRepository = MockRankingRepository()
         let reviewRepository: ReviewRepository = MockReviewRepository()
+        let collectionRepository: CollectionRepository = MockCollectionRepository()
         #else
         let authRepository: AuthRepository = RemoteAuthRepository(client: client, tokenStore: tokenStore)
         let userRepository: UserRepository = RemoteUserRepository(client: client)
@@ -38,6 +40,7 @@ final class AppContainer {
         let parkRepository: ParkRepository = RemoteParkRepository(client: client)
         let rankingRepository: RankingRepository = RemoteRankingRepository(client: client)
         let reviewRepository: ReviewRepository = RemoteReviewRepository(client: client)
+        let collectionRepository: CollectionRepository = RemoteCollectionRepository(client: client)
         #endif
 
         loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
@@ -63,6 +66,7 @@ final class AppContainer {
         myPageViewModel = MyPageViewModel(
             auth: authRepository, profile: profileStore, isCheckInActive: { coordinator.state.isActive },
             onSignedOut: { session.didLogout() })
+        collectionViewModel = CollectionViewModel(repository: collectionRepository)
         UNUserNotificationCenter.current().delegate = notificationPresenter
 
         // 로그아웃·탈퇴·세션 만료 뒤 다시 가입하면 이전 온보딩 입력이 남지 않게 새로 만든다.

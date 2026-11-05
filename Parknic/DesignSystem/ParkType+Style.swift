@@ -33,3 +33,8 @@ extension ParkType {
     /// 배지 이미지 에셋 이름(최종 손그림 에셋으로 교체해도 코드는 그대로)
     var badgeAssetName: String { "badge-\(rawValue.lowercased())" }
 }
+
+extension ParkType {
+    /// 아직 받지 못한 배지(실루엣) 이미지 에셋 이름
+    var lockedBadgeAssetName: String { badgeAssetName + "-locked" }
+}

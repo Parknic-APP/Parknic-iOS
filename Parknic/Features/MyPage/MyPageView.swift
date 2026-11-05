@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 12i·09c — 마이. 심사 필수 항목(로그아웃, 앱 안 회원 탈퇴, 약관·개인정보 링크)을 포함한다.
+/// 12i·09c — 마이페이지. 심사 필수 항목(로그아웃, 앱 안 회원 탈퇴, 약관·개인정보 링크)을 포함한다.
 struct MyPageView: View {
     @Bindable var viewModel: MyPageViewModel
     @Environment(\.openURL) private var openURL
@@ -16,7 +16,7 @@ struct MyPageView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.s20) {
-                Text("마이").pkTextStyle(.display).foregroundStyle(Color.ink900)
+                Text("마이페이지").pkTextStyle(.display).foregroundStyle(Color.ink900)
                 profileCard
                 Text("설정").pkTextStyle(.title2).foregroundStyle(Color.ink900)
                 settingsCard

@@ -197,19 +197,24 @@ BADGE = {
     "WATERFRONT": dict(c="#4FB3E8", radius="50% 50% 50% 50% / 58% 58% 42% 42%"),
     "CULTURE": dict(c="#A57FE6", points=[(.3, 0), (.7, 0), (1, .3), (1, .7), (.7, 1), (.3, 1), (0, .7), (0, .3)]),
     "HISTORY": dict(c="#C9824F", radius="22% 22% 50% 50% / 16% 16% 58% 58%"),
+    "ACHIEVEMENT": dict(c="#FFC533", radius="50%"),  # 아이콘 없이 앱에서 글자를 얹는다
 }
+LOCKED_FILL = "#F1EBDD"
+LOCKED_ICON = "#A79C8C"
 
 
-def badge_svg(kind):
+def badge_svg(kind, locked=False):
     t = BADGE[kind]
     kw = dict(radius=t.get("radius"), points=t.get("points"))
     body = (
         shape(2.8, 4.2, 100, 100, INK, **kw)
         + shape(0, 0, 100, 100, INK, **kw)
-        + shape(6, 6, 88, 88, t["c"], **kw)
-        + f'<g transform="translate(28 28) scale({44 / 24:.4f})"><path d="{ICON[kind]}" fill="none" stroke="{INK}" '
-          f'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>'
+        + shape(6, 6, 88, 88, LOCKED_FILL if locked else t["c"], **kw)
     )
+    if kind in ICON:
+        body += (f'<g transform="translate(28 28) scale({44 / 24:.4f})"><path d="{ICON[kind]}" fill="none" '
+                 f'stroke="{LOCKED_ICON if locked else INK}" stroke-width="2.2" stroke-linecap="round" '
+                 f'stroke-linejoin="round"/></g>')
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 114 114" width="228" height="228">'
             f'<g transform="translate(6 6)"><g transform="rotate(-4 50 50)">{body}</g></g></svg>')
 
@@ -260,8 +265,9 @@ def main():
     write_imageset("character-sad", character_svg("cheese", "sad"))
     for kind in BADGE:
         write_imageset(f"badge-{kind.lower()}", badge_svg(kind))
+        write_imageset(f"badge-{kind.lower()}-locked", badge_svg(kind, locked=True))
     write_imageset("login-hero", login_hero_svg())
-    print("생성 완료:", len(animals) + 2 + len(BADGE) + 1, "개")
+    print("생성 완료:", len(animals) + 2 + len(BADGE) * 2 + 1, "개")
 
 
 if __name__ == "__main__":
