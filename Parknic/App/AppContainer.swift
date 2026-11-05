@@ -11,6 +11,7 @@ final class AppContainer {
     private let makeOnboarding: () -> OnboardingViewModel
     let checkInCoordinator: CheckInCoordinator
     let mapViewModel: MapHomeViewModel
+    let connectivity = ConnectivityMonitor(source: NWPathConnectivitySource())
     let profileStore: ProfileStore = UserDefaultsProfileStore()
     private let notificationPresenter = ForegroundNotificationPresenter()
 

@@ -4,6 +4,13 @@ struct RootView: View {
     let container: AppContainer
 
     var body: some View {
+        content
+            .offlineNotice(isVisible: container.connectivity.showsOfflineNotice)
+            .task { await container.connectivity.run() }
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch container.session.phase {
         case .loggedOut:
             LoginView(viewModel: container.loginViewModel)
