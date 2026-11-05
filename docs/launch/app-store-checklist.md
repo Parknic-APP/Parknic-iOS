@@ -1,6 +1,6 @@
 # App Store 제출 체크리스트
 
-> 상태 기준일: 2026-11-05. 체크된 항목은 코드에 반영됐고, 빈 항목은 사람이 해야 한다.
+> 상태 기준일: 2026-11-05. 사람이 해야 할 일의 순서는 [`owner-todo.md`](owner-todo.md). 체크된 항목은 코드에 반영됐고, 빈 항목은 사람이 해야 한다.
 
 ## 1. 앱에 반영된 것
 - [x] Sign in with Apple (entitlement + 로그인 화면)
@@ -13,6 +13,8 @@
 - [x] `ITSAppUsesNonExemptEncryption = NO`(HTTPS 표준 암호화만 사용)
 - [x] 라이트 모드 고정, iPhone 세로 고정
 - [x] Release 빌드 성공(서명 없이 확인)
+- [x] 네트워크 끊김 안내(MVP 공통 처리)
+- [x] 지도·공원 시트·체크인·배지·랭킹·리뷰·마이페이지(P0 전체)
 
 ## 2. 제출 전에 반드시 바꿔야 하는 것 (project.yml)
 - [ ] `TERMS_URL` — 이용약관 실제 주소 (현재 임시값 `https://parknic.example/terms`)
