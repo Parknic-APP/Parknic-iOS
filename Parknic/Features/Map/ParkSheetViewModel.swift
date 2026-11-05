@@ -58,4 +58,10 @@ final class ParkSheetViewModel {
     func makeReviewListViewModel() -> ReviewListViewModel {
         ReviewListViewModel(parkID: park.id, parkName: park.name, repository: reviewRepository)
     }
+
+    func makeReviewEditorViewModel(
+        mode: ReviewEditorViewModel.Mode, onFinished: @escaping (ReviewEditorViewModel.Result) -> Void
+    ) -> ReviewEditorViewModel {
+        ReviewEditorViewModel(mode: mode, repository: reviewRepository, onFinished: onFinished)
+    }
 }

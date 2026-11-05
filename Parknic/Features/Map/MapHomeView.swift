@@ -186,11 +186,18 @@ private struct ParkSheetHost: View {
     @State private var sheetModel: ParkSheetViewModel
     @State private var showsRanking = false
     @State private var showsReviews = false
+    @State private var editorRoute: ReviewEditorRoute?
+    // 화면이 다시 그려져도 같은 ViewModel을 쓰도록 한 번만 만든다.
+    @State private var reviewList: ReviewListViewModel
+    @State private var rankingModel: RankingViewModel
 
     init(park: Park, viewModel: MapHomeViewModel) {
         self.park = park
         self.viewModel = viewModel
-        _sheetModel = State(initialValue: viewModel.makeSheetViewModel(for: park))
+        let sheet = viewModel.makeSheetViewModel(for: park)
+        _sheetModel = State(initialValue: sheet)
+        _reviewList = State(initialValue: sheet.makeReviewListViewModel())
+        _rankingModel = State(initialValue: sheet.makeRankingViewModel())
     }
 
     var body: some View {
@@ -205,12 +212,20 @@ private struct ParkSheetHost: View {
                 .toolbar(.hidden, for: .navigationBar)
                 .navigationDestination(isPresented: $showsReviews) {
                     ReviewListView(
-                        viewModel: sheetModel.makeReviewListViewModel(), averageRating: sheetModel.detail?.averageRating,
-                        reviewCount: sheetModel.detail?.reviewCount)
+                        viewModel: reviewList, averageRating: sheetModel.detail?.averageRating,
+                        reviewCount: sheetModel.detail?.reviewCount,
+                        onWrite: { editorRoute = reviewList.myReview.map { .edit($0) } ?? .create },
+                        onEdit: { editorRoute = .edit($0) })
                 }
                 .navigationDestination(isPresented: $showsRanking) {
-                    RankingView(viewModel: sheetModel.makeRankingViewModel(), myCharacterAssetName: viewModel.characterAssetName)
+                    RankingView(viewModel: rankingModel, myCharacterAssetName: viewModel.characterAssetName)
                 }
+        }
+        .sheet(item: $editorRoute) { route in
+            ReviewEditorHost(route: route, park: current, sheetModel: sheetModel) { result in
+                editorRoute = nil
+                if result != nil { Task { await reviewList.load(); await sheetModel.load() } }
+            }
         }
         .sheet(isPresented: chooserBinding) {
             ParkChooserSheet(
@@ -225,6 +240,53 @@ private struct ParkSheetHost: View {
         Binding(
             get: { viewModel.chooserParks != nil },
             set: { if !$0 { viewModel.chooserParks = nil } })
+    }
+}
+
+/// 리뷰 작성·수정 화면을 여는 경로
+enum ReviewEditorRoute: Identifiable, Equatable {
+    case create
+    case edit(Review)
+
+    var id: String {
+        switch self {
+        case .create: "create"
+        case .edit(let review): "edit-\(review.id)"
+        }
+    }
+}
+
+/// 리뷰 쓰기. 배지가 없는 공원이면 쓸 수 없다는 안내(08g)를 보여준다.
+private struct ReviewEditorHost: View {
+    let route: ReviewEditorRoute
+    let park: Park
+    let sheetModel: ParkSheetViewModel
+    /// 저장·삭제를 마치면 결과와 함께, 그냥 닫으면 nil로 부른다.
+    let onDone: (ReviewEditorViewModel.Result?) -> Void
+
+    @State private var editorModel: ReviewEditorViewModel?
+
+    var body: some View {
+        NavigationStack {
+            if case .create = route, park.badgeCount == 0 {
+                ReviewNotAllowedView(park: park, onViewOnMap: { onDone(nil) }, onReadOnly: { onDone(nil) })
+                    .toolbar { ToolbarItem(placement: .topBarLeading) { Button { onDone(nil) } label: { Image(systemName: "xmark") }.accessibilityLabel("닫기") } }
+            } else if let editorModel {
+                ReviewEditorView(viewModel: editorModel, park: park, onClose: { onDone(nil) })
+            }
+        }
+        .task {
+            guard editorModel == nil else { return }
+            let mode: ReviewEditorViewModel.Mode
+            switch route {
+            case .create: mode = .create(parkID: park.id)
+            case .edit(let review): mode = .edit(review)
+            }
+            editorModel = sheetModel.makeReviewEditorViewModel(mode: mode) { result in
+                // 서버가 배지가 없다고 판정하면 쓸 수 없다는 안내로 닫는다.
+                onDone(result == .notAllowed ? nil : result)
+            }
+        }
     }
 }
 
