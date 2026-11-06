@@ -1,8 +1,16 @@
-/// 소셜 SDK 래퍼. SDK 토큰(Apple identityToken, 카카오 accessToken 등)을 돌려준다.
+/// 소셜 SDK가 돌려준 자격 증명.
+struct SocialCredential: Equatable, Sendable {
+    /// Apple identityToken, 카카오 accessToken 등
+    let token: String
+    /// Apple만 쓴다. 서버가 이 코드로 Apple refresh token을 받아 두었다가 회원 탈퇴 때 revoke한다.
+    var authorizationCode: String?
+}
+
+/// 소셜 SDK 래퍼.
 @MainActor
 protocol SocialLoginProvider {
     var provider: AuthProvider { get }
-    func authenticate() async throws -> String
+    func authenticate() async throws -> SocialCredential
 }
 
 enum SocialLoginError: Error, Equatable {

@@ -162,7 +162,7 @@ private struct SocialLoginButton: View {
 
 private struct PreviewProvider_: SocialLoginProvider {
     let provider: AuthProvider
-    func authenticate() async throws -> String { "token" }
+    func authenticate() async throws -> SocialCredential { SocialCredential(token: "token") }
 }
 
 @MainActor

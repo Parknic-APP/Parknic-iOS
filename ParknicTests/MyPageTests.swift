@@ -7,7 +7,7 @@ private final class SpyAuthRepository: AuthRepository, @unchecked Sendable {
     var deleteError: APIError?
     var calls: [String] { lock.withLock { _calls } }
 
-    func login(provider: AuthProvider, socialToken: String) async throws -> LoginResult { LoginResult(isNewUser: false) }
+    func login(provider: AuthProvider, socialToken: String, authorizationCode: String?) async throws -> LoginResult { LoginResult(isNewUser: false) }
     func logout() async { lock.withLock { _calls.append("logout") } }
     func deleteAccount() async throws {
         if let deleteError { throw deleteError }

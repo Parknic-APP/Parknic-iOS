@@ -5,7 +5,7 @@ struct MockAuthRepository: AuthRepository {
     var result: Result<LoginResult, APIError> = .success(LoginResult(isNewUser: true))
     var delay: Duration = .milliseconds(400)
 
-    func login(provider: AuthProvider, socialToken: String) async throws -> LoginResult {
+    func login(provider: AuthProvider, socialToken: String, authorizationCode: String?) async throws -> LoginResult {
         try await Task.sleep(for: delay)
         return try result.get()
     }

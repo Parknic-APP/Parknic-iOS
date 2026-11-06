@@ -16,7 +16,7 @@ final class RemoteAuthRepositoryTests: XCTestCase {
             (200, #"{"accessToken":"a","refreshToken":"r","isNewUser":true}"#)
         }
 
-        let result = try await repository.login(provider: .apple, socialToken: "apple-token")
+        let result = try await repository.login(provider: .apple, socialToken: "apple-token", authorizationCode: nil)
 
         XCTAssertEqual(result, LoginResult(isNewUser: true))
         XCTAssertEqual(store.load(), AuthTokens(accessToken: "a", refreshToken: "r"))
@@ -27,12 +27,24 @@ final class RemoteAuthRepositoryTests: XCTestCase {
         XCTAssertEqual(String(data: try XCTUnwrap(request.httpBody), encoding: .utf8), #"{"token":"apple-token"}"#)
     }
 
+    func test_authorizationCode가_있으면_함께_보낸다() async throws {
+        let (repository, transport) = makeRepository(store: MemoryTokenStore(nil)) { _ in
+            (200, #"{"accessToken":"a","refreshToken":"r","isNewUser":false}"#)
+        }
+
+        _ = try await repository.login(provider: .apple, socialToken: "t", authorizationCode: "code")
+
+        let body = String(data: try XCTUnwrap(transport.requests.first?.httpBody), encoding: .utf8) ?? ""
+        XCTAssertTrue(body.contains(#""authorizationCode":"code""#))
+        XCTAssertTrue(body.contains(#""token":"t""#))
+    }
+
     func test_실패하면_토큰을_저장하지_않는다() async {
         let store = MemoryTokenStore(nil)
         let (repository, _) = makeRepository(store: store) { _ in (401, "{}") }
 
         do {
-            _ = try await repository.login(provider: .kakao, socialToken: "t")
+            _ = try await repository.login(provider: .kakao, socialToken: "t", authorizationCode: nil)
             XCTFail("에러가 나야 한다")
         } catch {
             XCTAssertEqual(error as? APIError, .server(status: 401, code: nil))

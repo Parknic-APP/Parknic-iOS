@@ -4,18 +4,18 @@ import XCTest
 @MainActor
 private struct FakeProvider: SocialLoginProvider {
     let provider: AuthProvider
-    var outcome: Result<String, SocialLoginError> = .success("social-token")
-    func authenticate() async throws -> String { try outcome.get() }
+    var outcome: Result<SocialCredential, SocialLoginError> = .success(SocialCredential(token: "social-token", authorizationCode: "auth-code"))
+    func authenticate() async throws -> SocialCredential { try outcome.get() }
 }
 
 private final class RecordingRepository: AuthRepository, @unchecked Sendable {
     private let lock = NSLock()
-    private var _calls: [(AuthProvider, String)] = []
+    private var _calls: [(AuthProvider, String, String?)] = []
     let result: Result<LoginResult, APIError>
     init(_ result: Result<LoginResult, APIError>) { self.result = result }
-    var calls: [(AuthProvider, String)] { lock.withLock { _calls } }
-    func login(provider: AuthProvider, socialToken: String) async throws -> LoginResult {
-        lock.withLock { _calls.append((provider, socialToken)) }
+    var calls: [(AuthProvider, String, String?)] { lock.withLock { _calls } }
+    func login(provider: AuthProvider, socialToken: String, authorizationCode: String?) async throws -> LoginResult {
+        lock.withLock { _calls.append((provider, socialToken, authorizationCode)) }
         return try result.get()
     }
     func logout() async {}
@@ -42,6 +42,7 @@ final class LoginViewModelTests: XCTestCase {
         XCTAssertEqual(received, LoginResult(isNewUser: true))
         XCTAssertEqual(repository.calls.first?.0, .apple)
         XCTAssertEqual(repository.calls.first?.1, "social-token")
+        XCTAssertEqual(repository.calls.first?.2, "auth-code")
         XCTAssertEqual(model.state, .idle)
     }
 

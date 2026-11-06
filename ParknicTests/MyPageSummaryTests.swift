@@ -136,7 +136,7 @@ final class MyPageSummaryTests: XCTestCase {
 }
 
 private struct NoopAuth: AuthRepository {
-    func login(provider: AuthProvider, socialToken: String) async throws -> LoginResult { LoginResult(isNewUser: false) }
+    func login(provider: AuthProvider, socialToken: String, authorizationCode: String?) async throws -> LoginResult { LoginResult(isNewUser: false) }
     func logout() async {}
     func deleteAccount() async throws {}
 }

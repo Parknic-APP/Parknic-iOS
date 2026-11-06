@@ -46,8 +46,9 @@ final class LoginViewModel {
         guard !isLoading, let socialProvider = providers[provider] else { return }
         state = .loading(provider)
         do {
-            let token = try await socialProvider.authenticate()
-            let result = try await repository.login(provider: provider, socialToken: token)
+            let credential = try await socialProvider.authenticate()
+            let result = try await repository.login(
+                provider: provider, socialToken: credential.token, authorizationCode: credential.authorizationCode)
             state = .idle
             onLoggedIn(result)
         } catch SocialLoginError.cancelled {
