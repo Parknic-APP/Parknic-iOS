@@ -48,7 +48,11 @@ final class LoginViewModel {
         } catch let error as APIError {
             state = .failed(error.userMessage)
         } catch {
-            state = .failed(String(localized: "로그인하지 못했어요. 다시 시도해주세요"))
+            var message = String(localized: "로그인하지 못했어요. 다시 시도해주세요")
+            #if DEBUG
+            if let detail = AppleLoginProvider.lastDebugError { message += " (\(detail))" }
+            #endif
+            state = .failed(message)
         }
     }
 }

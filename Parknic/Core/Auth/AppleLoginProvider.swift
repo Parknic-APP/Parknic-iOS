@@ -19,6 +19,11 @@ final class AppleLoginProvider: NSObject, SocialLoginProvider {
         }
     }
 
+    #if DEBUG
+    /// 마지막 Apple 로그인 실패의 오류 도메인과 코드(Debug 전용).
+    static var lastDebugError: String?
+    #endif
+
     private func finish(_ result: Result<SocialCredential, Error>) {
         continuation?.resume(with: result)
         continuation = nil
@@ -40,6 +45,11 @@ extension AppleLoginProvider: ASAuthorizationControllerDelegate {
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         let cancelled = (error as? ASAuthorizationError)?.code == .canceled
+        #if DEBUG
+        // 개발용: 원인을 알 수 있게 오류 코드를 남긴다(화면 문구 뒤에 붙는다). Release에는 없다.
+        let nsError = error as NSError
+        Self.lastDebugError = "\(nsError.domain) \(nsError.code)"
+        #endif
         finish(.failure(cancelled ? SocialLoginError.cancelled : SocialLoginError.failed))
     }
 }
