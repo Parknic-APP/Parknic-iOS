@@ -2,3 +2,5 @@
 // 다른 팀·번들 ID로 개발하려면 Config/Signing.xcconfig(Git 제외)에서 덮어쓴다.
 DEVELOPMENT_TEAM = BBVZV8T99P
 PRODUCT_BUNDLE_IDENTIFIER = com.hwangsanghwan.parknic
+// Sign in with Apple 권한 파일. 기본은 권한을 포함한다(유료 팀 · Release · Archive).
+CODE_SIGN_ENTITLEMENTS = Parknic/App/Parknic.entitlements

@@ -1,5 +1,6 @@
 // Debug 빌드 설정. 비밀 값과 개인 서명 설정은 Git에 올라가지 않는 파일에 둔다. 없으면 기본값을 쓴다.
 #include "Shared.xcconfig"
 DEV_LOGIN_SECRET =
+DEV_LOGIN_NAME =
 #include? "Local.xcconfig"
 #include? "Signing.xcconfig"

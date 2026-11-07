@@ -46,9 +46,11 @@ final class AppContainer {
         let myPageRepository: MyPageRepository =
             useRemote ? RemoteMyPageRepository(client: client) : MockMyPageRepository()
 
-        // Debug + 서버 모드는 Apple 로그인 창 대신 로컬 서버 전용 개발 로그인을 쓴다(Team 없이 시험하려는 용도).
+        // Debug + 서버 모드에서 개발용 비밀키(Config/Local.xcconfig)가 있을 때만 개발용 로그인을 쓴다(Apple 로그인을 못 쓰는 무료 팀용).
+        // 비밀키가 없으면 실제 Apple 로그인으로 서버에 연결한다.
         #if DEBUG
-        let loginProviders: [SocialLoginProvider] = useRemote ? [DevLoginProvider()] : [AppleLoginProvider()]
+        let loginProviders: [SocialLoginProvider] =
+            useRemote && !AppConfig.devLoginSecret.isEmpty ? [DevLoginProvider()] : [AppleLoginProvider()]
         #else
         let loginProviders: [SocialLoginProvider] = [AppleLoginProvider()]
         #endif

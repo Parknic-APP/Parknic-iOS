@@ -24,6 +24,11 @@ enum AppConfig {
         return (Bundle.main.object(forInfoDictionaryKey: "DevUseRemoteAPI") as? String) == "YES"
     }
 
+    /// 개발용 로그인 비밀키(`Config/Local.xcconfig`). 비어 있으면 실제 Apple 로그인을 쓴다.
+    static var devLoginSecret: String {
+        (Bundle.main.object(forInfoDictionaryKey: "DevLoginSecret") as? String) ?? ""
+    }
+
     /// 개발용: 체크인 완료까지 걸리는 시간(초). 환경변수 PARKNIC_CHECKIN_REQUIRED_SECONDS가 우선하고, 없으면 빌드 설정을 따른다.
     static var devCheckInRequiredSeconds: Double? {
         let env = ProcessInfo.processInfo.environment["PARKNIC_CHECKIN_REQUIRED_SECONDS"]

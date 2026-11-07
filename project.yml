@@ -29,6 +29,7 @@ targets:
         # Debug 개발용 값(Release에서는 코드가 읽지 않는다). 홈 화면에서 직접 실행해도 적용되도록 빌드 설정에 둔다.
         DevUseRemoteAPI: $(DEV_USE_REMOTE_API)
         DevLoginSecret: $(DEV_LOGIN_SECRET)
+        DevLoginName: $(DEV_LOGIN_NAME)
         DevCheckInRequiredSeconds: $(DEV_CHECKIN_REQUIRED_SECONDS)
         NSLocationWhenInUseUsageDescription: 공원 안에 머무는 시간을 재려고 체크인하는 동안 현재 위치를 사용해요.
         NSAppTransportSecurity:
@@ -48,8 +49,7 @@ targets:
     settings:
       base:
         # PRODUCT_BUNDLE_IDENTIFIER는 Config/Shared.xcconfig(기본 com.hwangsanghwan.parknic)에서 정한다.
-        # Sign in with Apple 권한은 Parknic.entitlements에 있다(Release·Archive용). 파일은 직접 관리한다.
-        CODE_SIGN_ENTITLEMENTS: Parknic/App/Parknic.entitlements
+        # CODE_SIGN_ENTITLEMENTS(Sign in with Apple 권한 파일)는 Config/Shared.xcconfig에서 정한다. 파일은 직접 관리한다.
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: 파크닉
         INFOPLIST_KEY_UIUserInterfaceStyle: Light
@@ -65,9 +65,7 @@ targets:
         # Xcode가 문구 카탈로그를 자동으로 고치지 않게 한다(문구는 직접 관리).
         SWIFT_EMIT_LOC_STRINGS: NO
       configs:
-        # 무료 Apple ID(Personal Team)는 Sign in with Apple을 못 쓰므로, Debug는 그 권한 없이 서명한다(개발용 로그인으로 시험).
         Debug:
-          CODE_SIGN_ENTITLEMENTS: Parknic/App/ParknicDebug.entitlements
           # Debug는 배포 서버에 붙는다(개발용 로그인은 Config/Local.xcconfig의 DEV_LOGIN_SECRET이 필요하다).
           # 맥에서 도는 로컬 서버에 붙으려면 아래를 http://Seongmo-MacBookPro-M4.local:8080 으로 바꾼다(맥 이름은 `scutil --get LocalHostName`).
           API_BASE_URL: https://parknic-dev.duckdns.org
