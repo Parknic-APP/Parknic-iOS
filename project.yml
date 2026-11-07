@@ -55,6 +55,8 @@ targets:
       base:
         # PRODUCT_BUNDLE_IDENTIFIER는 Config/Shared.xcconfig(기본 com.hwangsanghwan.parknic)에서 정한다.
         # CODE_SIGN_ENTITLEMENTS(Sign in with Apple 권한 파일)는 Config/Shared.xcconfig에서 정한다. 파일은 직접 관리한다.
+        # 서명 인증서는 xcconfig(Config/Signing.xcconfig)가 정하게 둔다. XcodeGen 기본값 "iPhone Developer"가 덮어쓰지 않게 한다.
+        CODE_SIGN_IDENTITY: $(inherited)
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: 파크닉
         INFOPLIST_KEY_UIUserInterfaceStyle: Light

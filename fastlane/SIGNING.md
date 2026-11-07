@@ -19,7 +19,7 @@ bundle exec fastlane certs        # MATCH_PASSWORD를 묻는다. 소유자에게
 ```
 CODE_SIGN_STYLE = Manual
 DEVELOPMENT_TEAM = BBVZV8T99P
-CODE_SIGN_IDENTITY = Apple Development
+CODE_SIGN_IDENTITY = Apple Development: Created via API (QF3VZU8C2L)
 PROVISIONING_PROFILE_SPECIFIER = match Development com.hwangsanghwan.parknic
 CODE_SIGN_ENTITLEMENTS = Parknic/App/Parknic.entitlements
 ```
