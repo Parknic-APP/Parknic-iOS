@@ -41,6 +41,30 @@ final class ReviewListViewModel {
         self.reviews = initialReviews
     }
 
+    /// 「리뷰 쓰기」를 눌렀을 때 어디로 보낼지
+    enum WriteIntent: Equatable {
+        case create
+        /// 이 공원에 이미 내 리뷰가 있다 → 작성 화면을 열지 않고 알려야 한다(공원마다 리뷰는 하나만 쓸 수 있다).
+        case alreadyReviewed(Review)
+    }
+
+    /// 체크인 뒤 배지 화면의 「리뷰 쓰기」. 최신 목록을 받아 이미 쓴 리뷰가 있는지 먼저 확인한다.
+    /// 목록을 못 받으면 막지 않고 작성 화면으로 보낸다(저장할 때 서버가 한 번 더 거른다).
+    func writeIntentAfterBadge() async -> WriteIntent {
+        await load()
+        // 내 리뷰가 첫 페이지 밖에 있을 수도 있으니, 찾을 때까지(최대 `maxPagesToCheck`쪽) 다음 페이지를 본다.
+        var checked = 1
+        while myReview == nil, hasMore, state == .loaded, !loadMoreFailed, checked < Self.maxPagesToCheck {
+            await loadMore()
+            checked += 1
+        }
+        if let mine = myReview { return .alreadyReviewed(mine) }
+        return .create
+    }
+
+    /// 이미 쓴 리뷰를 찾느라 넘겨 볼 최대 페이지 수
+    static let maxPagesToCheck = 20
+
     var hasMore: Bool { nextCursor != nil }
     var myReview: Review? { reviews.first(where: \.isMine) }
 

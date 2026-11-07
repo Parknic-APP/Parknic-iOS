@@ -47,7 +47,7 @@
 
 마이페이지(클라이언트 가정, 서버와 확정 필요):
 - `GET /api/users/me` → `{ "nickname": "나뭇잎", "characterId": 1, "characterName": "치즈냥", "createdAt": "2026-09-02T12:00:00+09:00" }` (`createdAt`은 "2026년 9월부터 산책 중"에 쓴다)
-- `GET /api/users/me/stats` → `{ "totalBadges": 23, "visitedParks": 11, "currentStreak": 5, "bestStreak": 9, "podiumParks": 2 }` (`podiumParks`는 시상대 1~3등에 오른 공원 수)
+- `GET /api/users/me/stats` → `{ "totalBadges": 23, "visitedParks": 11, "currentStreak": 5, "bestStreak": 9, "podiumParks": 2 }` (`podiumParks`는 **이번 주** 시상대 1~3등에 오른 공원 수. 랭킹이 매주 월요일 0시(KST)에 초기화되므로 월요일에는 0에서 다시 시작한다)
 - `GET /api/users/me/reviews?cursor=` → `{ "reviews": [ { "id": 7, "parkId": 1024, "parkName": "보라매공원", "rating": 5, "content": "...", "createdAt": "..." } ], "totalCount": 3, "nextCursor": null }` (최신순, 커서 기반)
 
 도감(클라이언트 가정, 서버와 확정 필요): `GET /api/users/me/collection` → `{ "totalBadges": 23, "visitedParks": 11, "types": [ { "parkType": "NEIGHBORHOOD", "count": 9 } ], "achievements": [ { "code": "PARKS_10", "name": "서로 다른 공원 10곳", "label": "10", "achievedAt": "2026-10-19T12:00:00+09:00" | null, "progress": 11, "target": 20 } ] }`. `types`에 없는 유형은 0개로 보고, 알 수 없는 `parkType`은 무시한다. `achievedAt`이 null이면 미달성이며 `progress/target`으로 진행도를 그린다. `label`은 업적 배지 안에 들어가는 짧은 글자("첫", "10", "7일").
@@ -55,6 +55,8 @@
 캐릭터 목록·프로필 저장(클라이언트 가정, 서버와 확정 필요): `GET /api/characters` → `{ "characters": [ { "id": 1, "name": "치즈냥" } ] }`(8종, 이미지는 앱의 `character-<id>` 에셋). `PATCH /api/users/me` 요청 `{ "nickname", "characterId" }`, 닉네임이 중복이면 409 `NICKNAME_DUPLICATED`. 마이페이지 [수정]에서도 같은 API를 쓰며, 닉네임을 그대로 두고 캐릭터만 바꾸면 같은 닉네임이 다시 오므로 **본인의 현재 닉네임은 중복으로 보지 않아야 한다**(앱은 현재 닉네임이면 중복 확인 API를 부르지 않는다).
 
 체크인 요청·응답(클라이언트 가정, 서버와 확정 필요): 시작 `POST /api/check-ins` 응답과 `GET /api/check-ins/current` 응답은 같은 세션 객체 `{ id, parkId, parkName, latitude, longitude, radiusM, startedAt }`(`startedAt`은 서버 시각, 이 값으로 경과 시간을 계산). 진행 중인 세션이 없으면 `current`는 404. 완료 요청 `{ lat, lng, pausedSeconds }`: 좌표를 못 구했으면 `lat`·`lng`를 생략하고, `pausedSeconds`는 반경 밖에 있어 20분에서 뺀 시간(초, 0 이상)이다. **반경 밖에 있던 시간은 20분에 포함하지 않으므로 서버도 `now - startedAt - pausedSeconds >= 20분`으로 검증해야 한다(서버와 확정 필요).** 완료 거절 코드: `CHECKIN_TOO_EARLY`(재시도), `CHECKIN_EXPIRED_MIDNIGHT`·`CHECKIN_OUT_OF_RANGE`(실패로 종료), `BADGE_ALREADY_EARNED_TODAY`(배지 없이 종료).
+
+리뷰 좋은 공원 `GET /api/parks/top-rated?lat=&lng=&radius=5000` → `{ "parks": [ { id, name, parkType, latitude, longitude, radiusM, distanceM, averageRating, reviewCount, myStatus, myBadgeCount } ] }`. 리뷰 10개 이상 && 평균 별점 4.5 이상인 공원만, 별점 높은 순(같으면 리뷰 많은 순, 가까운 순). `radius` 기본 5000(최대 5000), 최대 50곳. 숨김 리뷰·탈퇴 사용자 리뷰는 세지 않고, 심사용 공원은 넣지 않는다.
 
 공원 상세(클라이언트 가정, 서버와 확정 필요) `GET /api/parks/{parkId}` → `{ id, name, parkType, address, latitude, longitude, radiusM, averageRating, reviewCount, myStatus, myBadgeCount }`(`averageRating`은 리뷰가 없으면 null).
 
@@ -79,7 +81,8 @@
 | POST | `/api/check-ins/{sessionId}/complete` | 20분 달성 → 배지 지급 `{ lat, lng }` | P0 |
 | POST | `/api/check-ins/{sessionId}/fail` | 실패 `{ reason }` (`OUT_OF_RANGE`, `MIDNIGHT`, `APP_TERMINATED`) | P0 |
 | POST | `/api/check-ins/{sessionId}/cancel` | 사용자 취소 | P0 |
-| GET | `/api/parks/{parkId}/rankings?month=2026-11` | 월간 시상대 + 내 순위 (`month` 생략 시 이번 달) | P0, 지난 달 P1 |
+| GET | `/api/parks/{parkId}/rankings?week=2026-11-06` | 주간 시상대 + 내 순위 (`week`는 그 주에 속한 아무 날짜, 생략 시 이번 주) | P0, 지난 주 P1 |
+| GET | `/api/parks/top-rated?lat=&lng=&radius=5000` | 리뷰가 좋은 공원(리뷰 10개 이상 && 평균 별점 4.5 이상), 별점 높은 순 | P1 |
 
 주변 공원 응답 예:
 ```json
@@ -103,7 +106,7 @@
 {
   "badge": { "parkId": 1024, "parkName": "보라매공원", "parkType": "NEIGHBORHOOD", "earnedAt": "2026-11-04T15:32:10+09:00" },
   "newAchievements": [ { "code": "PARKS_10", "name": "공원 10곳 정복" } ],
-  "monthlyRanking": { "rank": 5, "badgeCount": 4, "rankChange": 1, "badgesToPodium": 3 },
+  "weeklyRanking": { "rank": 5, "badgeCount": 4, "rankChange": 1, "badgesToPodium": 3 },
   "canWriteReview": true
 }
 ```
@@ -111,7 +114,8 @@
 랭킹 응답 예:
 ```json
 {
-  "month": "2026-11",
+  "weekStart": "2026-11-02",
+  "weekEnd": "2026-11-08",
   "podium": [
     { "rank": 1, "userId": 7, "nickname": "두부산책", "characterId": 5, "badgeCount": 12 },
     { "rank": 2, "userId": 3, "nickname": "초록발", "characterId": 3, "badgeCount": 9 },
@@ -121,6 +125,7 @@
   "me": { "rank": 17, "badgeCount": 4 }
 }
 ```
+- **랭킹은 매주 월요일 00:00(KST)에 초기화**된다. 한 주는 월요일~일요일이고, `week`에 그 주 안의 날짜를 보내면 서버가 월요일로 맞춘다(`weekStart`가 월요일, `weekEnd`가 일요일).
 - 동점이면 그 개수에 먼저 도달한 유저가 위다(서버 처리).
 - 시상대 자리가 비면 `podium`에 해당 순위가 없다 → 빈 단상으로 표시.
 

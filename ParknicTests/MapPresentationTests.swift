@@ -115,4 +115,5 @@ private final class FakeLocationSource: LocationProviding {
 private struct EmptyParks: ParkRepository {
     func nearby(center: Coordinate, radiusM: Int) async throws -> [Park] { [] }
     func detail(parkID: Int) async throws -> ParkDetail { throw APIError.network }
+    func topRated(center: Coordinate, radiusM: Int) async throws -> [TopRatedPark] { [] }
 }

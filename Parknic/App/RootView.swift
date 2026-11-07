@@ -13,7 +13,9 @@ struct RootView: View {
     private var content: some View {
         switch container.session.phase {
         case .loggedOut:
-            LoginView(viewModel: container.loginViewModel)
+            EntryView(viewModel: container.loginViewModel, isLoggedIn: false, onStart: {})
+        case .welcome:
+            EntryView(viewModel: container.loginViewModel, isLoggedIn: true, onStart: container.session.enterApp)
         case .onboarding:
             OnboardingView(viewModel: container.onboardingViewModel)
         case .main:

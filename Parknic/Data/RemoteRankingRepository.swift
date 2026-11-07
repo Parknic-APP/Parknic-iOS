@@ -1,6 +1,6 @@
 import Foundation
 
-/// 응답 형식은 docs/api-spec.md의 랭킹 응답 예를 따른다. `me`가 없거나 `rank`가 null이면 이번 달 배지가 없는 것이다.
+/// 응답 형식은 docs/api-spec.md의 랭킹 응답 예를 따른다. `me`가 없거나 `rank`가 null이면 이번 주 배지가 없는 것이다.
 struct RemoteRankingRepository: RankingRepository {
     private struct EntryDTO: Decodable {
         let rank: Int
@@ -25,11 +25,11 @@ struct RemoteRankingRepository: RankingRepository {
 
     let client: APIClient
 
-    func ranking(parkID: Int, month: YearMonth) async throws -> ParkRanking {
-        let endpoint = Endpoint(.get, "/api/parks/\(parkID)/rankings", query: [.init(name: "month", value: month.apiValue)])
+    func ranking(parkID: Int, week: RankingWeek) async throws -> ParkRanking {
+        let endpoint = Endpoint(.get, "/api/parks/\(parkID)/rankings", query: [.init(name: "week", value: week.apiValue)])
         let response: Response = try await client.send(endpoint)
         return ParkRanking(
-            month: month, podium: response.podium.map(\.entry).sorted { $0.rank < $1.rank },
+            week: week, podium: response.podium.map(\.entry).sorted { $0.rank < $1.rank },
             others: response.others.map(\.entry).sorted { $0.rank < $1.rank },
             me: response.me.map { MyRanking(rank: $0.rank, badgeCount: $0.badgeCount) })
     }

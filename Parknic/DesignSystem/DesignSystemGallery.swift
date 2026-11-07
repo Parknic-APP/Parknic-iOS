@@ -31,7 +31,7 @@ struct DesignSystemGallery: View {
                         Text("12:34").pkTextStyle(.timer)
                         Text("근린공원 배지").pkTextStyle(.display)
                         Text("보라매공원").pkTextStyle(.title1)
-                        Text("이달의 시상대").pkTextStyle(.title2)
+                        Text("이번 주 시상대").pkTextStyle(.title2)
                         Text("여기서 체크인하기").pkTextStyle(.headline)
                         Text("공원 안에서 20분 머무르면 배지를 받아요.").pkTextStyle(.body)
                         Text("동작구 여의대방로20길 33 · 320m").pkTextStyle(.callout)

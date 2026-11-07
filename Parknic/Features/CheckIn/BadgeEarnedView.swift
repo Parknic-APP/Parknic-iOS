@@ -10,7 +10,7 @@ struct BadgeEarnedDisplay: Equatable {
     var parkName: String { result.badge.parkName }
     var type: ParkType { result.badge.parkType }
     var achievement: Achievement? { result.newAchievements.first }
-    var ranking: MonthlyRankingSummary { result.monthlyRanking }
+    var ranking: WeeklyRankingSummary { result.weeklyRanking }
     var showsReviewButton: Bool { result.canWriteReview }
 
     var subtitle: String {
@@ -145,7 +145,7 @@ struct BadgeEarnedView: View {
         HStack(spacing: Spacing.s16) {
             PKIllustration(assetName: display.characterAssetName, fallbackSymbol: "pawprint.fill", size: 56)
             VStack(alignment: .leading, spacing: Spacing.s4) {
-                Text("이달 \(display.parkName) 랭킹").pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                Text("이번 주 \(display.parkName) 랭킹").pkTextStyle(.callout).foregroundStyle(Color.ink500)
                 HStack(spacing: Spacing.s8) {
                     Text("\(display.ranking.rank)위").pkTextStyle(.display).foregroundStyle(Color.ink900)
                     if let change = display.rankChangeText {
@@ -176,23 +176,94 @@ struct BadgeEarnedView: View {
     }
 }
 
-/// 축하 장식(순수 장식이라 VoiceOver에서 숨긴다). 최종 일러스트로 교체할 수 있다.
-private struct Confetti: View {
-    private let pieces: [(x: CGFloat, y: CGFloat, color: Color, angle: Double)] = [
-        (0.08, 0.18, .sun500, 20), (0.85, 0.12, .sun500, -15), (0.93, 0.42, .leaf300, 30), (0.05, 0.35, .leaf300, -10),
-        (0.78, 0.62, .sun300, 40), (0.15, 0.58, .sun300, -35), (0.5, 0.05, .leaf100, 10), (0.9, 0.78, .sun500, -20),
-        (0.12, 0.8, .leaf100, 25),
-    ]
+/// 축하 꽃가루(순수 장식이라 VoiceOver에서 숨긴다). 위에서 아래로 계속 흩날리고,
+/// 하늘하늘 좌우로 흔들리며 뒤집히듯 회전한다. '동작 줄이기'를 켜면 가만히 흩뿌려 둔다.
+struct Confetti: View {
+    struct Piece: Equatable {
+        enum Shape { case paper, dot, petal }
+
+        let x: Double  // 0...1, 화면 폭 비율
+        let start: Double  // 0...1, 처음 높이 비율(전체가 한꺼번에 떨어지지 않게 흩어 둔다)
+        let speed: Double  // 낙하 속도(pt/s)
+        let sway: Double  // 좌우로 흔들리는 폭(pt)
+        let swayPeriod: Double
+        let spin: Double  // 회전 속도(rad/s)
+        let flipPeriod: Double  // 뒤집히는 주기(s)
+        let phase: Double
+        let size: Double
+        let shape: Shape
+        let colorIndex: Int
+    }
+
+    static let count = 24
+    private static let palette: [Color] = [.sun500, .sun300, .leaf300, .leaf100, .white.opacity(0.9), .sun500, .leaf300]
+
+    /// 항상 같은 배치가 나오도록 고정된 시드로 만든다(화면이 다시 그려져도 조각이 튀지 않는다).
+    static let pieces: [Piece] = {
+        var seed: UInt64 = 0x9E3779B97F4A7C15
+        func next() -> Double {
+            seed = seed &* 6364136223846793005 &+ 1442695040888963407
+            return Double(seed >> 33) / Double(1 << 31)
+        }
+        let shapes: [Piece.Shape] = [.paper, .dot, .petal, .paper, .petal]
+        return (0..<count).map { i in
+            Piece(
+                x: next(), start: next(), speed: 38 + next() * 52, sway: 10 + next() * 26,
+                swayPeriod: 2.2 + next() * 2.4, spin: (next() - 0.5) * 5, flipPeriod: 1.2 + next() * 1.6,
+                phase: next() * .pi * 2, size: 7 + next() * 7, shape: shapes[i % shapes.count],
+                colorIndex: Int(next() * Double(palette.count)) % palette.count)
+        }
+    }()
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        GeometryReader { proxy in
-            ForEach(pieces.indices, id: \.self) { index in
-                let piece = pieces[index]
-                RoundedRectangle(cornerRadius: 3).fill(piece.color)
-                    .frame(width: 16, height: 10).rotationEffect(.degrees(piece.angle))
-                    .position(x: proxy.size.width * piece.x, y: proxy.size.height * piece.y)
+        if reduceMotion {
+            canvas(time: 0)
+        } else {
+            TimelineView(.animation) { context in
+                canvas(time: context.date.timeIntervalSinceReferenceDate)
             }
         }
+    }
+
+    private func canvas(time: Double) -> some View {
+        Canvas { context, size in
+            for piece in Self.pieces {
+                draw(piece, in: &context, size: size, time: time)
+            }
+        }
+    }
+
+    /// 한 조각의 현재 위치(화면 밖으로 나가면 위에서 다시 내려온다). 테스트할 수 있게 따로 뺐다.
+    static func position(of piece: Piece, in size: CGSize, time: Double) -> CGPoint {
+        let margin = 24.0
+        let travel = size.height + margin * 2
+        let fall = (piece.start * travel + time * piece.speed).truncatingRemainder(dividingBy: travel)
+        let drift = sin(time * 2 * .pi / piece.swayPeriod + piece.phase) * piece.sway
+        return CGPoint(x: piece.x * size.width + drift, y: fall - margin)
+    }
+
+    private func draw(_ piece: Piece, in context: inout GraphicsContext, size: CGSize, time: Double) {
+        let point = Self.position(of: piece, in: size, time: time)
+        // 종이가 뒤집히듯 세로로 납작해졌다 펴진다.
+        let flip = max(0.25, abs(cos(time * 2 * .pi / piece.flipPeriod + piece.phase)))
+        var transform = CGAffineTransform(translationX: point.x, y: point.y)
+        transform = transform.rotated(by: piece.phase + time * piece.spin).scaledBy(x: 1, y: flip)
+        let rect: CGRect
+        let path: Path
+        switch piece.shape {
+        case .paper:
+            rect = CGRect(x: -piece.size, y: -piece.size * 0.32, width: piece.size * 2, height: piece.size * 0.64)
+            path = Path(roundedRect: rect, cornerRadius: 2.5)
+        case .dot:
+            rect = CGRect(x: -piece.size * 0.4, y: -piece.size * 0.4, width: piece.size * 0.8, height: piece.size * 0.8)
+            path = Path(ellipseIn: rect)
+        case .petal:
+            rect = CGRect(x: -piece.size * 0.8, y: -piece.size * 0.38, width: piece.size * 1.6, height: piece.size * 0.76)
+            path = Path(ellipseIn: rect)
+        }
+        context.fill(path.applying(transform), with: .color(Self.palette[piece.colorIndex]))
     }
 }
 
@@ -201,7 +272,7 @@ private struct Confetti: View {
 private let previewResult = CheckInResult(
     badge: EarnedBadge(parkID: 1024, parkName: "보라매공원", parkType: .neighborhood, earnedAt: Date()),
     newAchievements: [Achievement(code: "PARKS_10", name: "서로 다른 공원 10곳")],
-    monthlyRanking: MonthlyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
+    weeklyRanking: WeeklyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
     canWriteReview: true)
 
 #Preview("업적 + 랭킹") {
@@ -216,7 +287,7 @@ private let previewResult = CheckInResult(
             result: CheckInResult(
                 badge: EarnedBadge(parkID: 1, parkName: "수변공원", parkType: .waterfront, earnedAt: Date()),
                 newAchievements: [],
-                monthlyRanking: MonthlyRankingSummary(rank: 2, badgeCount: 9, rankChange: -1, badgesToPodium: 0),
+                weeklyRanking: WeeklyRankingSummary(rank: 2, badgeCount: 9, rankChange: -1, badgesToPodium: 0),
                 canWriteReview: false),
             badgeNumberAtPark: nil, characterAssetName: nil),
         onClose: {}, onWriteReview: {}, onShowRanking: {})

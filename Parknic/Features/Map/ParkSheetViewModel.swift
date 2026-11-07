@@ -11,7 +11,7 @@ final class ParkSheetViewModel {
 
     let park: Park
     private(set) var state: State
-    /// 이달의 시상대. 불러오지 못하면 nil이고 시트에는 랭킹 이동 행만 보인다.
+    /// 이번 주 시상대. 불러오지 못하면 nil이고 시트에는 랭킹 이동 행만 보인다.
     private(set) var ranking: ParkRanking?
 
     private let repository: ParkRepository
@@ -48,7 +48,7 @@ final class ParkSheetViewModel {
 
     /// 시상대는 시트의 보조 정보라 실패해도 에러를 띄우지 않는다.
     func loadRanking() async {
-        ranking = try? await rankingRepository.ranking(parkID: park.id, month: YearMonth(date: clock.now))
+        ranking = try? await rankingRepository.ranking(parkID: park.id, week: RankingWeek(date: clock.now))
     }
 
     func makeRankingViewModel() -> RankingViewModel {

@@ -1,116 +1,380 @@
 {
-  "sourceLanguage": "ko",
-  "strings": {
-    "공원 안에서 체크인할 수 있어요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "공원 안에서 체크인할 수 있어요"
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "?" : {
+
+    },
+    "· %@" : {
+
+    },
+    "%@" : {
+
+    },
+    "%@ · 내 배지 %@개" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · 내 배지 %2$@개"
           }
         }
       }
     },
-    "이미 진행 중인 체크인이 있어요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이미 진행 중인 체크인이 있어요"
+    "%@ 배지" : {
+
+    },
+    "%@ 함께할게요" : {
+
+    },
+    "%@/%@" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@/%2$@"
           }
         }
       }
     },
-    "오늘 이 공원의 배지는 이미 받았어요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "오늘 이 공원의 배지는 이미 받았어요"
+    "%@m" : {
+
+    },
+    "%@개" : {
+
+    },
+    "%@년 %@월" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@년 %2$@월"
           }
         }
       }
     },
-    "아직 20분이 지나지 않았어요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "아직 20분이 지나지 않았어요"
+    "%@에서 20분 머물고 배지를 받으면 리뷰를 남길 수 있어요. 직접 다녀온 이야기만 모으고 있어요." : {
+
+    },
+    "%@위" : {
+
+    },
+    "%@자 이상 써주세요" : {
+
+    },
+    "×%@" : {
+
+    },
+    "00:00" : {
+
+    },
+    "1분 안에 공원으로\n돌아오세요" : {
+
+    },
+    "12:34" : {
+
+    },
+    "20분 중 %@분 머물렀어요" : {
+
+    },
+    "개" : {
+
+    },
+    "개 모았어요" : {
+
+    },
+    "계속하면 [이용약관](%@)과 [개인정보 처리방침](%@)에 동의하게 돼요" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "계속하면 [이용약관](%1$@)과 [개인정보 처리방침](%2$@)에 동의하게 돼요"
           }
         }
       }
     },
-    "날짜가 바뀌어 체크인이 끝났어요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "날짜가 바뀌어 체크인이 끝났어요"
+    "공원 %@곳" : {
+
+    },
+    "공원 안에 머무는지 확인하려면 위치 권한이 필요해요.\n권한 없이도 지도와 리뷰는 볼 수 있어요." : {
+
+    },
+    "공원 안에서 20분 머무르면 배지를 받아요." : {
+
+    },
+    "공원 안에서 체크인할 수 있어요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공원 안에서 체크인할 수 있어요"
           }
         }
       }
     },
-    "배지를 받은 공원에만 리뷰를 쓸 수 있어요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "배지를 받은 공원에만 리뷰를 쓸 수 있어요"
+    "공원 유형 배지" : {
+
+    },
+    "공원에 머문 시간을 재려면\n두 가지가 필요해요" : {
+
+    },
+    "공원에서 20분, 배지 하나" : {
+
+    },
+    "공원에서 불릴\n이름을 정해주세요" : {
+
+    },
+    "근린공원 배지" : {
+
+    },
+    "나중에 마이페이지에서 바꿀 수 있어요" : {
+
+    },
+    "날짜가 바뀌어 체크인이 끝났어요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "날짜가 바뀌어 체크인이 끝났어요"
           }
         }
       }
     },
-    "이미 이 공원에 리뷰를 썼어요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이미 이 공원에 리뷰를 썼어요"
+    "남은 시간" : {
+
+    },
+    "남음" : {
+
+    },
+    "내 리뷰" : {
+
+    },
+    "다음 화면에서 iPhone이 허용 여부를 물어봐요" : {
+
+    },
+    "도감" : {
+
+    },
+    "도전해 보세요" : {
+
+    },
+    "동작구 여의대방로20길 33 · 320m" : {
+
+    },
+    "랭킹 시상대와 리뷰에 보여요" : {
+
+    },
+    "로그아웃" : {
+
+    },
+    "로그인이 만료됐어요. 다시 로그인해주세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그인이 만료됐어요. 다시 로그인해주세요"
           }
         }
       }
     },
-    "이미 사용 중인 닉네임이에요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이미 사용 중인 닉네임이에요"
+    "리뷰 %@" : {
+
+    },
+    "리뷰 %@개" : {
+
+    },
+    "마이페이지" : {
+
+    },
+    "마지막 확인이에요. 탈퇴하면 같은 계정으로 다시 가입해도 기록을 되찾을 수 없어요." : {
+
+    },
+    "문제가 생겼어요. 잠시 후 다시 시도해주세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문제가 생겼어요. 잠시 후 다시 시도해주세요"
           }
         }
       }
     },
-    "로그인이 만료됐어요. 다시 로그인해주세요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "로그인이 만료됐어요. 다시 로그인해주세요"
+    "밖에 있는 동안은\n타이머가 멈춰요" : {
+
+    },
+    "배지 %@" : {
+
+    },
+    "배지 %@개" : {
+
+    },
+    "배지를 받은 공원만\n리뷰를 쓸 수 있어요" : {
+
+    },
+    "배지를 받은 공원에만 리뷰를 쓸 수 있어요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "배지를 받은 공원에만 리뷰를 쓸 수 있어요"
           }
         }
       }
     },
-    "문제가 생겼어요. 잠시 후 다시 시도해주세요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "문제가 생겼어요. 잠시 후 다시 시도해주세요"
+    "보라매공원" : {
+
+    },
+    "빈 자리" : {
+
+    },
+    "삭제한 리뷰는 되돌릴 수 없어요." : {
+
+    },
+    "설정" : {
+
+    },
+    "신대방어린이공원" : {
+
+    },
+    "아직 4위 아래는 비어 있어요" : {
+
+    },
+    "아직 20분이 지나지 않았어요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 20분이 지나지 않았어요"
           }
         }
       }
     },
-    "인터넷 연결이 불안정해요. 연결 상태를 확인하고 다시 시도해주세요": {
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "인터넷 연결이 불안정해요. 연결 상태를 확인하고 다시 시도해주세요"
+    "아직 쓴 리뷰가 없어요. 공원에서 배지를 받으면 리뷰를 남길 수 있어요" : {
+
+    },
+    "아직 없어요" : {
+
+    },
+    "업적" : {
+
+    },
+    "여기서 체크인하기" : {
+
+    },
+    "오늘" : {
+
+    },
+    "오늘 이 공원의 배지는 이미 받았어요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오늘 이 공원의 배지는 이미 받았어요"
           }
         }
       }
+    },
+    "위치 권한이 꺼져 있어요" : {
+
+    },
+    "이 공원 어땠어요?" : {
+
+    },
+    "이달 %@ 랭킹" : {
+
+    },
+    "이달의 시상대" : {
+
+    },
+    "이런 이름은 어때요?" : {
+
+    },
+    "이미 사용 중인 닉네임이에요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 사용 중인 닉네임이에요"
+          }
+        }
+      }
+    },
+    "이미 이 공원에 리뷰를 썼어요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 이 공원에 리뷰를 썼어요"
+          }
+        }
+      }
+    },
+    "이미 진행 중인 체크인이 있어요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 진행 중인 체크인이 있어요"
+          }
+        }
+      }
+    },
+    "인터넷 연결이 불안정해요. 연결 상태를 확인하고 다시 시도해주세요" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인터넷 연결이 불안정해요. 연결 상태를 확인하고 다시 시도해주세요"
+          }
+        }
+      }
+    },
+    "전체" : {
+
+    },
+    "전체 랭킹" : {
+
+    },
+    "지금까지 모은 배지" : {
+
+    },
+    "짠! 새 배지를 받았어요" : {
+
+    },
+    "차단하면 이 유저의 리뷰가 보이지 않아요." : {
+
+    },
+    "체크인을 그만둘까요?" : {
+
+    },
+    "탈퇴하면 배지, 랭킹 기록, 작성한 리뷰 등 모든 정보가 사라지고 되돌릴 수 없어요." : {
+
+    },
+    "파크닉" : {
+
+    },
+    "함께 산책할 친구를\n골라주세요" : {
+
+    },
+    "함께할게요" : {
+
+    },
+    "확인했어요" : {
+
+    },
+    "회원 탈퇴" : {
+
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

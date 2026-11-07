@@ -13,8 +13,8 @@ struct Achievement: Equatable, Sendable {
     let name: String
 }
 
-/// 이번 달 이 공원 랭킹에서 내 위치(배지 획득 화면 06a에 쓴다)
-struct MonthlyRankingSummary: Equatable, Sendable {
+/// 이번 주 이 공원 랭킹에서 내 위치(배지 획득 화면 06a에 쓴다)
+struct WeeklyRankingSummary: Equatable, Sendable {
     let rank: Int
     let badgeCount: Int
     /// 지난 순위 대비 변동(올랐으면 양수)
@@ -26,6 +26,6 @@ struct MonthlyRankingSummary: Equatable, Sendable {
 struct CheckInResult: Equatable, Sendable {
     let badge: EarnedBadge
     let newAchievements: [Achievement]
-    let monthlyRanking: MonthlyRankingSummary
+    let weeklyRanking: WeeklyRankingSummary
     let canWriteReview: Bool
 }

@@ -46,17 +46,34 @@ struct RemoteCheckInRepository: CheckInRepository {
         }
         let badge: Badge
         let newAchievements: [Achievement]
-        let monthlyRanking: Ranking
+        let weeklyRanking: Ranking
         let canWriteReview: Bool
+
+        private enum CodingKeys: String, CodingKey {
+            case badge, newAchievements, weeklyRanking, monthlyRanking, canWriteReview
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            badge = try container.decode(Badge.self, forKey: .badge)
+            newAchievements = try container.decode([Achievement].self, forKey: .newAchievements)
+            canWriteReview = try container.decode(Bool.self, forKey: .canWriteReview)
+            // 서버를 주간 랭킹으로 올리기 전의 응답(`monthlyRanking`)도 받아서, 앱과 서버 배포 순서가 어긋나도 배지가 정상 지급된다.
+            if let weekly = try container.decodeIfPresent(Ranking.self, forKey: .weeklyRanking) {
+                weeklyRanking = weekly
+            } else {
+                weeklyRanking = try container.decode(Ranking.self, forKey: .monthlyRanking)
+            }
+        }
 
         var result: CheckInResult {
             CheckInResult(
                 badge: EarnedBadge(
                     parkID: badge.parkId, parkName: badge.parkName, parkType: badge.parkType, earnedAt: badge.earnedAt),
                 newAchievements: newAchievements.map { Parknic.Achievement(code: $0.code, name: $0.name) },
-                monthlyRanking: MonthlyRankingSummary(
-                    rank: monthlyRanking.rank, badgeCount: monthlyRanking.badgeCount,
-                    rankChange: monthlyRanking.rankChange, badgesToPodium: monthlyRanking.badgesToPodium),
+                weeklyRanking: WeeklyRankingSummary(
+                    rank: weeklyRanking.rank, badgeCount: weeklyRanking.badgeCount,
+                    rankChange: weeklyRanking.rankChange, badgesToPodium: weeklyRanking.badgesToPodium),
                 canWriteReview: canWriteReview)
         }
     }

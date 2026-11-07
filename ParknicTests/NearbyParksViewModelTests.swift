@@ -20,6 +20,8 @@ private final class StubParkRepository: ParkRepository, @unchecked Sendable {
     func detail(parkID: Int) async throws -> ParkDetail {
         throw APIError.server(status: 404, code: nil)
     }
+
+    func topRated(center: Coordinate, radiusM: Int) async throws -> [TopRatedPark] { [] }
 }
 
 @MainActor

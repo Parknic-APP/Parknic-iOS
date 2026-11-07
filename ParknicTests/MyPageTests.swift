@@ -141,6 +141,7 @@ final class MyPageViewModelTests: XCTestCase {
 final class AppSessionSignOutTests: XCTestCase {
     func test_로그아웃하면_정리_훅을_먼저_부르고_로그인_화면으로_간다() {
         let session = AppSession(tokenStore: MemoryTokenStore(AuthTokens(accessToken: "a", refreshToken: "r")))
+        session.enterApp()
         var phaseWhenHookRan: AppSession.Phase?
         session.onSignedOut = { phaseWhenHookRan = session.phase }
         session.didLogout()

@@ -57,11 +57,50 @@ final class RemoteCheckInRepositoryTests: XCTestCase {
         }
     }
 
+    func test_옛_서버가_monthlyRanking으로_줘도_배지는_정상_처리한다() async throws {
+        let json = """
+            {"badge":{"parkId":1024,"parkName":"보라매공원","parkType":"NEIGHBORHOOD","earnedAt":"2026-11-04T15:32:10+09:00"},
+             "newAchievements":[],
+             "monthlyRanking":{"rank":2,"badgeCount":9,"rankChange":0,"badgesToPodium":0},
+             "canWriteReview":true}
+            """
+        let (repository, _) = makeRepository { _ in (200, json) }
+        let result = try await repository.complete(sessionID: 7, at: Coordinate(latitude: 37.4, longitude: 126.9), pausedSeconds: 0)
+        XCTAssertEqual(result.weeklyRanking, WeeklyRankingSummary(rank: 2, badgeCount: 9, rankChange: 0, badgesToPodium: 0))
+    }
+
+    func test_두_이름이_함께_오면_weeklyRanking을_쓴다() async throws {
+        let json = """
+            {"badge":{"parkId":1,"parkName":"A","parkType":"SMALL","earnedAt":"2026-11-04T15:32:10+09:00"},
+             "newAchievements":[],
+             "weeklyRanking":{"rank":1,"badgeCount":1,"rankChange":0,"badgesToPodium":0},
+             "monthlyRanking":{"rank":9,"badgeCount":9,"rankChange":0,"badgesToPodium":0},
+             "canWriteReview":false}
+            """
+        let (repository, _) = makeRepository { _ in (200, json) }
+        let result = try await repository.complete(sessionID: 7, at: nil, pausedSeconds: 0)
+        XCTAssertEqual(result.weeklyRanking.rank, 1)
+    }
+
+    func test_랭킹_정보가_둘_다_없으면_오류다() async {
+        let json = """
+            {"badge":{"parkId":1,"parkName":"A","parkType":"SMALL","earnedAt":"2026-11-04T15:32:10+09:00"},
+             "newAchievements":[],"canWriteReview":false}
+            """
+        let (repository, _) = makeRepository { _ in (200, json) }
+        do {
+            _ = try await repository.complete(sessionID: 7, at: nil, pausedSeconds: 0)
+            XCTFail("랭킹 정보가 없으면 해석에 실패해야 한다")
+        } catch {
+            // 해석 실패는 호출한 쪽에서 오류로 처리한다
+        }
+    }
+
     func test_완료_응답을_도메인_모델로_바꾼다() async throws {
         let json = """
             {"badge":{"parkId":1024,"parkName":"보라매공원","parkType":"NEIGHBORHOOD","earnedAt":"2026-11-04T15:32:10+09:00"},
              "newAchievements":[{"code":"PARKS_10","name":"공원 10곳 정복"}],
-             "monthlyRanking":{"rank":5,"badgeCount":4,"rankChange":1,"badgesToPodium":3},
+             "weeklyRanking":{"rank":5,"badgeCount":4,"rankChange":1,"badgesToPodium":3},
              "canWriteReview":true}
             """
         let (repository, transport) = makeRepository { _ in (200, json) }
@@ -70,7 +109,7 @@ final class RemoteCheckInRepositoryTests: XCTestCase {
         XCTAssertEqual(result.badge.parkType, .neighborhood)
         XCTAssertEqual(result.badge.earnedAt, kst("2026-11-04T15:32:10+09:00"))
         XCTAssertEqual(result.newAchievements, [Achievement(code: "PARKS_10", name: "공원 10곳 정복")])
-        XCTAssertEqual(result.monthlyRanking, MonthlyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3))
+        XCTAssertEqual(result.weeklyRanking, WeeklyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3))
         XCTAssertTrue(result.canWriteReview)
         XCTAssertEqual(transport.requests.first?.url?.path, "/api/check-ins/7/complete")
         XCTAssertEqual(try body(transport.requests.first)["lat"] as? Double, 37.4)
@@ -80,7 +119,7 @@ final class RemoteCheckInRepositoryTests: XCTestCase {
     func test_완료_요청은_좌표가_없으면_좌표를_보내지_않는다() async throws {
         let json = """
             {"badge":{"parkId":1,"parkName":"a","parkType":"SMALL","earnedAt":"2026-11-04T15:32:10+09:00"},
-             "newAchievements":[],"monthlyRanking":{"rank":1,"badgeCount":1,"rankChange":0,"badgesToPodium":0},"canWriteReview":false}
+             "newAchievements":[],"weeklyRanking":{"rank":1,"badgeCount":1,"rankChange":0,"badgesToPodium":0},"canWriteReview":false}
             """
         let (repository, transport) = makeRepository { _ in (200, json) }
         _ = try await repository.complete(sessionID: 7, at: nil, pausedSeconds: 0)

@@ -5,6 +5,8 @@ import Observation
 final class AppSession {
     enum Phase: Equatable {
         case loggedOut
+        /// 이미 로그인된 회원이 앱을 켰을 때의 입장 화면(「산책하러 가기」). 누르면 메인으로 간다.
+        case welcome
         case onboarding
         case main
     }
@@ -15,10 +17,16 @@ final class AppSession {
     /// 로그인에 성공했다(온보딩 여부와 무관). 계정이 바뀐 걸 화면 상태에 알릴 때 쓴다.
     var onSignedIn: (() -> Void)?
 
-    /// 저장된 토큰이 있으면 자동 로그인한다.
+    /// 저장된 토큰이 있으면 로그인된 상태로 보고 입장 화면(`welcome`)을 먼저 보여준다. 없으면 로그인 화면이다.
     /// 온보딩 도중 종료한 경우의 복구는 `/api/users/me` 연동 후 추가한다.
     init(tokenStore: TokenStore) {
-        phase = tokenStore.load() == nil ? .loggedOut : .main
+        phase = tokenStore.load() == nil ? .loggedOut : .welcome
+    }
+
+    /// 입장 화면의 「산책하러 가기」
+    func enterApp() {
+        guard phase == .welcome else { return }
+        phase = .main
     }
 
     func didLogin(_ result: LoginResult) {

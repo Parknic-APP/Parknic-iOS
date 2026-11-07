@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 이달의 시상대(1~3등). 랭킹 화면과 공원 시트가 함께 쓴다. 빈 자리는 점선 단상으로 보여준다.
+/// 이번 주 시상대(1~3등). 랭킹 화면과 공원 시트가 함께 쓴다. 빈 자리는 점선 단상으로 보여준다.
 struct PodiumView: View {
     let ranking: ParkRanking
     /// 내 순위(나를 "(나)"로 표시)
@@ -87,13 +87,13 @@ struct PodiumView: View {
 
 private enum MockPodiumSample {
     static let full = ParkRanking(
-        month: YearMonth(year: 2026, month: 10),
+        week: RankingWeek(date: Calendar.kst.date(from: DateComponents(year: 2026, month: 11, day: 4)) ?? Date()),
         podium: [
             RankingEntry(rank: 1, userID: 1, nickname: "두부산책", characterID: 5, badgeCount: 12),
             RankingEntry(rank: 2, userID: 2, nickname: "초록발", characterID: 3, badgeCount: 9),
             RankingEntry(rank: 3, userID: 3, nickname: "오리걸음", characterID: 8, badgeCount: 6),
         ], others: [], me: nil)
     static let nearlyEmpty = ParkRanking(
-        month: YearMonth(year: 2026, month: 10),
+        week: RankingWeek(date: Calendar.kst.date(from: DateComponents(year: 2026, month: 11, day: 4)) ?? Date()),
         podium: [RankingEntry(rank: 1, userID: 1, nickname: "대방동주민", characterID: 4, badgeCount: 3)], others: [], me: nil)
 }

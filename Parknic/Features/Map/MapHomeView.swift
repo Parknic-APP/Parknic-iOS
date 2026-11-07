@@ -16,7 +16,10 @@ struct MapHomeView: View {
             }
         }
         .task { await viewModel.run() }
-        .onChange(of: viewModel.selectedParkID) { sheetDetent = .medium }
+        .onChange(of: viewModel.selectedParkID) {
+            // 배지 화면의 「랭킹 보기」로 열 때는 랭킹이 잘리지 않게 처음부터 전체 높이로 연다.
+            sheetDetent = viewModel.pendingRankingParkID == viewModel.selectedParkID && viewModel.selectedParkID != nil ? .large : .medium
+        }
         .onChange(of: viewModel.markerChoices?.map(\.id)) { sheetDetent = .medium }
         .onChange(of: viewModel.checkIn.state) { _, state in viewModel.checkInStateDidChange(state) }
         // item 방식은 선택한 공원이 바뀌면 열린 시트를 닫고 새로 띄워서 전체 화면 크기로 열렸다.
@@ -45,8 +48,17 @@ struct MapHomeView: View {
                 coordinator: viewModel.checkIn, parkType: viewModel.checkInParkType,
                 badgeNumberAtPark: viewModel.badgeNumberAtPark, characterAssetName: viewModel.characterAssetName,
                 onWriteReview: { Task { await viewModel.openReviewAfterBadge() } }, onShowRanking: { Task { await viewModel.openRankingAfterBadge() } },
-                onRetry: { viewModel.retryCheckIn(parkID: lastParkID) },
+                onRetry: { parkID in Task { await viewModel.retryCheckIn(parkID: parkID) } },
                 onBackToMap: { viewModel.showsCheckInFlow = false })
+        }
+        .sheet(isPresented: $viewModel.showsTopRated) {
+            if let model = viewModel.makeTopRatedViewModel() {
+                TopRatedParksView(
+                    viewModel: model, onSelect: { viewModel.openTopRatedPark($0) }, onClose: { viewModel.showsTopRated = false })
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                    .presentationCornerRadius(Radius.r30)
+            }
         }
         .alert("체크인을 시작하지 못했어요", isPresented: startErrorBinding) {
             Button("확인", role: .cancel) {}
@@ -67,15 +79,13 @@ struct MapHomeView: View {
             set: { if !$0 { viewModel.startErrorMessage = nil } })
     }
 
-    /// 실패 화면에서 「다시 체크인하기」를 누를 때 열 공원
-    private var lastParkID: Int? { viewModel.checkIn.state.session?.parkID }
-
     private var mapLayer: some View {
         ZStack {
             ParkMapView(
-                parks: viewModel.nearby.parks, userLocation: viewModel.nearby.currentLocation,
+                parks: viewModel.mapParks, userLocation: viewModel.nearby.currentLocation,
                 selectedParkID: viewModel.selectedParkID, recenterToken: viewModel.recenterToken,
                 characterAssetName: viewModel.characterAssetName, searchRadiusM: viewModel.nearby.radiusM,
+                focusCoordinate: viewModel.focusCoordinate, focusToken: viewModel.focusToken,
                 onSelect: { viewModel.markerTapped($0) },
                 onTapMap: { viewModel.closeParkSheet() })
             VStack {
@@ -83,6 +93,7 @@ struct MapHomeView: View {
                     CheckInBanner(display: display) { viewModel.showsCheckInFlow = true }
                 }
                 summaryPill
+                if viewModel.canShowTopRated { topRatedChip }
                 if viewModel.isBrowsingWithoutLocation { permissionBanner }
                 Spacer()
                 HStack(alignment: .bottom) {
@@ -121,6 +132,18 @@ struct MapHomeView: View {
         .background(Color.white, in: Capsule())
         .pkShadow(.soft2)
         .accessibilityElement(children: .combine)
+    }
+
+    private var topRatedChip: some View {
+        Button(action: viewModel.openTopRated) {
+            Label {
+                Text("리뷰 좋은 공원")
+            } icon: {
+                Image(systemName: "star.fill").foregroundStyle(Color.sun500)
+            }
+        }
+        .buttonStyle(.pk(.secondary, size: .small, fillsWidth: false))
+        .accessibilityHint("내 주변 5km 안에서 리뷰와 별점이 좋은 공원을 모아 봐요")
     }
 
     private var permissionBanner: some View {
@@ -215,6 +238,8 @@ private struct ParkSheetHost: View {
     @State private var showsRanking = false
     @State private var showsReviews = false
     @State private var editorRoute: ReviewEditorRoute?
+    /// 「리뷰 쓰기」를 눌렀는데 이미 이 공원에 리뷰가 있을 때 경고에 쓸 내 리뷰
+    @State private var existingReview: Review?
     // 화면이 다시 그려져도 같은 ViewModel을 쓰도록 한 번만 만든다.
     @State private var reviewList: ReviewListViewModel
     @State private var rankingModel: RankingViewModel
@@ -229,15 +254,29 @@ private struct ParkSheetHost: View {
     }
 
     /// 배지 획득 화면에서 「리뷰 쓰기」·「랭킹 보기」로 들어왔으면 시트가 자리 잡은 뒤 그 화면을 연다.
+    /// 시트가 올라오는 도중에 이 작업이 취소될 수 있다(시트가 다시 만들어질 때). 그러면 대기 값을 지우지 않고 돌아가서,
+    /// 새로 만들어진 시트가 이어받는다. 취소된 채로 리뷰 목록을 받으면 "리뷰 없음"으로 잘못 판단하기 때문이다.
     private func openPendingDestinationIfNeeded() async {
-        let wantsReview = viewModel.pendingReviewParkID == park.id
-        let wantsRanking = viewModel.pendingRankingParkID == park.id
+        let isFresh = Date() < viewModel.pendingExpiresAt
+        let wantsReview = isFresh && viewModel.pendingReviewParkID == park.id
+        let wantsRanking = isFresh && viewModel.pendingRankingParkID == park.id
         guard wantsReview || wantsRanking else { return }
-        viewModel.pendingReviewParkID = nil
-        viewModel.pendingRankingParkID = nil
         // 시트가 올라오는 동안에는 그 위에 다른 화면을 띄워도 무시되므로 잠시 기다린다.
         try? await Task.sleep(for: .milliseconds(500))
-        if wantsReview { editorRoute = .create } else { showsRanking = true }
+        guard !Task.isCancelled else { return }
+        if wantsReview {
+            // 이미 이 공원에 쓴 리뷰가 있으면 저장할 때가 아니라 「리뷰 쓰기」를 누른 지금 알려 준다.
+            let intent = await reviewList.writeIntentAfterBadge()
+            guard !Task.isCancelled else { return }
+            viewModel.pendingReviewParkID = nil
+            switch intent {
+            case .create: editorRoute = .create
+            case .alreadyReviewed(let review): existingReview = review
+            }
+        } else {
+            viewModel.pendingRankingParkID = nil
+            showsRanking = true
+        }
     }
 
     var body: some View {
@@ -262,6 +301,15 @@ private struct ParkSheetHost: View {
                 }
         }
         .task { await openPendingDestinationIfNeeded() }
+        .alert("이미 리뷰를 남긴 공원이에요", isPresented: existingReviewBinding) {
+            Button("내 리뷰 수정") {
+                if let review = existingReview { editorRoute = .edit(review) }
+                existingReview = nil
+            }
+            Button("닫기", role: .cancel) { existingReview = nil }
+        } message: {
+            Text("한 공원에는 리뷰를 하나만 쓸 수 있어요. 남긴 리뷰는 수정할 수 있어요.")
+        }
         .sheet(item: $editorRoute) { route in
             ReviewEditorHost(
                 route: route, park: current, sheetModel: sheetModel,
@@ -284,6 +332,10 @@ private struct ParkSheetHost: View {
                 onCancel: { viewModel.chooserParks = nil })
                 .presentationDetents([.medium])
         }
+    }
+
+    private var existingReviewBinding: Binding<Bool> {
+        Binding(get: { existingReview != nil }, set: { if !$0 { existingReview = nil } })
     }
 
     private var chooserBinding: Binding<Bool> {

@@ -3,6 +3,8 @@ import SwiftUI
 /// 12c·05a·05b — 체크인 진행. 일러스트는 에셋(`checkin-scene`, 캐릭터)으로 교체한다.
 struct CheckInProgressView: View {
     let display: CheckInProgressDisplay
+    /// 장면에 서 있는 내 캐릭터 에셋 이름. 없으면 기본 캐릭터를 쓴다.
+    var characterAssetName: String?
     let onRequestCancel: () -> Void
     let onShowMap: () -> Void
 
@@ -58,7 +60,7 @@ struct CheckInProgressView: View {
         if case .outOfRange(_, let grace) = display.phase {
             OutOfRangeBanner(graceRemaining: grace)
         } else {
-            CheckInScene()
+            CheckInScene(display: display, characterAssetName: characterAssetName)
         }
     }
 
@@ -181,26 +183,74 @@ private struct OutOfRangeBanner: View {
 
 // MARK: - 장면 일러스트
 
-/// 공원에서 쉬는 캐릭터 장면. 에셋이 없는 동안은 단순한 자리표시자를 보여준다.
+/// 공원을 산책하는 내 캐릭터 장면. 캐릭터가 살짝살짝 흔들리고, 말풍선으로 진행 상황을 응원한다.
+/// 배경은 `checkin-scene` 에셋(361×170)이고, 캐릭터 배치는 `tools/generate_art.py`의 장면 좌표와 같다.
 private struct CheckInScene: View {
+    let display: CheckInProgressDisplay
+    let characterAssetName: String?
+
+    private static let designWidth: CGFloat = 361
+    private static let designHeight: CGFloat = 170
+
     var body: some View {
-        Group {
-            if UIImage(named: "checkin-scene") != nil {
-                Image("checkin-scene").resizable().scaledToFill()
-            } else {
-                ZStack {
-                    Color.leaf100
-                    HStack(spacing: Spacing.s28) {
-                        Image(systemName: "tree.fill").font(.system(size: 44)).foregroundStyle(Color.leaf600)
-                        Image(systemName: "pawprint.fill").font(.system(size: 52)).foregroundStyle(Color.sun500)
-                        Image(systemName: "sun.max.fill").font(.system(size: 44)).foregroundStyle(Color.sun500)
-                    }
-                }
+        GeometryReader { proxy in
+            let k = proxy.size.width / Self.designWidth
+            ZStack(alignment: .topLeading) {
+                Image("checkin-scene").resizable().frame(width: proxy.size.width, height: proxy.size.height)
+                Image(characterName)
+                    .resizable().scaledToFit()
+                    .pkWiggle(angle: 2.5, period: 2.0)
+                    .frame(width: 111.6 * k, height: 104.4 * k)
+                    .position(x: (124.2 + 55.8) * k, y: (51.2 + 52.2) * k)
+                CheerBubble(text: display.cheer)
+                    .position(x: proxy.size.width / 2, y: 26 * k)
             }
         }
-        .frame(height: 170)
+        .aspectRatio(Self.designWidth / Self.designHeight, contentMode: .fit)
+        .background(Color.leaf100)
         .clipShape(RoundedRectangle(cornerRadius: Radius.r30))
-        .accessibilityHidden(true)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(display.cheer)
+    }
+
+    private var characterName: String {
+        if let characterAssetName, UIImage(named: characterAssetName) != nil { return characterAssetName }
+        return "character-default"
+    }
+}
+
+/// 말풍선: 흰 바탕에 굵은 외곽선(일러스트와 같은 선), 아래로 꼬리가 나온다.
+private struct CheerBubble: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .pkTextStyle(.callout)
+            .foregroundStyle(Color.ink900)
+            .padding(.horizontal, Spacing.s16)
+            .padding(.vertical, Spacing.s8)
+            .background(Color.white, in: Capsule())
+            .overlay(Capsule().stroke(Color.ink900, lineWidth: 2.4))
+            .overlay(alignment: .bottom) {
+                Triangle()
+                    .fill(Color.white)
+                    .overlay(Triangle().stroke(Color.ink900, lineWidth: 2.4))
+                    .frame(width: 14, height: 9)
+                    .offset(y: 8)
+            }
+            .animation(.easeInOut(duration: 0.3), value: text)
+            .contentTransition(.opacity)
+    }
+
+    private struct Triangle: Shape {
+        func path(in rect: CGRect) -> Path {
+            var path = Path()
+            path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+            path.closeSubpath()
+            return path
+        }
     }
 }
 

@@ -51,7 +51,7 @@ private final class FakeCheckInRepository: CheckInRepository, @unchecked Sendabl
     static let sampleResult = CheckInResult(
         badge: EarnedBadge(parkID: 1024, parkName: "보라매공원", parkType: .neighborhood, earnedAt: Date(timeIntervalSince1970: 0)),
         newAchievements: [Achievement(code: "PARKS_10", name: "공원 10곳 정복")],
-        monthlyRanking: MonthlyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
+        weeklyRanking: WeeklyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
         canWriteReview: true)
 }
 

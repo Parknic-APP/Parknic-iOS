@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 12g·08a·08b — 공원 월간 랭킹. 시상대 + 4위 이하 목록 + 하단 고정 내 순위.
+/// 12g·08a·08b — 공원 주간 랭킹. 시상대 + 4위 이하 목록 + 하단 고정 내 순위.
 struct RankingView: View {
     let viewModel: RankingViewModel
     var myCharacterAssetName: String?
@@ -27,7 +27,7 @@ struct RankingView: View {
     private func content(_ ranking: ParkRanking) -> some View {
         ScrollView {
             VStack(spacing: Spacing.s12) {
-                monthSelector
+                weekSelector
                 Text(viewModel.confirmationText).pkTextStyle(.callout).foregroundStyle(Color.ink500)
                 PodiumView(ranking: ranking, myRank: ranking.me?.rank)
                     .padding(Spacing.s16)
@@ -40,20 +40,20 @@ struct RankingView: View {
         .safeAreaInset(edge: .bottom) { myFooter(ranking) }
     }
 
-    private var monthSelector: some View {
+    private var weekSelector: some View {
         HStack(spacing: Spacing.s16) {
-            Button { Task { await viewModel.showPreviousMonth() } } label: {
+            Button { Task { await viewModel.showPreviousWeek() } } label: {
                 Image(systemName: "chevron.left").frame(width: TouchTarget.minimum, height: TouchTarget.minimum)
             }
-            .accessibilityLabel("이전 달")
-            Text("\(String(viewModel.month.year))년 \(viewModel.month.month)월")
+            .accessibilityLabel("이전 주")
+            Text(viewModel.week.rangeLabel)
                 .pkTextStyle(.title2).foregroundStyle(Color.ink900)
-            Button { Task { await viewModel.showNextMonth() } } label: {
+            Button { Task { await viewModel.showNextWeek() } } label: {
                 Image(systemName: "chevron.right").frame(width: TouchTarget.minimum, height: TouchTarget.minimum)
             }
             .disabled(!viewModel.canGoNext)
             .opacity(viewModel.canGoNext ? 1 : 0.3)
-            .accessibilityLabel("다음 달")
+            .accessibilityLabel("다음 주")
         }
         .foregroundStyle(Color.ink900)
         .padding(.horizontal, Spacing.s8)
@@ -147,18 +147,18 @@ struct RankingView: View {
 }
 
 private enum ParkRankingSample {
-    static let month = YearMonth(year: 2026, month: 10)
+    static let week = RankingWeek(date: Calendar.kst.date(from: DateComponents(year: 2026, month: 11, day: 4)) ?? Date())
     static var full: ParkRanking {
         let names = ["두부산책", "초록발", "오리걸음", "구름빵", "솜사탕", "아침공기", "펭펭"]
         let counts = [12, 9, 6, 7, 6, 6, 5]
         let all = names.indices.map {
             RankingEntry(rank: $0 + 1, userID: $0 + 1, nickname: names[$0], characterID: ($0 % 8) + 1, badgeCount: counts[$0])
         }
-        return ParkRanking(month: month, podium: Array(all.prefix(3)), others: Array(all.dropFirst(3)), me: MyRanking(rank: 17, badgeCount: 4))
+        return ParkRanking(week: week, podium: Array(all.prefix(3)), others: Array(all.dropFirst(3)), me: MyRanking(rank: 17, badgeCount: 4))
     }
     static var nearlyEmpty: ParkRanking {
         ParkRanking(
-            month: month, podium: [RankingEntry(rank: 1, userID: 1, nickname: "대방동주민", characterID: 4, badgeCount: 3)],
+            week: week, podium: [RankingEntry(rank: 1, userID: 1, nickname: "대방동주민", characterID: 4, badgeCount: 3)],
             others: [], me: MyRanking(rank: nil, badgeCount: 0))
     }
 }

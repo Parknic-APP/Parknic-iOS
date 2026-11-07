@@ -68,6 +68,7 @@ private struct DetailRepository: ParkRepository {
     var result: Result<ParkDetail, APIError>
     func nearby(center: Coordinate, radiusM: Int) async throws -> [Park] { [] }
     func detail(parkID: Int) async throws -> ParkDetail { try result.get() }
+    func topRated(center: Coordinate, radiusM: Int) async throws -> [TopRatedPark] { [] }
 }
 
 @MainActor
@@ -137,8 +138,14 @@ private struct MemoryStore: CheckInStore {
 
 private struct ListRepository: ParkRepository {
     var parks: [Park]
+    /// 주변 목록에는 없지만 상세로는 받을 수 있는 공원(예: 체크인하던 공원에서 멀리 벗어난 경우)
+    var detailOnly: [Park] = []
     func nearby(center: Coordinate, radiusM: Int) async throws -> [Park] { parks }
-    func detail(parkID: Int) async throws -> ParkDetail { throw APIError.network }
+    func detail(parkID: Int) async throws -> ParkDetail {
+        guard let park = (parks + detailOnly).first(where: { $0.id == parkID }) else { throw APIError.network }
+        return ParkDetail(park: park, address: "서울", averageRating: nil, reviewCount: 0)
+    }
+    func topRated(center: Coordinate, radiusM: Int) async throws -> [TopRatedPark] { [] }
 }
 
 private struct SilentLocationProvider: LocationProviding {
@@ -165,14 +172,14 @@ final class MapHomeCheckInTests: XCTestCase {
 
     private let clock = FixedClock(Date(timeIntervalSince1970: 1_793_773_930))
 
-    private func make(parks: [Park], location: Coordinate?) async -> MapHomeViewModel {
+    private func make(parks: [Park], detailOnly: [Park] = [], location: Coordinate?) async -> MapHomeViewModel {
         repository.clock = clock
         let coordinator = CheckInCoordinator(
             repository: repository, location: SilentLocationSource(), notifier: SilentNotifier(), store: MemoryStore(),
             clock: clock, sleep: { _ in try await Task.sleep(for: .seconds(3600)) })
         let model = MapHomeViewModel(
             location: SilentLocationProvider(), nearby: NearbyParksViewModel(repository: ListRepository(parks: parks)),
-            checkIn: coordinator, parks: ListRepository(parks: parks))
+            checkIn: coordinator, parks: ListRepository(parks: parks, detailOnly: detailOnly))
         if let location {
             model.nearby.locationDidUpdate(location)
             for _ in 0..<200 where model.nearby.parks.isEmpty { try? await Task.sleep(for: .milliseconds(5)) }
@@ -304,15 +311,79 @@ final class MapHomeCheckInTests: XCTestCase {
         let model = await make(parks: [target], location: center)
         model.showsCheckInFlow = true
 
-        model.retryCheckIn(parkID: 1)
+        await model.retryCheckIn(parkID: 1, after: .zero)
 
         XCTAssertFalse(model.showsCheckInFlow)
         XCTAssertEqual(model.selectedParkID, 1)
     }
 
-    func test_다시_체크인하기에서_목록에_없는_공원이면_시트를_열지_않는다() async {
+    // MARK: 리뷰 좋은 공원
+
+    func test_위치가_있으면_리뷰_좋은_공원_목록을_열_수_있다() async {
         let model = await make(parks: [park(1, meters: 0)], location: center)
-        model.retryCheckIn(parkID: 99)
+        XCTAssertTrue(model.canShowTopRated)
+        model.selectedParkID = 1
+
+        model.openTopRated()
+
+        XCTAssertTrue(model.showsTopRated)
+        XCTAssertNil(model.selectedParkID, "열려 있던 공원 시트는 닫는다")
+        XCTAssertNotNil(model.makeTopRatedViewModel())
+    }
+
+    func test_위치를_모르면_리뷰_좋은_공원_목록을_열_수_없다() async {
+        let model = await make(parks: [park(1, meters: 0)], location: nil)
+        XCTAssertFalse(model.canShowTopRated)
+        model.openTopRated()
+        XCTAssertFalse(model.showsTopRated)
+        XCTAssertNil(model.makeTopRatedViewModel())
+    }
+
+    func test_목록에서_주변_공원을_고르면_목록을_닫고_공원_시트를_연다() async {
+        let near = park(1, meters: 300)
+        let model = await make(parks: [near], location: center)
+        model.openTopRated()
+
+        model.openTopRatedPark(near)
+
+        XCTAssertFalse(model.showsTopRated)
+        XCTAssertEqual(model.selectedParkID, 1)
+        XCTAssertEqual(model.selectedPark?.id, 1)
+        XCTAssertEqual(model.mapParks.map(\.id), [1], "이미 목록에 있으면 마커를 더하지 않는다")
+        XCTAssertEqual(model.focusCoordinate, near.coordinate)
+    }
+
+    func test_목록에서_1km_밖_공원을_고르면_지도에_마커를_더하고_그_공원으로_옮긴다() async {
+        let far = park(9, meters: 3800)
+        let model = await make(parks: [park(1, meters: 300)], location: center)
+        let token = model.focusToken
+
+        model.openTopRatedPark(far)
+
+        XCTAssertEqual(model.selectedPark?.id, 9, "주변 목록에 없어도 시트로 열린다")
+        XCTAssertEqual(model.mapParks.map(\.id), [1, 9])
+        XCTAssertEqual(model.focusCoordinate, far.coordinate)
+        XCTAssertEqual(model.focusToken, token + 1)
+
+        model.closeParkSheet()
+        XCTAssertEqual(model.mapParks.map(\.id), [1], "시트를 닫으면 그 마커도 사라진다")
+    }
+
+    func test_다시_체크인하기는_주변_목록_밖으로_벗어난_공원도_시트로_연다() async {
+        let far = park(7, meters: 2400)
+        let model = await make(parks: [park(1, meters: 0)], detailOnly: [far], location: center)
+        model.showsCheckInFlow = true
+
+        await model.retryCheckIn(parkID: 7, after: .zero)
+
+        XCTAssertFalse(model.showsCheckInFlow)
+        XCTAssertEqual(model.selectedParkID, 7)
+        XCTAssertEqual(model.selectedPark?.id, 7, "목록에 없어도 시트에 보여줄 공원이 있다")
+    }
+
+    func test_다시_체크인하기에서_상세도_못_받는_공원이면_시트를_열지_않는다() async {
+        let model = await make(parks: [park(1, meters: 0)], location: center)
+        await model.retryCheckIn(parkID: 99, after: .zero)
         XCTAssertNil(model.selectedParkID)
     }
 
@@ -321,7 +392,7 @@ final class MapHomeCheckInTests: XCTestCase {
     private func completedResult(parkID: Int) -> CheckInResult {
         CheckInResult(
             badge: EarnedBadge(parkID: parkID, parkName: "공원\(parkID)", parkType: .small, earnedAt: clock.now),
-            newAchievements: [], monthlyRanking: MonthlyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
+            newAchievements: [], weeklyRanking: WeeklyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
             canWriteReview: true)
     }
 

@@ -16,6 +16,12 @@ final class MapHomeViewModel {
     /// 지금 있는 동네 이름("신대방동"). 아직 모르거나 구하지 못하면 nil
     private(set) var neighborhoodName: String?
 
+    /// 리뷰 좋은 공원 목록 시트를 보여주는지
+    var showsTopRated = false
+    /// 값이 바뀌면 지도가 `focusCoordinate`로 이동한다(목록에서 멀리 있는 공원을 골랐을 때)
+    private(set) var focusToken = 0
+    private(set) var focusCoordinate: Coordinate?
+
     /// 체크인 화면(진행·실패·완료)을 전체 화면으로 보여주는지
     var showsCheckInFlow = false
     /// 반경이 겹쳐 사용자가 골라야 할 때의 후보 공원
@@ -24,6 +30,9 @@ final class MapHomeViewModel {
     var markerChoices: [Park]?
     /// 배지 획득 화면에서 「리뷰 쓰기」를 눌러 열린 공원. 그 공원 시트가 열리면 바로 리뷰 작성 화면을 띄운다.
     var pendingReviewParkID: Int?
+    /// 배지 화면에서 요청한 목적지(리뷰·랭킹)가 유효한 시각. 시트가 다시 만들어져도 이어받되, 오래 남아 엉뚱한 때 열리지 않게 한다.
+    var pendingExpiresAt = Date.distantPast
+    static let pendingLifetime: TimeInterval = 15
     /// 배지 획득 화면에서 「랭킹 보기」를 눌러 열린 공원. 그 공원 시트가 열리면 바로 전체 랭킹 화면을 띄운다.
     var pendingRankingParkID: Int?
     private(set) var isStartingCheckIn = false
@@ -88,6 +97,8 @@ final class MapHomeViewModel {
 
     /// 공원 시트(또는 겹친 공원 목록)를 닫는다.
     func closeParkSheet() {
+        pendingReviewParkID = nil
+        pendingRankingParkID = nil
         markerChoices = nil
         selectedParkID = nil
     }
@@ -101,8 +112,19 @@ final class MapHomeViewModel {
         selectedParkID = id
     }
 
+    /// 주변 목록(반경 안)에 없는 공원을 시트로 열어야 할 때 쓴다. 예: 체크인하던 공원에서 멀리 벗어난 뒤 「다시 체크인하기」
+    private var outOfListPark: Park?
+
+    /// 지도에 그릴 공원: 주변 목록 + (목록 밖인데 지금 열어 둔 공원)
+    var mapParks: [Park] {
+        guard let extra = outOfListPark, extra.id == selectedParkID, !nearby.parks.contains(where: { $0.id == extra.id })
+        else { return nearby.parks }
+        return nearby.parks + [extra]
+    }
+
     var selectedPark: Park? {
         nearby.parks.first { $0.id == selectedParkID }
+            ?? outOfListPark.flatMap { $0.id == selectedParkID ? $0 : nil }
     }
 
     /// 권한 거부 안내(10c)를 보여줄지
@@ -228,6 +250,31 @@ final class MapHomeViewModel {
         }
     }
 
+    // MARK: 리뷰 좋은 공원
+
+    /// 위치를 알아야 열 수 있다(둘러보기 모드에서 위치가 없으면 목록을 만들 수 없다).
+    var canShowTopRated: Bool { nearby.currentLocation != nil }
+
+    func makeTopRatedViewModel() -> TopRatedParksViewModel? {
+        guard let center = nearby.currentLocation else { return nil }
+        return TopRatedParksViewModel(repository: parkRepository, center: center)
+    }
+
+    func openTopRated() {
+        guard canShowTopRated else { return }
+        closeParkSheet()
+        showsTopRated = true
+    }
+
+    /// 목록에서 공원을 골랐다: 목록을 닫고 지도를 그 공원으로 옮긴 뒤 공원 정보(반 화면)를 연다.
+    func openTopRatedPark(_ park: Park) {
+        showsTopRated = false
+        if !nearby.parks.contains(where: { $0.id == park.id }) { outOfListPark = park }
+        focusCoordinate = park.coordinate
+        focusToken += 1
+        selectedParkID = park.id
+    }
+
     /// 코디네이터 상태가 바뀔 때 부른다. 끝난 체크인(실패·완료)은 화면으로 알리고, 정리되면 목록을 새로 받는다.
     func checkInStateDidChange(_ state: CheckInState) {
         switch state {
@@ -244,9 +291,17 @@ final class MapHomeViewModel {
     }
 
     /// 실패 화면의 「다시 체크인하기」 — 그 공원의 시트를 열어 다시 시작하게 한다.
-    func retryCheckIn(parkID: Int?) {
+    /// 체크인 화면(전체 화면)이 완전히 내려간 뒤에 열어야 시트가 무시되지 않는다.
+    func retryCheckIn(parkID: Int, after delay: Duration = .milliseconds(500)) async {
         showsCheckInFlow = false
-        if let parkID, nearby.parks.contains(where: { $0.id == parkID }) { selectedParkID = parkID }
+        await nearby.refreshAndWait()
+        try? await Task.sleep(for: delay)
+        if !nearby.parks.contains(where: { $0.id == parkID }) {
+            // 공원에서 멀리 벗어나 있으면 주변 목록에 없으므로 상세에서 공원 정보를 받아 연다.
+            guard let park = (try? await parkRepository.detail(parkID: parkID))?.park else { return }
+            outOfListPark = park
+        }
+        selectedParkID = parkID
     }
 
     /// 배지 획득 화면의 "N번째 배지". 목록의 내 배지 수에 이번에 받은 1개를 더한다.
@@ -278,6 +333,7 @@ final class MapHomeViewModel {
         await nearby.refreshAndWait()
         if let parkID {
             pendingReviewParkID = parkID
+            pendingExpiresAt = Date().addingTimeInterval(Self.pendingLifetime)
             selectedParkID = parkID
         }
     }
@@ -290,6 +346,7 @@ final class MapHomeViewModel {
         await nearby.refreshAndWait()
         if let parkID {
             pendingRankingParkID = parkID
+            pendingExpiresAt = Date().addingTimeInterval(Self.pendingLifetime)
             selectedParkID = parkID
         }
     }

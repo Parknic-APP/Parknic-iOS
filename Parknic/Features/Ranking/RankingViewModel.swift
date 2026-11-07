@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-/// 공원 월간 랭킹(12g·08b·08a). 이번 달이 기본이고, 이전 달로 넘겨 볼 수 있다.
+/// 공원 주간 랭킹(12g·08b·08a). 이번 주가 기본이고, 이전 주로 넘겨 볼 수 있다.
 @MainActor @Observable
 final class RankingViewModel {
     enum State: Equatable {
@@ -12,11 +12,11 @@ final class RankingViewModel {
 
     let parkID: Int
     let parkName: String
-    private(set) var month: YearMonth
+    private(set) var week: RankingWeek
     private(set) var state: State
 
     private let repository: RankingRepository
-    private let currentMonth: YearMonth
+    private let clock: AppClock
     private var loadTask: Task<Void, Never>?
 
     init(
@@ -26,12 +26,15 @@ final class RankingViewModel {
         self.parkID = parkID
         self.parkName = parkName
         self.repository = repository
-        self.currentMonth = YearMonth(date: clock.now)
-        self.month = YearMonth(date: clock.now)
+        self.clock = clock
+        self.week = RankingWeek(date: clock.now)
         self.state = initialState
     }
 
-    var canGoNext: Bool { month < currentMonth }
+    /// 지금이 속한 주. 화면을 켜 둔 채 월요일 0시가 지나도 새 주로 바뀌도록 매번 시계로 구한다.
+    private var currentWeek: RankingWeek { RankingWeek(date: clock.now) }
+
+    var canGoNext: Bool { week < currentWeek }
 
     var ranking: ParkRanking? {
         if case .loaded(let ranking) = state { return ranking }
@@ -40,17 +43,17 @@ final class RankingViewModel {
 
     func load() async {
         loadTask?.cancel()
-        let requested = month
+        let requested = week
         state = .loading
         let task = Task {
             do {
-                let ranking = try await repository.ranking(parkID: parkID, month: requested)
-                guard !Task.isCancelled, requested == month else { return }
+                let ranking = try await repository.ranking(parkID: parkID, week: requested)
+                guard !Task.isCancelled, requested == week else { return }
                 state = .loaded(ranking)
             } catch is CancellationError {
                 return
             } catch {
-                guard !Task.isCancelled, requested == month else { return }
+                guard !Task.isCancelled, requested == week else { return }
                 state = .failed((error as? APIError)?.userMessage ?? APIError.network.userMessage)
             }
         }
@@ -58,21 +61,21 @@ final class RankingViewModel {
         await task.value
     }
 
-    func showPreviousMonth() async {
-        month = month.previous
+    func showPreviousWeek() async {
+        week = week.previous
         await load()
     }
 
-    func showNextMonth() async {
+    func showNextWeek() async {
         guard canGoNext else { return }
-        month = month.next
+        week = week.next
         await load()
     }
 
-    /// 「10월 31일 자정에 확정돼요」
+    /// 「11월 9일 월요일 0시에 새로 시작해요」
     var confirmationText: String {
-        month == currentMonth
-            ? String(localized: "\(month.month)월 \(month.lastDay)일 자정에 확정돼요 · 배지 수 기준")
+        week == currentWeek
+            ? String(localized: "\(week.resetLabel) 월요일 0시에 새로 시작해요 · 배지 수 기준")
             : String(localized: "확정된 랭킹이에요 · 배지 수 기준")
     }
 }
@@ -84,12 +87,12 @@ struct MyRankingFooter: Equatable {
 
     static func make(for ranking: ParkRanking) -> MyRankingFooter {
         guard let me = ranking.me, let rank = me.rank else {
-            // 이번 달 배지가 없다 → 20분만 머물러도 몇 등이 되는지 알려준다.
+            // 이번 주 배지가 없다 → 20분만 머물러도 몇 등이 되는지 알려준다.
             let next = ranking.podium.count + 1
             let subtitle = next <= 3
                 ? String(localized: "20분만 머물러도 바로 \(next)등이에요")
                 : String(localized: "20분 머물러 첫 배지를 받아 보세요")
-            return MyRankingFooter(title: String(localized: "이번 달 아직 배지가 없어요"), subtitle: subtitle)
+            return MyRankingFooter(title: String(localized: "이번 주 아직 배지가 없어요"), subtitle: subtitle)
         }
         let title = String(localized: "나는 \(rank)등 · 배지 \(me.badgeCount)개")
         if rank <= 3 { return MyRankingFooter(title: title, subtitle: String(localized: "시상대에 올랐어요")) }

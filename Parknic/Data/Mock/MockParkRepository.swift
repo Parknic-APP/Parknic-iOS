@@ -26,4 +26,16 @@ struct MockParkRepository: ParkRepository {
         }
         return ParkDetail(park: park, address: "동작구 여의대방로20길 33", averageRating: 4.6, reviewCount: 128)
     }
+
+    /// 목 데이터: 앞의 세 곳에 리뷰가 많고 별점이 높다고 가정한다.
+    func topRated(center: Coordinate, radiusM: Int) async throws -> [TopRatedPark] {
+        try await Task.sleep(for: delay)
+        let ratings: [(Double, Int)] = [(4.8, 128), (4.7, 64), (4.5, 21)]
+        return zip(parks, ratings).compactMap { park, rating in
+            let distance = park.coordinate.distance(to: center)
+            guard distance <= Double(radiusM) else { return nil }
+            return TopRatedPark(park: park, distanceM: Int(distance.rounded()), averageRating: rating.0, reviewCount: rating.1)
+        }
+        .sorted { $0.averageRating > $1.averageRating }
+    }
 }

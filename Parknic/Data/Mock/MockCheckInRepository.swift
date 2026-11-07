@@ -33,7 +33,7 @@ final class MockCheckInRepository: CheckInRepository, @unchecked Sendable {
                 parkID: session?.parkID ?? 0, parkName: session?.parkName ?? "", parkType: .neighborhood,
                 earnedAt: clock.now),
             newAchievements: [],
-            monthlyRanking: MonthlyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
+            weeklyRanking: WeeklyRankingSummary(rank: 5, badgeCount: 4, rankChange: 1, badgesToPodium: 3),
             canWriteReview: true)
     }
 

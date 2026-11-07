@@ -29,6 +29,23 @@ struct Park: Identifiable, Equatable, Sendable {
     }
 }
 
+/// 리뷰가 좋은 공원 목록의 한 항목. 리뷰 10개 이상 && 평균 별점 4.5 이상인 공원만 온다.
+struct TopRatedPark: Equatable, Identifiable, Sendable {
+    let park: Park
+    /// 내 위치에서의 거리(m)
+    let distanceM: Int
+    let averageRating: Double
+    let reviewCount: Int
+
+    var id: Int { park.id }
+
+    /// 서버가 가려내는 기준(안내 문구에 쓴다)
+    static let minReviewCount = 10
+    static let minRating = 4.5
+    /// 이 목록을 찾는 반경(m)
+    static let searchRadiusM = 5000
+}
+
 /// 공원 상세(공원 시트)
 struct ParkDetail: Equatable, Sendable {
     let park: Park

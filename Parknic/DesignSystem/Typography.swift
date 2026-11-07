@@ -49,6 +49,15 @@ extension PKTextStyle {
     /// 버튼 — 17 Bold
     static let headline = PKTextStyle(
         fontName: PKFontName.pretendardBold, size: 17, lineHeightMultiple: 1.2, tracking: 0, relativeTo: .headline)
+    /// 큰 버튼 글씨 — 21 Bold. 화면 하단 주요 버튼에 쓴다.
+    static let buttonLarge = PKTextStyle(
+        fontName: PKFontName.pretendardBold, size: 21, lineHeightMultiple: 1.2, tracking: 0, relativeTo: .headline)
+    /// 중간 버튼 글씨 — 19 Bold
+    static let buttonMedium = PKTextStyle(
+        fontName: PKFontName.pretendardBold, size: 19, lineHeightMultiple: 1.2, tracking: 0, relativeTo: .headline)
+    /// 작은 버튼 글씨 — 16 Bold
+    static let buttonSmall = PKTextStyle(
+        fontName: PKFontName.pretendardBold, size: 16, lineHeightMultiple: 1.2, tracking: 0, relativeTo: .callout)
     /// 본문 — 15 Regular / 1.6
     static let body = PKTextStyle(
         fontName: PKFontName.pretendardRegular, size: 15, lineHeightMultiple: 1.6, tracking: 0, relativeTo: .body)

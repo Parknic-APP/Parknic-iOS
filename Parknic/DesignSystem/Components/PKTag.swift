@@ -27,7 +27,7 @@ struct PKTag: View {
         .padding(.leading, isPark ? Spacing.s12 : Spacing.s8)
         .padding(.trailing, Spacing.s8)
         .frame(minHeight: 24)
-        .background(background, in: RoundedRectangle(cornerRadius: Radius.r8))
+        .background(background, in: Capsule())
         .overlay(alignment: .leading) {
             if case .park(let type) = style {
                 Capsule().fill(type.color).frame(width: 3, height: 12).padding(.leading, 3)

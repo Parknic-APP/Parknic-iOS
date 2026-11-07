@@ -187,7 +187,7 @@ struct MyPageView: View {
                 statCard(
                     "연속 산책", value: stats.currentStreak, unit: "일", note: "최고 \(stats.bestStreak)일",
                     labelColor: .sun700, background: .sun100)
-                statCard("시상대에 오른 공원", value: stats.podiumParks, unit: "곳")
+                statCard("이번 주 시상대 공원", value: stats.podiumParks, unit: "곳")
             }
         }
     }

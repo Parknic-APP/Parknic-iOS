@@ -26,6 +26,24 @@ struct CheckInProgressDisplay: Equatable {
 
     var stayedMinutes: Int { DurationFormatter.wholeMinutes(stayed) }
 
+    /// 장면 속 캐릭터의 말풍선. 진행도에 따라 응원 문구가 바뀐다.
+    var cheer: String {
+        switch phase {
+        case .completing:
+            return String(localized: "배지를 만들고 있어요!")
+        case .outOfRange:
+            return String(localized: "얼른 돌아와요!")
+        case .inside:
+            switch progress {
+            case ..<0.1: return String(localized: "좋아요, 출발!")
+            case ..<0.35: return String(localized: "공원 공기가 참 좋죠?")
+            case ..<0.6: return String(localized: "벌써 절반이 다 돼 가요")
+            case ..<0.85: return String(localized: "조금만 더 힘내요!")
+            default: return String(localized: "거의 다 왔어요!")
+            }
+        }
+    }
+
     /// 진행 중이 아니면 nil
     @MainActor
     static func make(from coordinator: CheckInCoordinator, parkType: ParkType) -> CheckInProgressDisplay? {

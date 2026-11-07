@@ -18,7 +18,7 @@
 | 공원 상세 | `GET /api/parks/{id}` | **가정**: `{ id, name, parkType, address, latitude, longitude, radiusM, averageRating(null 가능), reviewCount, myStatus, myBadgeCount }` |
 | 체크인 시작 | `POST /api/check-ins` `{ parkId, lat, lng }` | **가정**: 응답 `{ id, parkId, parkName, latitude, longitude, radiusM, startedAt }`. `startedAt`은 서버 시각 |
 | 진행 중 세션 | `GET /api/check-ins/current` | 없으면 **404**(가정). 앱 재실행 복구용 |
-| 체크인 완료 | `POST /api/check-ins/{id}/complete` `{ lat?, lng?, pausedSeconds }` | 응답은 api-spec의 완료 응답(배지·새 업적·이달 순위·`canWriteReview`) |
+| 체크인 완료 | `POST /api/check-ins/{id}/complete` `{ lat?, lng?, pausedSeconds }` | 응답은 api-spec의 완료 응답(배지·새 업적·이번 주 순위·`canWriteReview`) |
 | 체크인 실패 | `POST /api/check-ins/{id}/fail` `{ reason }` | `OUT_OF_RANGE` / `MIDNIGHT` / `APP_TERMINATED` |
 | 체크인 취소 | `POST /api/check-ins/{id}/cancel` | |
 | 공원 랭킹 | `GET /api/parks/{id}/rankings?month=2026-11` | `podium`(1~3등, 빈 자리는 항목 없음), `others`(4위~), `me`(`rank`는 이번 달 배지가 없으면 null) |

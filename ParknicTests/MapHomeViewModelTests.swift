@@ -18,6 +18,7 @@ private final class FakeLocationProvider: LocationProviding {
 private struct FixedParks: ParkRepository {
     func nearby(center: Coordinate, radiusM: Int) async throws -> [Park] { MockParkRepository.sample }
     func detail(parkID: Int) async throws -> ParkDetail { throw APIError.network }
+    func topRated(center: Coordinate, radiusM: Int) async throws -> [TopRatedPark] { [] }
 }
 
 @MainActor
@@ -136,6 +137,26 @@ final class MapHomeViewModelTests: XCTestCase {
         XCTAssertNil(model.pendingReviewParkID)
     }
 
+
+    func test_공원_시트를_닫으면_배지_화면에서_요청한_리뷰_랭킹_이동도_사라진다() {
+        let (model, _, task) = make()
+        defer { task.cancel() }
+        model.pendingReviewParkID = 1024
+        model.pendingRankingParkID = 1024
+
+        model.closeParkSheet()
+
+        XCTAssertNil(model.pendingReviewParkID)
+        XCTAssertNil(model.pendingRankingParkID, "닫은 뒤 같은 공원을 다시 열었을 때 엉뚱하게 리뷰·랭킹 화면이 열리지 않는다")
+    }
+
+    func test_배지_화면에서_요청한_이동은_잠깐만_유효하다() {
+        let (model, _, task) = make()
+        defer { task.cancel() }
+        XCTAssertEqual(model.pendingExpiresAt, .distantPast, "요청이 없으면 유효하지 않다")
+        XCTAssertGreaterThan(MapHomeViewModel.pendingLifetime, 5)
+        XCTAssertLessThanOrEqual(MapHomeViewModel.pendingLifetime, 30)
+    }
 
     // MARK: 겹친 마커
 

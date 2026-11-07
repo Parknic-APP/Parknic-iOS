@@ -44,6 +44,68 @@ final class ReviewListViewModelTests: XCTestCase {
         ReviewListViewModel(parkID: 1, parkName: "보라매공원", repository: repository)
     }
 
+    // MARK: 체크인 뒤 「리뷰 쓰기」
+
+    func test_이미_쓴_리뷰가_있으면_저장이_아니라_리뷰_쓰기를_누를_때_알린다() async {
+        let repository = PagingRepository()
+        let mine = review(7, mine: true)
+        repository.pages[nil] = ReviewPage(reviews: [review(1), mine, review(2)], nextCursor: nil)
+        let model = make(repository)
+
+        let intent = await model.writeIntentAfterBadge()
+
+        XCTAssertEqual(intent, .alreadyReviewed(mine))
+    }
+
+    func test_리뷰가_없으면_작성_화면으로_보낸다() async {
+        let repository = PagingRepository()
+        repository.pages[nil] = ReviewPage(reviews: [review(1), review(2)], nextCursor: nil)
+        let intent = await make(repository).writeIntentAfterBadge()
+        XCTAssertEqual(intent, .create)
+    }
+
+    func test_공원에_리뷰가_하나도_없어도_작성_화면으로_보낸다() async {
+        let intent = await make(PagingRepository()).writeIntentAfterBadge()
+        XCTAssertEqual(intent, .create)
+    }
+
+    func test_목록을_못_받아도_막지_않고_작성_화면으로_보낸다() async {
+        let repository = PagingRepository()
+        repository.error = .network
+        let intent = await make(repository).writeIntentAfterBadge()
+        XCTAssertEqual(intent, .create, "저장할 때 서버가 한 번 더 거른다")
+    }
+
+    func test_내_리뷰가_두_번째_이후_페이지에_있어도_찾아서_알린다() async {
+        let repository = PagingRepository()
+        let mine = review(9, mine: true)
+        repository.pages[nil] = ReviewPage(reviews: [review(1)], nextCursor: "c2")
+        repository.pages["c2"] = ReviewPage(reviews: [review(5)], nextCursor: "c3")
+        repository.pages["c3"] = ReviewPage(reviews: [mine], nextCursor: nil)
+
+        let intent = await make(repository).writeIntentAfterBadge()
+
+        XCTAssertEqual(intent, .alreadyReviewed(mine))
+        XCTAssertEqual(repository.cursors.count, 3, "찾으면 더 넘기지 않는다")
+    }
+
+    func test_내_리뷰가_없으면_끝까지_보고_작성_화면으로_보낸다() async {
+        let repository = PagingRepository()
+        repository.pages[nil] = ReviewPage(reviews: [review(1)], nextCursor: "c2")
+        repository.pages["c2"] = ReviewPage(reviews: [review(2)], nextCursor: nil)
+        let intent = await make(repository).writeIntentAfterBadge()
+        XCTAssertEqual(intent, .create)
+        XCTAssertEqual(repository.cursors.count, 2)
+    }
+
+    func test_다음_페이지가_끝없이_이어져도_정해진_페이지까지만_본다() async {
+        let repository = PagingRepository()
+        for page in 0..<40 { repository.pages[page == 0 ? nil : "c\(page)"] = ReviewPage(reviews: [review(page + 1)], nextCursor: "c\(page + 1)") }
+        let intent = await make(repository).writeIntentAfterBadge()
+        XCTAssertEqual(intent, .create)
+        XCTAssertEqual(repository.cursors.count, ReviewListViewModel.maxPagesToCheck)
+    }
+
     private func twoPages() -> PagingRepository {
         let repository = PagingRepository()
         repository.pages[nil] = ReviewPage(reviews: (1...5).map { review($0) }, nextCursor: "c1")
@@ -332,5 +394,16 @@ final class RemoteReviewRepositoryTests: XCTestCase {
         } catch {
             XCTAssertEqual((error as? APIError)?.serverCode, .reviewBadgeRequired)
         }
+    }
+}
+
+@MainActor
+final class ReviewWriteIntentWithMockTests: XCTestCase {
+    func test_모의_저장소에서는_내_리뷰가_있어서_경고로_간다() async {
+        let model = ReviewListViewModel(
+            parkID: 1, parkName: "보라매공원", repository: MockReviewRepository(delay: .zero))
+        let intent = await model.writeIntentAfterBadge()
+        guard case .alreadyReviewed(let mine) = intent else { return XCTFail("이미 쓴 리뷰가 있으니 경고여야 한다: \(intent)") }
+        XCTAssertTrue(mine.isMine)
     }
 }

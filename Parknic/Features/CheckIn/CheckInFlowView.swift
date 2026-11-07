@@ -12,7 +12,7 @@ struct CheckInFlowView: View {
     var onWriteReview: () -> Void = {}
     var onShowRanking: () -> Void = {}
     /// 「다시 체크인하기」 — 같은 공원에서 다시 시작한다(지도·공원 시트가 처리)
-    let onRetry: () -> Void
+    let onRetry: (_ parkID: Int) -> Void
     /// 지도로 돌아간다. 체크인은 계속 진행된다(진행 중 배너로 다시 들어온다).
     let onBackToMap: () -> Void
 
@@ -51,14 +51,17 @@ struct CheckInFlowView: View {
         case .inProgress, .outOfRange, .completing:
             if let display {
                 CheckInProgressView(
-                    display: display, onRequestCancel: { isConfirmingCancel = true }, onShowMap: onBackToMap)
+                    display: display, characterAssetName: characterAssetName, onRequestCancel: { isConfirmingCancel = true },
+                    onShowMap: onBackToMap)
             }
         case .failed(let session, let reason):
             CheckInFailedView(
                 reason: reason, parkName: session.parkName, stayed: coordinator.stayed,
                 onRetry: {
+                    // dismiss()가 세션을 비우므로 그 전에 공원 번호를 챙긴다.
+                    let parkID = session.parkID
                     coordinator.dismiss()
-                    onRetry()
+                    onRetry(parkID)
                 },
                 onBackToMap: {
                     coordinator.dismiss()

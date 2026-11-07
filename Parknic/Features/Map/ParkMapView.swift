@@ -12,6 +12,9 @@ struct ParkMapView: View {
     var characterAssetName: String?
     /// 설정한 주변 공원 조회 반경(m). 점선 원으로 보여준다.
     var searchRadiusM = SearchRadius.default.meters
+    /// `focusToken`이 바뀌면 이 좌표로 지도를 옮긴다(공원 시트가 아래를 가리므로 공원이 위쪽에 보이게 한다).
+    var focusCoordinate: Coordinate?
+    var focusToken = 0
     let onSelect: (Park) -> Void
     /// 마커가 아닌 지도 빈 곳을 눌렀다(열려 있는 공원 시트를 닫는 데 쓴다).
     var onTapMap: () -> Void = {}
@@ -76,10 +79,22 @@ struct ParkMapView: View {
             onTapMap()
         }
         .onChange(of: recenterToken) { recenter(animated: hasPlacedCamera) }
+        .onChange(of: focusToken) { focus() }
         .onChange(of: userLocation) { _, new in
             if !hasPlacedCamera, new != nil { recenter(animated: false) }
         }
         .onAppear { if userLocation != nil { recenter(animated: false) } }
+    }
+
+    /// 공원이 반 화면 시트 위쪽에 보이도록 중심을 남쪽으로 조금 내려 맞춘다.
+    private func focus() {
+        guard let focusCoordinate else { return }
+        let southShiftDegrees = Self.visibleWidthM * 0.18 / 111_320
+        let center = CLLocationCoordinate2D(
+            latitude: focusCoordinate.latitude - southShiftDegrees, longitude: focusCoordinate.longitude)
+        let region = MKCoordinateRegion(center: center, latitudinalMeters: Self.visibleWidthM, longitudinalMeters: Self.visibleWidthM)
+        hasPlacedCamera = true
+        withAnimation { position = .region(region) }
     }
 
     /// 내 위치를 중심으로 가로 `visibleWidthM`만 보이게 옮긴다. 처음 맞출 때는 애니메이션 없이 바로 놓는다.

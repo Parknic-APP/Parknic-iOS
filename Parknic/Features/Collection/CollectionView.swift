@@ -94,12 +94,16 @@ struct CollectionView: View {
     private func typeCell(_ type: ParkType, count: Int) -> some View {
         VStack(spacing: Spacing.s8) {
             badgeImage(count > 0 ? type.badgeAssetName : type.lockedBadgeAssetName, fallback: type.symbolName, size: 64)
-            Text(type.displayName).pkTextStyle(.callout).foregroundStyle(Color.ink900)
-            if count > 0 {
-                Text("×\(count)").pkTextStyle(.headline).foregroundStyle(Color.leaf600)
-            } else {
-                Text("아직 없어요").pkTextStyle(.callout).foregroundStyle(Color.ink500)
+            Text(type.displayName).pkTextStyle(.callout).foregroundStyle(Color.ink900).frame(minHeight: 24)
+            Group {
+                if count > 0 {
+                    Text("×\(count)").pkTextStyle(.headline).foregroundStyle(Color.leaf600)
+                } else {
+                    Text("아직 없어요").pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                }
             }
+            // 글자 크기가 달라도 같은 줄의 카드 높이가 어긋나지 않게 줄 높이를 맞춘다.
+            .frame(minHeight: 28)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Spacing.s16)
@@ -125,6 +129,7 @@ struct CollectionView: View {
                     HStack(spacing: Spacing.s8) {
                         ProgressView(value: achievement.fraction).tint(.leaf600)
                         Text(achievement.progressText).pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                            .frame(minWidth: 64, alignment: .trailing)
                     }
                 }
             }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 12b·04a~04c — 공원 시트. 이달의 시상대는 랭킹 작업에서 이 시트에 붙인다.
+/// 12b·04a~04c — 공원 시트. 이번 주 시상대는 랭킹 작업에서 이 시트에 붙인다.
 struct ParkSheetView: View {
     let viewModel: ParkSheetViewModel
     let availability: CheckInAvailability
@@ -11,16 +11,20 @@ struct ParkSheetView: View {
     let onShowReviews: () -> Void
     let onClose: () -> Void
 
+    private static let topID = "parkSheetTop"
+
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.s20) {
+                Color.clear.frame(height: 0).id(Self.topID)
                 header
                 stats
                 checkInSection
                 if let ranking = viewModel.ranking {
                     podiumSection(ranking)
                 } else {
-                    linkRow(symbol: "trophy", title: "이달의 랭킹 보기", action: onShowRanking)
+                    linkRow(symbol: "trophy", title: "이번 주 랭킹 보기", action: onShowRanking)
                 }
                 linkRow(symbol: "text.bubble", title: reviewTitle, action: onShowReviews)
                 if case .failed(let message) = viewModel.state {
@@ -28,6 +32,9 @@ struct ParkSheetView: View {
                 }
             }
             .padding(Spacing.s20)
+        }
+        // 시트가 열릴 때 항상 맨 위부터 보여준다.
+        .onAppear { proxy.scrollTo(Self.topID, anchor: .top) }
         }
         .background(Color.white)
         .task {
@@ -42,8 +49,8 @@ struct ParkSheetView: View {
     private func podiumSection(_ ranking: ParkRanking) -> some View {
         VStack(spacing: Spacing.s12) {
             HStack {
-                Text("이달의 시상대").pkTextStyle(.title2).foregroundStyle(Color.ink900)
-                PKTag(text: "\(ranking.month.month)월", style: .neutral)
+                Text("이번 주 시상대").pkTextStyle(.title2).foregroundStyle(Color.ink900)
+                PKTag(text: LocalizedStringKey(ranking.week.shortLabel), style: .neutral)
                 Spacer()
                 Button(action: onShowRanking) {
                     HStack(spacing: Spacing.s4) {
@@ -79,7 +86,14 @@ struct ParkSheetView: View {
             VStack(alignment: .leading, spacing: Spacing.s4) {
                 PKTag(text: LocalizedStringKey(viewModel.park.type.displayName), style: .park(viewModel.park.type))
                 Text(viewModel.park.name).pkTextStyle(.title1).foregroundStyle(Color.ink900)
-                Text(subtitle).pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                if let address = viewModel.detail?.address {
+                    Text(address).pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                }
+                if let distanceText {
+                    Label(distanceText, systemImage: isInsidePark ? "checkmark.circle.fill" : "location")
+                        .pkTextStyle(.callout)
+                        .foregroundStyle(isInsidePark ? Color.leaf600 : Color.ink500)
+                }
             }
             Spacer(minLength: 0)
             Button(action: onClose) {
@@ -92,13 +106,18 @@ struct ParkSheetView: View {
         }
     }
 
-    private var subtitle: String {
-        var parts: [String] = []
-        if let address = viewModel.detail?.address { parts.append(address) }
-        if let distanceM {
-            parts.append(distanceM < 10 ? String(localized: "지금 공원 안") : "\(distanceM)m")
+    /// 판정 반경 안이면 "지금 공원 안", 아니면 거리. (중심에서의 거리가 아니라 반경 안인지로 판단한다)
+    private var isInsidePark: Bool {
+        switch availability {
+        case .available: true
+        case .outOfRange: false
+        default: (distanceM ?? .max) < 10
         }
-        return parts.joined(separator: " · ")
+    }
+
+    private var distanceText: String? {
+        guard let distanceM else { return nil }
+        return isInsidePark ? String(localized: "지금 공원 안") : DistanceFormatter.text(meters: distanceM)
     }
 
     private var stats: some View {
@@ -173,7 +192,7 @@ struct ParkSheetView: View {
     private var hint: LocalizedStringKey {
         switch availability {
         case .available: "공원 안에 있어요 · 20분 머무르면 배지를 받아요"
-        case .outOfRange(let distance): "공원 안에서 체크인할 수 있어요 · 지금 \(distance)m"
+        case .outOfRange(let distance): "공원 안에서 체크인할 수 있어요 · 지금 \(DistanceFormatter.text(meters: distance))"
         case .earnedToday: "같은 공원은 하루 1개 · 내일 또 받을 수 있어요"
         case .waitingForLocation: "내 위치를 확인하고 있어요"
         case .locationDenied: "위치 권한을 켜면 체크인할 수 있어요"
@@ -241,7 +260,7 @@ struct ParkChooserSheet: View {
                         }
                         Spacer()
                         if let location {
-                            Text("\(Int(park.coordinate.distance(to: location).rounded()))m")
+                            Text(DistanceFormatter.text(meters: Int(park.coordinate.distance(to: location).rounded())))
                                 .pkTextStyle(.callout).foregroundStyle(Color.ink500)
                         }
                     }

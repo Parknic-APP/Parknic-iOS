@@ -1,34 +1,41 @@
 import XCTest
 @testable import Parknic
 
-final class YearMonthTests: XCTestCase {
-    func test_서버_파라미터_형식() {
-        XCTAssertEqual(YearMonth(year: 2026, month: 11).apiValue, "2026-11")
-        XCTAssertEqual(YearMonth(year: 2026, month: 3).apiValue, "2026-03")
+final class RankingWeekTests: XCTestCase {
+    private func week(_ iso: String) -> RankingWeek { RankingWeek(date: kst(iso)) }
+
+    func test_한_주는_월요일에_시작한다() {
+        // 2026-11-04는 수요일 → 그 주 월요일은 11월 2일
+        XCTAssertEqual(week("2026-11-04T10:00:00+09:00").apiValue, "2026-11-02")
+        XCTAssertEqual(week("2026-11-02T00:00:00+09:00").apiValue, "2026-11-02", "월요일 0시는 새 주")
+        XCTAssertEqual(week("2026-11-01T23:59:59+09:00").apiValue, "2026-10-26", "일요일 밤은 아직 지난주")
+        XCTAssertEqual(week("2026-11-08T23:59:59+09:00").apiValue, "2026-11-02", "일요일 24시 직전까지 같은 주")
     }
 
-    func test_이전_달과_다음_달은_해를_넘긴다() {
-        XCTAssertEqual(YearMonth(year: 2026, month: 1).previous, YearMonth(year: 2025, month: 12))
-        XCTAssertEqual(YearMonth(year: 2025, month: 12).next, YearMonth(year: 2026, month: 1))
-        XCTAssertEqual(YearMonth(year: 2026, month: 6).next, YearMonth(year: 2026, month: 7))
+    func test_한국_시간_기준으로_주를_정한다() {
+        // 일요일 14:30 UTC(= 23:30 KST)는 아직 그 주, 15:00 UTC(= 월요일 00:00 KST)부터 새 주
+        XCTAssertEqual(week("2026-11-08T14:30:00Z").apiValue, "2026-11-02")
+        XCTAssertEqual(week("2026-11-08T15:00:00Z").apiValue, "2026-11-09")
+    }
+
+    func test_이전_주와_다음_주는_달과_해를_넘긴다() {
+        XCTAssertEqual(week("2026-11-04T10:00:00+09:00").previous.apiValue, "2026-10-26")
+        XCTAssertEqual(week("2026-11-04T10:00:00+09:00").next.apiValue, "2026-11-09")
+        XCTAssertEqual(week("2026-01-01T10:00:00+09:00").previous.apiValue, "2025-12-22")
+        XCTAssertEqual(week("2025-12-31T10:00:00+09:00").next.apiValue, "2026-01-05")
     }
 
     func test_크기를_비교한다() {
-        XCTAssertTrue(YearMonth(year: 2025, month: 12) < YearMonth(year: 2026, month: 1))
-        XCTAssertTrue(YearMonth(year: 2026, month: 2) < YearMonth(year: 2026, month: 10))
+        XCTAssertTrue(week("2026-10-30T10:00:00+09:00") < week("2026-11-04T10:00:00+09:00"))
+        XCTAssertFalse(week("2026-11-02T00:00:00+09:00") < week("2026-11-08T23:00:00+09:00"), "같은 주")
     }
 
-    func test_그_달의_마지막_날() {
-        XCTAssertEqual(YearMonth(year: 2026, month: 10).lastDay, 31)
-        XCTAssertEqual(YearMonth(year: 2026, month: 11).lastDay, 30)
-        XCTAssertEqual(YearMonth(year: 2026, month: 2).lastDay, 28)
-        XCTAssertEqual(YearMonth(year: 2028, month: 2).lastDay, 29, "윤년")
-    }
-
-    func test_한국_시간_기준으로_달을_정한다() {
-        // 10월 31일 23:30 UTC = 11월 1일 08:30 KST → 11월
-        let date = Date(timeIntervalSince1970: ISO8601DateFormatter().date(from: "2026-10-31T23:30:00Z")?.timeIntervalSince1970 ?? 0)
-        XCTAssertEqual(YearMonth(date: date), YearMonth(year: 2026, month: 11))
+    func test_기간_문구() {
+        XCTAssertEqual(week("2026-11-04T10:00:00+09:00").rangeLabel, "11월 2일 ~ 8일")
+        XCTAssertEqual(week("2026-10-28T10:00:00+09:00").rangeLabel, "10월 26일 ~ 11월 1일")
+        XCTAssertEqual(week("2026-11-04T10:00:00+09:00").shortLabel, "11/2~8")
+        XCTAssertEqual(week("2026-10-28T10:00:00+09:00").shortLabel, "10/26~11/1")
+        XCTAssertEqual(week("2026-11-04T10:00:00+09:00").resetLabel, "11월 9일")
     }
 }
 
@@ -37,7 +44,7 @@ final class MyRankingFooterTests: XCTestCase {
         RankingEntry(rank: rank, userID: rank, nickname: "n\(rank)", characterID: 1, badgeCount: count)
     }
     private func ranking(podium: [RankingEntry], me: MyRanking?) -> ParkRanking {
-        ParkRanking(month: YearMonth(year: 2026, month: 10), podium: podium, others: [], me: me)
+        ParkRanking(week: RankingWeek(date: kst("2026-11-04T10:00:00+09:00")), podium: podium, others: [], me: me)
     }
 
     func test_시상대_밖이면_3등까지_남은_배지를_알려준다() {
@@ -51,9 +58,9 @@ final class MyRankingFooterTests: XCTestCase {
         XCTAssertEqual(MyRankingFooter.make(for: r).subtitle, "시상대에 올랐어요")
     }
 
-    func test_이번_달_배지가_없으면_바로_몇_등인지_알려준다() {
+    func test_이번_주_배지가_없으면_바로_몇_등인지_알려준다() {
         let r = ranking(podium: [entry(1, 3)], me: MyRanking(rank: nil, badgeCount: 0))
-        XCTAssertEqual(MyRankingFooter.make(for: r), MyRankingFooter(title: "이번 달 아직 배지가 없어요", subtitle: "20분만 머물러도 바로 2등이에요"))
+        XCTAssertEqual(MyRankingFooter.make(for: r), MyRankingFooter(title: "이번 주 아직 배지가 없어요", subtitle: "20분만 머물러도 바로 2등이에요"))
     }
 
     func test_시상대가_비어_있으면_1등이_된다() {
@@ -74,14 +81,14 @@ final class MyRankingFooterTests: XCTestCase {
 
 private final class RecordingRankingRepository: RankingRepository, @unchecked Sendable {
     private let lock = NSLock()
-    private var _months: [String] = []
+    private var _weeks: [String] = []
     var error: APIError?
-    var months: [String] { lock.withLock { _months } }
+    var weeks: [String] { lock.withLock { _weeks } }
 
-    func ranking(parkID: Int, month: YearMonth) async throws -> ParkRanking {
-        lock.withLock { _months.append(month.apiValue) }
+    func ranking(parkID: Int, week: RankingWeek) async throws -> ParkRanking {
+        lock.withLock { _weeks.append(week.apiValue) }
         if let error { throw error }
-        return ParkRanking(month: month, podium: [], others: [], me: nil)
+        return ParkRanking(week: week, podium: [], others: [], me: nil)
     }
 }
 
@@ -93,38 +100,38 @@ final class RankingViewModelTests: XCTestCase {
         RankingViewModel(parkID: 1, parkName: "보라매공원", repository: repository, clock: clock)
     }
 
-    func test_이번_달을_먼저_불러온다() async {
+    func test_이번_주를_먼저_불러온다() async {
         let repository = RecordingRankingRepository()
         let model = make(repository)
         await model.load()
-        XCTAssertEqual(repository.months, ["2026-11"])
-        XCTAssertEqual(model.ranking?.month, YearMonth(year: 2026, month: 11))
+        XCTAssertEqual(repository.weeks, ["2026-11-02"])
+        XCTAssertEqual(model.ranking?.week.apiValue, "2026-11-02")
     }
 
-    func test_이번_달에서는_다음_달로_갈_수_없다() async {
+    func test_이번_주에서는_다음_주로_갈_수_없다() async {
         let model = make(RecordingRankingRepository())
         XCTAssertFalse(model.canGoNext)
-        await model.showNextMonth()
-        XCTAssertEqual(model.month, YearMonth(year: 2026, month: 11))
+        await model.showNextWeek()
+        XCTAssertEqual(model.week.apiValue, "2026-11-02")
     }
 
-    func test_이전_달로_넘기면_그_달을_다시_불러온다() async {
+    func test_이전_주로_넘기면_그_주를_다시_불러온다() async {
         let repository = RecordingRankingRepository()
         let model = make(repository)
         await model.load()
-        await model.showPreviousMonth()
-        XCTAssertEqual(model.month, YearMonth(year: 2026, month: 10))
-        XCTAssertEqual(repository.months, ["2026-11", "2026-10"])
+        await model.showPreviousWeek()
+        XCTAssertEqual(model.week.apiValue, "2026-10-26")
+        XCTAssertEqual(repository.weeks, ["2026-11-02", "2026-10-26"])
         XCTAssertTrue(model.canGoNext)
     }
 
-    func test_이전_달에서_다음_달로_돌아올_수_있다() async {
+    func test_이전_주에서_다음_주로_돌아올_수_있다() async {
         let repository = RecordingRankingRepository()
         let model = make(repository)
-        await model.showPreviousMonth()
-        await model.showNextMonth()
-        XCTAssertEqual(model.month, YearMonth(year: 2026, month: 11))
-        XCTAssertEqual(repository.months, ["2026-10", "2026-11"])
+        await model.showPreviousWeek()
+        await model.showNextWeek()
+        XCTAssertEqual(model.week.apiValue, "2026-11-02")
+        XCTAssertEqual(repository.weeks, ["2026-10-26", "2026-11-02"])
     }
 
     func test_불러오기에_실패하면_에러이고_재시도로_복구된다() async {
@@ -138,10 +145,10 @@ final class RankingViewModelTests: XCTestCase {
         XCTAssertNotNil(model.ranking)
     }
 
-    func test_확정_안내_문구는_이번_달과_지난_달이_다르다() async {
+    func test_안내_문구는_이번_주와_지난_주가_다르다() async {
         let model = make(RecordingRankingRepository())
-        XCTAssertEqual(model.confirmationText, "11월 30일 자정에 확정돼요 · 배지 수 기준")
-        await model.showPreviousMonth()
+        XCTAssertEqual(model.confirmationText, "11월 9일 월요일 0시에 새로 시작해요 · 배지 수 기준")
+        await model.showPreviousWeek()
         XCTAssertEqual(model.confirmationText, "확정된 랭킹이에요 · 배지 수 기준")
     }
 }
@@ -156,7 +163,7 @@ final class RemoteRankingRepositoryTests: XCTestCase {
     }
 
     private let json = """
-        {"month":"2026-11",
+        {"weekStart":"2026-11-02","weekEnd":"2026-11-08",
          "podium":[{"rank":2,"userId":3,"nickname":"초록발","characterId":3,"badgeCount":9},{"rank":1,"userId":7,"nickname":"두부산책","characterId":5,"badgeCount":12}],
          "others":[{"rank":4,"userId":11,"nickname":"구름빵","characterId":6,"badgeCount":7}],
          "me":{"rank":17,"badgeCount":4}}
@@ -164,7 +171,7 @@ final class RemoteRankingRepositoryTests: XCTestCase {
 
     func test_랭킹을_순위_순으로_해석한다() async throws {
         let (repository, transport) = make { _ in (200, self.json) }
-        let ranking = try await repository.ranking(parkID: 1024, month: YearMonth(year: 2026, month: 11))
+        let ranking = try await repository.ranking(parkID: 1024, week: RankingWeek(date: kst("2026-11-04T10:00:00+09:00")))
 
         XCTAssertEqual(ranking.podium.map(\.rank), [1, 2], "서버 순서와 관계없이 순위 순으로 둔다")
         XCTAssertEqual(ranking.podiumEntry(rank: 1)?.nickname, "두부산책")
@@ -172,20 +179,48 @@ final class RemoteRankingRepositoryTests: XCTestCase {
         XCTAssertEqual(ranking.others.map(\.nickname), ["구름빵"])
         XCTAssertEqual(ranking.me, MyRanking(rank: 17, badgeCount: 4))
         XCTAssertEqual(transport.requests.first?.url?.path, "/api/parks/1024/rankings")
-        XCTAssertTrue(transport.requests.first?.url?.query?.contains("month=2026-11") ?? false)
+        XCTAssertTrue(transport.requests.first?.url?.query?.contains("week=2026-11-02") ?? false)
     }
 
     func test_내_순위가_없으면_nil이다() async throws {
         let body = #"{"podium":[],"others":[],"me":{"rank":null,"badgeCount":0}}"#
         let (repository, _) = make { _ in (200, body) }
-        let ranking = try await repository.ranking(parkID: 1, month: YearMonth(year: 2026, month: 11))
+        let ranking = try await repository.ranking(parkID: 1, week: RankingWeek(date: kst("2026-11-04T10:00:00+09:00")))
         XCTAssertEqual(ranking.me, MyRanking(rank: nil, badgeCount: 0))
     }
 
     func test_me_필드가_없어도_해석한다() async throws {
         let body = #"{"podium":[],"others":[]}"#
         let (repository, _) = make { _ in (200, body) }
-        let ranking = try await repository.ranking(parkID: 1, month: YearMonth(year: 2026, month: 11))
+        let ranking = try await repository.ranking(parkID: 1, week: RankingWeek(date: kst("2026-11-04T10:00:00+09:00")))
         XCTAssertNil(ranking.me)
+    }
+}
+
+private final class TickingClock: AppClock, @unchecked Sendable {
+    private let lock = NSLock()
+    private var date: Date
+    init(_ date: Date) { self.date = date }
+    var now: Date { lock.withLock { date } }
+    func set(_ newDate: Date) { lock.withLock { date = newDate } }
+}
+
+@MainActor
+final class RankingWeekRolloverTests: XCTestCase {
+    func test_일요일_밤에_연_화면은_월요일_0시가_지나면_지난주가_된다() async {
+        let clock = TickingClock(kst("2026-11-08T23:50:00+09:00"))  // 일요일 밤
+        let model = RankingViewModel(
+            parkID: 1, parkName: "보라매공원", repository: RecordingRankingRepository(), clock: clock)
+        XCTAssertEqual(model.week.apiValue, "2026-11-02")
+        XCTAssertFalse(model.canGoNext)
+        XCTAssertEqual(model.confirmationText, "11월 9일 월요일 0시에 새로 시작해요 · 배지 수 기준")
+
+        clock.set(kst("2026-11-09T00:10:00+09:00"))  // 월요일 0시 10분: 새 주가 시작됐다
+
+        XCTAssertTrue(model.canGoNext, "보고 있던 주가 지난주가 되어 새 주로 넘어갈 수 있다")
+        XCTAssertEqual(model.confirmationText, "확정된 랭킹이에요 · 배지 수 기준")
+        await model.showNextWeek()
+        XCTAssertEqual(model.week.apiValue, "2026-11-09")
+        XCTAssertFalse(model.canGoNext)
     }
 }
