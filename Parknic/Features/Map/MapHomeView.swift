@@ -18,14 +18,19 @@ struct MapHomeView: View {
         .task { await viewModel.run() }
         .onChange(of: viewModel.selectedParkID) { sheetDetent = .medium }
         .onChange(of: viewModel.checkIn.state) { _, state in viewModel.checkInStateDidChange(state) }
-        .sheet(item: parkBinding) { park in
-            // `.id`가 없으면 공원이 바뀌어도 시트 안의 상태가 처음 공원 기준으로 남아 이전 공원 정보가 계속 보인다.
-            ParkSheetHost(park: park, viewModel: viewModel)
-                .id(park.id)
-                .presentationDetents([.medium, .large], selection: $sheetDetent)
-                .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(Radius.r30)
+        // item 방식은 선택한 공원이 바뀌면 열린 시트를 닫고 새로 띄워서 전체 화면 크기로 열렸다.
+        // isPresented 방식은 시트를 그대로 둔 채 내용만 바꿔서 지금 크기(절반)가 유지된다.
+        .sheet(isPresented: parkSheetBinding) {
+            Group {
+                if let park = viewModel.selectedPark {
+                    // `.id`가 없으면 공원이 바뀌어도 시트 안의 상태가 처음 공원 기준으로 남아 이전 공원 정보가 계속 보인다.
+                    ParkSheetHost(park: park, viewModel: viewModel).id(park.id)
+                }
+            }
+            .presentationDetents([.medium, .large], selection: $sheetDetent)
+            .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+            .presentationDragIndicator(.visible)
+            .presentationCornerRadius(Radius.r30)
         }
         .fullScreenCover(isPresented: $viewModel.showsCheckInFlow) {
             CheckInFlowView(
@@ -42,10 +47,10 @@ struct MapHomeView: View {
         }
     }
 
-    private var parkBinding: Binding<Park?> {
+    private var parkSheetBinding: Binding<Bool> {
         Binding(
-            get: { viewModel.selectedPark },
-            set: { if $0 == nil { viewModel.selectedParkID = nil } })
+            get: { viewModel.selectedPark != nil },
+            set: { if !$0 { viewModel.selectedParkID = nil } })
     }
 
     private var startErrorBinding: Binding<Bool> {
