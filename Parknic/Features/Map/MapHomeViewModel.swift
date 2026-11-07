@@ -29,6 +29,9 @@ final class MapHomeViewModel {
     private let rankingRepository: RankingRepository
     private let reviewRepository: ReviewRepository
     private let profile: ProfileStore
+    private let myPage: MyPageRepository?
+    /// 기기에 저장한 프로필이 바뀌면 올려서, 지도가 내 캐릭터를 다시 그리게 한다.
+    private var profileRevision = 0
     private let neighborhoodNamer: NeighborhoodNaming
     private var lastNamedLocation: Coordinate?
     private var nameTask: Task<Void, Never>?
@@ -38,8 +41,9 @@ final class MapHomeViewModel {
         location: LocationProviding, nearby: NearbyParksViewModel, checkIn: CheckInCoordinator, parks: ParkRepository,
         rankings: RankingRepository = MockRankingRepository(delay: .zero),
         reviews: ReviewRepository = MockReviewRepository(delay: .zero), profile: ProfileStore = UserDefaultsProfileStore(),
-        neighborhood: NeighborhoodNaming = NoNeighborhoodNamer()
+        neighborhood: NeighborhoodNaming = NoNeighborhoodNamer(), myPage: MyPageRepository? = nil
     ) {
+        self.myPage = myPage
         self.neighborhoodNamer = neighborhood
         self.rankingRepository = rankings
         self.reviewRepository = reviews
@@ -61,6 +65,7 @@ final class MapHomeViewModel {
 
     /// 화면이 나타날 때 한 번 부른다. 위치 이벤트가 끝날 때까지 계속 처리한다.
     func run() async {
+        Task { await syncProfileIfNeeded() }
         location.requestPermissionIfNeeded()
         for await event in location.events() {
             switch event {
@@ -80,6 +85,25 @@ final class MapHomeViewModel {
 
     func recenter() {
         recenterToken += 1
+    }
+
+    /// 로그인·로그아웃·탈퇴로 계정이 바뀌었다. 이전 사용자의 지도 상태를 비우고, 새 계정 기준으로 다시 조회한다.
+    func accountDidChange(isSignedIn: Bool) {
+        nearby.reset()
+        selectedParkID = nil
+        chooserParks = nil
+        showsCheckInFlow = false
+        profileRevision += 1
+        guard isSignedIn else { return }
+        nearby.retry()
+        Task { await syncProfileIfNeeded() }
+    }
+
+    /// 앱을 다시 설치했거나 다른 기기에서 로그인해 기기에 프로필이 없으면, 서버의 내 프로필로 채운다(내 위치 캐릭터 표시용).
+    private func syncProfileIfNeeded() async {
+        guard profile.characterID == nil, let myPage, let me = try? await myPage.profile() else { return }
+        profile.save(nickname: me.nickname, characterID: me.characterID)
+        profileRevision += 1
     }
 
     /// 주변 공원을 다시 조회하는 기준(300m)만큼 움직였을 때만 동네 이름을 다시 구한다.
@@ -185,7 +209,8 @@ final class MapHomeViewModel {
     }
 
     var characterAssetName: String? {
-        profile.characterID.map { "character-\($0)" }
+        _ = profileRevision
+        return profile.characterID.map { "character-\($0)" }
     }
 
     /// 배지 획득 화면에서 랭킹·리뷰로 가려는 경우: 체크인 화면을 닫고 그 공원 시트를 연다.

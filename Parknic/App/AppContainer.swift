@@ -25,27 +25,34 @@ final class AppContainer {
             baseURL: AppConfig.apiBaseURL, tokenStore: tokenStore,
             onSessionExpired: { Task { @MainActor in session.didLogout() } })
 
+        // Debug는 기본이 Mock이다. 로컬 서버로 붙어 보려면 스킴 환경변수 PARKNIC_USE_REMOTE_API=1을 준다.
         #if DEBUG
-        let authRepository: AuthRepository = MockAuthRepository()
-        let userRepository: UserRepository = MockUserRepository()
-        let checkInRepository: CheckInRepository = MockCheckInRepository()
-        let parkRepository: ParkRepository = MockParkRepository()
-        let rankingRepository: RankingRepository = MockRankingRepository()
-        let reviewRepository: ReviewRepository = MockReviewRepository()
-        let collectionRepository: CollectionRepository = MockCollectionRepository()
-        let myPageRepository: MyPageRepository = MockMyPageRepository()
+        let useRemote = ProcessInfo.processInfo.environment["PARKNIC_USE_REMOTE_API"] == "1"
         #else
-        let authRepository: AuthRepository = RemoteAuthRepository(client: client, tokenStore: tokenStore)
-        let userRepository: UserRepository = RemoteUserRepository(client: client)
-        let checkInRepository: CheckInRepository = RemoteCheckInRepository(client: client)
-        let parkRepository: ParkRepository = RemoteParkRepository(client: client)
-        let rankingRepository: RankingRepository = RemoteRankingRepository(client: client)
-        let reviewRepository: ReviewRepository = RemoteReviewRepository(client: client)
-        let collectionRepository: CollectionRepository = RemoteCollectionRepository(client: client)
-        let myPageRepository: MyPageRepository = RemoteMyPageRepository(client: client)
+        let useRemote = true
         #endif
+        let authRepository: AuthRepository =
+            useRemote ? RemoteAuthRepository(client: client, tokenStore: tokenStore) : MockAuthRepository()
+        let userRepository: UserRepository = useRemote ? RemoteUserRepository(client: client) : MockUserRepository()
+        let checkInRepository: CheckInRepository =
+            useRemote ? RemoteCheckInRepository(client: client) : MockCheckInRepository()
+        let parkRepository: ParkRepository = useRemote ? RemoteParkRepository(client: client) : MockParkRepository()
+        let rankingRepository: RankingRepository =
+            useRemote ? RemoteRankingRepository(client: client) : MockRankingRepository()
+        let reviewRepository: ReviewRepository =
+            useRemote ? RemoteReviewRepository(client: client) : MockReviewRepository()
+        let collectionRepository: CollectionRepository =
+            useRemote ? RemoteCollectionRepository(client: client) : MockCollectionRepository()
+        let myPageRepository: MyPageRepository =
+            useRemote ? RemoteMyPageRepository(client: client) : MockMyPageRepository()
 
-        loginViewModel = LoginViewModel(providers: [AppleLoginProvider()], repository: authRepository) { result in
+        // Debug + 서버 모드는 Apple 로그인 창 대신 로컬 서버 전용 개발 로그인을 쓴다(Team 없이 시험하려는 용도).
+        #if DEBUG
+        let loginProviders: [SocialLoginProvider] = useRemote ? [DevLoginProvider()] : [AppleLoginProvider()]
+        #else
+        let loginProviders: [SocialLoginProvider] = [AppleLoginProvider()]
+        #endif
+        loginViewModel = LoginViewModel(providers: loginProviders, repository: authRepository) { result in
             session.didLogin(result)
         }
         let profileStore = self.profileStore
@@ -65,7 +72,7 @@ final class AppContainer {
         mapViewModel = MapHomeViewModel(
             location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository),
             checkIn: coordinator, parks: parkRepository, rankings: rankingRepository, reviews: reviewRepository, profile: profileStore,
-            neighborhood: GeocoderNeighborhoodNamer())
+            neighborhood: GeocoderNeighborhoodNamer(), myPage: myPageRepository)
         myPageViewModel = MyPageViewModel(
             auth: authRepository, profile: profileStore, repository: myPageRepository, userRepository: userRepository,
             isCheckInActive: { coordinator.state.isActive },
@@ -77,6 +84,8 @@ final class AppContainer {
         session.onSignedOut = { [weak self] in
             self?.profileStore.clear()
             self?.onboardingViewModel = makeOnboarding()
+            self?.mapViewModel.accountDidChange(isSignedIn: false)
         }
+        session.onSignedIn = { [weak self] in self?.mapViewModel.accountDidChange(isSignedIn: true) }
     }
 }

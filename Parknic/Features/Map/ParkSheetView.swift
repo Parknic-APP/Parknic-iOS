@@ -177,7 +177,7 @@ struct ParkSheetView: View {
         case .earnedToday: "같은 공원은 하루 1개 · 내일 또 받을 수 있어요"
         case .waitingForLocation: "내 위치를 확인하고 있어요"
         case .locationDenied: "위치 권한을 켜면 체크인할 수 있어요"
-        case .inProgressHere: "지금 이 공원에서 쉬는 중이에요"
+        case .inProgressHere: "지금 이 공원에서 산책 중이에요"
         case .anotherInProgress(let name): "\(name)에서 체크인 중이에요 · 동시에 한 곳만 할 수 있어요"
         }
     }

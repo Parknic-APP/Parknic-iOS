@@ -9,7 +9,15 @@ import Foundation
 /// - 좌표는 보관하지 않는다(마지막 위치 한 건만 완료 요청에 쓴다).
 struct CheckInTracker {
     /// 연속 체류해야 하는 시간
-    static let requiredDuration: TimeInterval = 20 * 60
+    static let requiredDuration: TimeInterval = {
+        #if DEBUG
+        // 개발용: 스킴 환경변수 PARKNIC_CHECKIN_REQUIRED_SECONDS로 줄여 시험한다(서버 로컬 설정과 맞춰야 한다). Release에는 없다.
+        if let text = ProcessInfo.processInfo.environment["PARKNIC_CHECKIN_REQUIRED_SECONDS"], let seconds = Double(text), seconds > 0 {
+            return seconds
+        }
+        #endif
+        return 20 * 60
+    }()
     /// 반경 이탈 후 복귀할 수 있는 시간
     static let outOfRangeGracePeriod: TimeInterval = 60
     /// 이 값보다 부정확한 위치는 무시한다(GPS 튐 방지).

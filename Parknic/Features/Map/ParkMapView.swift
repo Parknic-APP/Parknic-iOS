@@ -12,8 +12,8 @@ struct ParkMapView: View {
     var characterAssetName: String?
     let onSelect: (Park) -> Void
 
-    /// 처음 들어올 때와 현위치 버튼을 누를 때 지도에 보이는 가로 폭(m). 내 주변 1km 반경이 화면 폭의 2/3쯤 차지한다.
-    static let visibleWidthM = 3000.0
+    /// 처음 들어올 때와 현위치 버튼을 누를 때 지도에 보이는 가로 폭(m). 내 주변 1km 반경이 화면 폭을 거의 채운다.
+    static let visibleWidthM = 1200.0
 
     private static let koreaVeil: [CLLocationCoordinate2D] = [
         CLLocationCoordinate2D(latitude: 32.5, longitude: 123.5), CLLocationCoordinate2D(latitude: 32.5, longitude: 132.5),
@@ -21,7 +21,12 @@ struct ParkMapView: View {
     ]
 
     /// 위치가 아직 오지 않았어도 권한이 있으면 처음부터 내 위치 근처로 시작한다(한국 전체가 먼저 보이지 않게).
-    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    /// `.automatic`은 한국 전체를 덮는 막(`koreaVeil`)까지 담아 한반도 전체가 보이므로, 폴백은 좁은 영역(서울 시청 주변)으로 둔다.
+    @State private var position: MapCameraPosition = .userLocation(
+        fallback: .region(
+            MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 37.5665, longitude: 126.9780),
+                latitudinalMeters: ParkMapView.visibleWidthM, longitudinalMeters: ParkMapView.visibleWidthM)))
     @State private var hasPlacedCamera = false
 
     var body: some View {

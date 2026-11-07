@@ -45,6 +45,13 @@ final class NearbyParksViewModel {
         startFetch(at: location)
     }
 
+    /// 로그아웃·탈퇴로 계정이 바뀌었다. 이전 사용자의 공원 상태(배지·오늘 받음)가 남지 않게 비우고, 다음 조회를 다시 받게 한다.
+    func reset() {
+        fetchTask?.cancel()
+        lastFetchCenter = nil
+        state = .loading
+    }
+
     /// 에러 화면의 「다시 시도」
     func retry() {
         guard let currentLocation else { return }

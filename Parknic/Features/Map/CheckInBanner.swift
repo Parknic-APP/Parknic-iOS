@@ -47,14 +47,14 @@ struct CheckInBanner: View {
 
     private var title: String {
         switch display.phase {
-        case .inside: String(localized: "\(display.parkName)에서 쉬는 중")
+        case .inside: String(localized: "\(display.parkName)에서 산책 중")
         case .outOfRange: String(localized: "공원 밖이에요 · 1분 안에 돌아오세요")
         case .completing: String(localized: "배지를 확인하고 있어요")
         }
     }
 }
 
-#Preview("쉬는 중") {
+#Preview("산책 중") {
     CheckInBanner(display: .init(parkName: "보라매공원", parkType: .neighborhood, remaining: 754, stayed: 446, phase: .inside), action: {})
         .padding().background(Color.leaf50)
 }

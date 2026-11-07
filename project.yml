@@ -77,6 +77,15 @@ schemes:
     build:
       targets:
         Parknic: all
+    run:
+      environmentVariables:
+        # Debug에서 Mock 대신 로컬 서버(API_BASE_URL)를 쓴다. Mock으로 돌리려면 이 값을 0으로 바꾼다.
+        PARKNIC_USE_REMOTE_API: "1"
+        # 체크인 완료까지 걸리는 시간(초). 서버 로컬 설정(1분)보다 조금 길게 둔다. 실제 20분으로 시험하려면 이 줄을 지운다.
+        PARKNIC_CHECKIN_REQUIRED_SECONDS: "65"
     test:
       targets:
         - ParknicTests
+      # 실행 스킴의 환경변수를 물려받지 않게 테스트는 실제 값(20분)으로 고정한다.
+      environmentVariables:
+        PARKNIC_CHECKIN_REQUIRED_SECONDS: "1200"
