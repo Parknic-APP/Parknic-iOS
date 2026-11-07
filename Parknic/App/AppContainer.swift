@@ -25,9 +25,9 @@ final class AppContainer {
             baseURL: AppConfig.apiBaseURL, tokenStore: tokenStore,
             onSessionExpired: { Task { @MainActor in session.didLogout() } })
 
-        // Debug는 기본이 Mock이다. 로컬 서버로 붙어 보려면 스킴 환경변수 PARKNIC_USE_REMOTE_API=1을 준다.
+        // Debug는 빌드 설정(DEV_USE_REMOTE_API)에 따라 Mock 또는 로컬 서버를 쓴다.
         #if DEBUG
-        let useRemote = ProcessInfo.processInfo.environment["PARKNIC_USE_REMOTE_API"] == "1"
+        let useRemote = AppConfig.devUseRemoteAPI
         #else
         let useRemote = true
         #endif

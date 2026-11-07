@@ -20,6 +20,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>DevCheckInRequiredSeconds</key>
+	<string>$(DEV_CHECKIN_REQUIRED_SECONDS)</string>
+	<key>DevUseRemoteAPI</key>
+	<string>$(DEV_USE_REMOTE_API)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSAppTransportSecurity</key>

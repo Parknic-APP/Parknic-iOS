@@ -11,10 +11,8 @@ struct CheckInTracker {
     /// 연속 체류해야 하는 시간
     static let requiredDuration: TimeInterval = {
         #if DEBUG
-        // 개발용: 스킴 환경변수 PARKNIC_CHECKIN_REQUIRED_SECONDS로 줄여 시험한다(서버 로컬 설정과 맞춰야 한다). Release에는 없다.
-        if let text = ProcessInfo.processInfo.environment["PARKNIC_CHECKIN_REQUIRED_SECONDS"], let seconds = Double(text), seconds > 0 {
-            return seconds
-        }
+        // 개발용: 줄여서 시험한다(서버 로컬 설정과 맞춰야 한다). Release에는 없다.
+        if let seconds = AppConfig.devCheckInRequiredSeconds { return seconds }
         #endif
         return 20 * 60
     }()
