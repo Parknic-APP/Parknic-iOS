@@ -51,4 +51,5 @@ fastlane/report.xml
 fastlane/*.ipa
 fastlane/*.dSYM.zip
 fastlane/.env
+fastlane/build/
 fastlane/.match_password
