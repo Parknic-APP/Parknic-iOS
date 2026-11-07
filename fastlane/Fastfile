@@ -3,6 +3,8 @@ default_platform(:ios)
 APP_ID = "com.hwangsanghwan.parknic"
 API_KEY_ID = "QF3VZU8C2L"
 API_ISSUER_ID = "b7ef2fa2-5522-4913-a7b0-91481e98679e"
+# 시험용(quick_checkin:true) 빌드가 체크인을 완료하는 시간(초). 서버 시험 설정(60초)보다 조금 길게 둔다.
+QUICK_CHECKIN_SECONDS = 65
 
 # 인증서 생성(계정 소유자)과 받기(팀원)는 match 명령으로 직접 한다. fastlane/README.md 참고.
 platform :ios do
@@ -13,17 +15,17 @@ platform :ios do
     UI.success("인증서·프로필 설치 완료. Config/Signing.xcconfig를 만들고 xcodegen generate를 다시 돌린다.")
   end
 
-  desc "App Store용 .ipa를 만든다(업로드 없음). 예: bundle exec fastlane build version:1.0.0 build_number:1"
+  desc "App Store용 .ipa를 만든다(업로드 없음). 예: bundle exec fastlane build version:1.0.0 build_number:1 (체크인 1분 시험용은 quick_checkin:true)"
   lane :build do |options|
-    archive(version: options[:version] || "1.0.0", build_number: options[:build_number] || 1)
+    archive(version: options[:version] || "1.0.0", build_number: options[:build_number] || 1, quick_checkin: options[:quick_checkin])
   end
 
-  desc "TestFlight 업로드. 예: bundle exec fastlane release version:1.0.0"
+  desc "TestFlight 업로드. 예: bundle exec fastlane release version:1.0.0 (체크인 1분 시험용은 quick_checkin:true)"
   lane :release do |options|
     version = options[:version] || UI.user_error!("버전을 입력한다. 예: bundle exec fastlane release version:1.0.0")
     api_key = api_key()
     build_number = latest_testflight_build_number(api_key: api_key, app_identifier: APP_ID, version: version, initial_build_number: 0) + 1
-    archive(version: version, build_number: build_number)
+    archive(version: version, build_number: build_number, quick_checkin: options[:quick_checkin])
     pilot(api_key: api_key, app_identifier: APP_ID, skip_waiting_for_build_processing: true)
     UI.success("TestFlight 업로드 완료: #{version} (#{build_number}). 처리에 몇 분 걸린다.")
   end
@@ -34,6 +36,11 @@ platform :ios do
 
   # Release 설정을 match 배포 프로필로 수동 서명해 아카이브한다. 프로젝트 파일은 xcodegen으로 매번 새로 만든다.
   private_lane :archive do |options|
+    # 시험용: 체크인 완료를 1분 남짓으로 줄인 빌드(서버도 CHECKIN_REQUIRED_MINUTES=1일 때만 배지가 나온다).
+    # 평소 빌드와 App Store 제출 빌드에는 쓰지 않는다.
+    quick = options[:quick_checkin].to_s == "true"
+    quick_args = quick ? " CHECKIN_REQUIRED_SECONDS_OVERRIDE=#{QUICK_CHECKIN_SECONDS}" : ""
+    UI.important("⚠️  체크인 #{QUICK_CHECKIN_SECONDS}초 시험용 빌드입니다. App Store 심사에 제출하면 안 됩니다.") if quick
     sh("cd .. && xcodegen generate")
     match(type: "appstore", readonly: true)
     gym(
@@ -43,7 +50,7 @@ platform :ios do
       export_method: "app-store",
       clean: true,
       output_directory: "fastlane/build",
-      xcargs: "MARKETING_VERSION=#{options[:version]} CURRENT_PROJECT_VERSION=#{options[:build_number]} " \
+      xcargs: "MARKETING_VERSION=#{options[:version]} CURRENT_PROJECT_VERSION=#{options[:build_number]}#{quick_args} " \
               "CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY='Apple Distribution' " \
               "PROVISIONING_PROFILE_SPECIFIER='match AppStore #{APP_ID}'"
     )
