@@ -1,0 +1,2 @@
+// Release 빌드 설정. 제출용이므로 개인 설정(Local·Signing)을 포함하지 않는다.
+#include "Shared.xcconfig"

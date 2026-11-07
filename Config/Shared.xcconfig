@@ -1,0 +1,4 @@
+// 공유 기본값(Git에 올라간다). 팀과 번들 ID는 유료 Apple Developer 팀 기준이다.
+// 다른 팀·번들 ID로 개발하려면 Config/Signing.xcconfig(Git 제외)에서 덮어쓴다.
+DEVELOPMENT_TEAM = BBVZV8T99P
+PRODUCT_BUNDLE_IDENTIFIER = com.hwangsanghwan.parknic

@@ -8,12 +8,14 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    # 유료 Apple Developer 팀(hwang sanghwan)
-    DEVELOPMENT_TEAM: BBVZV8T99P
+    # DEVELOPMENT_TEAM은 Config/Shared.xcconfig(공유 기본값)와 Config/Signing.xcconfig(개인, Git 제외)에서 정한다.
 targets:
   Parknic:
     type: application
     platform: iOS
+    configFiles:
+      Debug: Config/Debug.xcconfig
+      Release: Config/Release.xcconfig
     sources:
       - path: Parknic
         excludes:
@@ -26,6 +28,7 @@ targets:
         PrivacyPolicyURL: $(PRIVACY_POLICY_URL)
         # Debug 개발용 값(Release에서는 코드가 읽지 않는다). 홈 화면에서 직접 실행해도 적용되도록 빌드 설정에 둔다.
         DevUseRemoteAPI: $(DEV_USE_REMOTE_API)
+        DevLoginSecret: $(DEV_LOGIN_SECRET)
         DevCheckInRequiredSeconds: $(DEV_CHECKIN_REQUIRED_SECONDS)
         NSLocationWhenInUseUsageDescription: 공원 안에 머무는 시간을 재려고 체크인하는 동안 현재 위치를 사용해요.
         NSAppTransportSecurity:
@@ -44,7 +47,7 @@ targets:
           - Jua-Regular.ttf
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.hwangsanghwan.parknic
+        # PRODUCT_BUNDLE_IDENTIFIER는 Config/Shared.xcconfig(기본 com.hwangsanghwan.parknic)에서 정한다.
         # Sign in with Apple 권한은 Parknic.entitlements에 있다(Release·Archive용). 파일은 직접 관리한다.
         CODE_SIGN_ENTITLEMENTS: Parknic/App/Parknic.entitlements
         GENERATE_INFOPLIST_FILE: YES
@@ -65,8 +68,9 @@ targets:
         # 무료 Apple ID(Personal Team)는 Sign in with Apple을 못 쓰므로, Debug는 그 권한 없이 서명한다(개발용 로그인으로 시험).
         Debug:
           CODE_SIGN_ENTITLEMENTS: Parknic/App/ParknicDebug.entitlements
-          # Debug는 맥에서 도는 로컬 서버(폰과 같은 Wi-Fi)에 붙는다. 맥 이름이 바뀌면 `scutil --get LocalHostName` 값으로 고친다.
-          API_BASE_URL: http://Seongmo-MacBookPro-M4.local:8080
+          # Debug는 배포 서버에 붙는다(개발용 로그인은 Config/Local.xcconfig의 DEV_LOGIN_SECRET이 필요하다).
+          # 맥에서 도는 로컬 서버에 붙으려면 아래를 http://Seongmo-MacBookPro-M4.local:8080 으로 바꾼다(맥 이름은 `scutil --get LocalHostName`).
+          API_BASE_URL: https://parknic-dev.duckdns.org
           # Mock으로만 돌리려면 NO로 바꾼다(스킴 환경변수 PARKNIC_USE_REMOTE_API=0도 같은 효과).
           DEV_USE_REMOTE_API: "YES"
           # 체크인 완료까지 걸리는 시간(초). 서버 로컬 설정(1분)보다 조금 길게. 실제 20분으로 시험하려면 빈 값으로.

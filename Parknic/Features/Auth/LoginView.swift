@@ -62,9 +62,6 @@ struct LoginView: View {
                 }
                 .disabled(viewModel.isLoading)
             }
-            #if DEBUG
-            developmentLogin
-            #endif
             terms.padding(.top, Spacing.s8)
         }
         .padding(.horizontal, Spacing.s16)
@@ -74,23 +71,6 @@ struct LoginView: View {
             Color.white.clipShape(UnevenRoundedRectangle(topLeadingRadius: Radius.r30, topTrailingRadius: Radius.r30))
                 .ignoresSafeArea(edges: .bottom))
     }
-
-    #if DEBUG
-    /// 개발용 로그인(Debug 빌드에서만 보인다). Apple 로그인 없이 시뮬레이터에서 앱 흐름을 확인한다.
-    private var developmentLogin: some View {
-        VStack(spacing: Spacing.s8) {
-            Text("개발용 (Debug 빌드에서만 보여요)").pkTextStyle(.caption).foregroundStyle(Color.ink500)
-            HStack(spacing: Spacing.s8) {
-                Button("신규 회원\n(온보딩부터)") { viewModel.loginForDevelopment(isNewUser: true) }
-                Button("기존 회원\n(바로 메인)") { viewModel.loginForDevelopment(isNewUser: false) }
-            }
-            .buttonStyle(.pk(.tonal, size: .large))
-            .multilineTextAlignment(.center)
-            .disabled(viewModel.isLoading)
-        }
-        .padding(.top, Spacing.s8)
-    }
-    #endif
 
     private var terms: some View {
         Text("계속하면 [이용약관](\(AppConfig.termsURL.absoluteString))과 [개인정보 처리방침](\(AppConfig.privacyPolicyURL.absoluteString))에 동의하게 돼요")

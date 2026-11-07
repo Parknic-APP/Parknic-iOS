@@ -39,3 +39,7 @@ GoogleService-Info.plist
 
 # XcodeGen 생성물 (project.yml에서 `xcodegen generate`로 만든다)
 *.xcodeproj
+
+# 로컬 전용 설정(비밀키 포함). 커밋하지 않는다.
+Config/Local.xcconfig
+Config/Signing.xcconfig
