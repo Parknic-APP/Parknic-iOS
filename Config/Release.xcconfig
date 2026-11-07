@@ -1,2 +1,7 @@
 // Release 빌드 설정. 제출용이므로 개인 설정(Local·Signing)을 포함하지 않는다.
 #include "Shared.xcconfig"
+
+// match 배포 프로필로 수동 서명한다. fastlane `archive` 레인이 넘기는 값과 같다(Xcode 서명 화면에서도 같은 상태로 보이게 한다).
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = Apple Distribution
+PROVISIONING_PROFILE_SPECIFIER = match AppStore com.hwangsanghwan.parknic
