@@ -77,6 +77,7 @@ final class AppContainer {
             neighborhood: GeocoderNeighborhoodNamer(), myPage: myPageRepository)
         myPageViewModel = MyPageViewModel(
             auth: authRepository, profile: profileStore, repository: myPageRepository, userRepository: userRepository,
+            reviewRepository: reviewRepository,
             isCheckInActive: { coordinator.state.isActive },
             onSignedOut: { session.didLogout() })
         collectionViewModel = CollectionViewModel(repository: collectionRepository)

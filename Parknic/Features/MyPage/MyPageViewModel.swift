@@ -21,6 +21,7 @@ final class MyPageViewModel {
     private let profile: ProfileStore
     private let repository: MyPageRepository
     private let userRepository: UserRepository
+    private let reviewRepository: ReviewRepository
     private let notificationStatus: NotificationStatusReading
     let clock: AppClock
     private let isCheckInActive: () -> Bool
@@ -28,6 +29,7 @@ final class MyPageViewModel {
 
     init(
         auth: AuthRepository, profile: ProfileStore, repository: MyPageRepository, userRepository: UserRepository,
+        reviewRepository: ReviewRepository = MockReviewRepository(delay: .zero),
         notificationStatus: NotificationStatusReading = UserNotificationStatusReader(),
         clock: AppClock = SystemClock(), initialState: SummaryState = .loading,
         isCheckInActive: @escaping () -> Bool, onSignedOut: @escaping () -> Void
@@ -36,6 +38,7 @@ final class MyPageViewModel {
         self.profile = profile
         self.repository = repository
         self.userRepository = userRepository
+        self.reviewRepository = reviewRepository
         self.notificationStatus = notificationStatus
         self.clock = clock
         self.summaryState = initialState
@@ -73,6 +76,11 @@ final class MyPageViewModel {
     }
 
     func makeReviewsViewModel() -> MyReviewsViewModel { MyReviewsViewModel(repository: repository, clock: clock) }
+
+    /// 내 리뷰를 눌렀을 때 열 그 공원의 리뷰 목록
+    func makeReviewListViewModel(for review: MyReview) -> ReviewListViewModel {
+        ReviewListViewModel(parkID: review.parkID, parkName: review.parkName, repository: reviewRepository)
+    }
 
     func relativeTime(of review: MyReview) -> String {
         RelativeTimeFormatter.text(from: review.createdAt, now: clock.now)

@@ -123,4 +123,17 @@ final class MapHomeViewModelTests: XCTestCase {
         XCTAssertNil(model.selectedPark)
         provider.finish(); await task.value
     }
+
+    func test_배지_결과가_없으면_리뷰_쓰기로_공원을_열지_않는다() async {
+        let (model, _, task) = make()
+        defer { task.cancel() }
+        model.showsCheckInFlow = true
+
+        await model.openReviewAfterBadge()
+
+        XCTAssertFalse(model.showsCheckInFlow)
+        XCTAssertNil(model.selectedParkID)
+        XCTAssertNil(model.pendingReviewParkID)
+    }
+
 }

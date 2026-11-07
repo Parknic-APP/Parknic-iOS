@@ -7,11 +7,14 @@ struct ReviewListView: View {
     var reviewCount: Int?
     var onWrite: (() -> Void)?
     var onEdit: ((Review) -> Void)?
+    /// 마이페이지에서 내 리뷰로 들어왔을 때 목록에서 찾아 보여줄 리뷰
+    var focusReviewID: Int?
     var now: () -> Date = { Date() }
 
     @State private var actionTarget: Review?
     @State private var reportTarget: Review?
     @State private var blockTarget: Review?
+    @State private var highlightedReviewID: Int?
 
     var body: some View {
         Group {
@@ -61,21 +64,37 @@ struct ReviewListView: View {
     // MARK: 구성
 
     private var list: some View {
-        ScrollView {
-            LazyVStack(spacing: Spacing.s12) {
-                summary
-                ForEach(viewModel.reviews) { review in
-                    ReviewRow(
-                        review: review, now: now(),
-                        onMore: { actionTarget = review }, onEdit: { onEdit?(review) })
-                        .task { await viewModel.loadMoreIfNeeded(currentItem: review) }
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: Spacing.s12) {
+                    summary
+                    ForEach(viewModel.reviews) { review in
+                        ReviewRow(
+                            review: review, now: now(), isHighlighted: review.id == highlightedReviewID,
+                            onMore: { actionTarget = review }, onEdit: onEdit.map { edit in { edit(review) } })
+                            .id(review.id)
+                            .task { await viewModel.loadMoreIfNeeded(currentItem: review) }
+                    }
+                    footer
                 }
-                footer
+                .padding(.horizontal, Spacing.s16)
+                .padding(.bottom, 96)
             }
-            .padding(.horizontal, Spacing.s16)
-            .padding(.bottom, 96)
+            .refreshable { await viewModel.load() }
+            .task(id: focusReviewID) { await showFocusedReview(with: proxy) }
         }
-        .refreshable { await viewModel.load() }
+    }
+
+    /// 내 리뷰로 들어왔으면 그 리뷰까지 불러와 가운데로 스크롤하고 잠깐 강조한다.
+    private func showFocusedReview(with proxy: ScrollViewProxy) async {
+        guard let id = focusReviewID else { return }
+        await viewModel.ensureLoaded(reviewID: id)
+        guard viewModel.reviews.contains(where: { $0.id == id }) else { return }
+        try? await Task.sleep(for: .milliseconds(200))
+        withAnimation { proxy.scrollTo(id, anchor: .center) }
+        highlightedReviewID = id
+        try? await Task.sleep(for: .seconds(2.5))
+        withAnimation { highlightedReviewID = nil }
     }
 
     @ViewBuilder
@@ -170,8 +189,10 @@ struct StarRow: View {
 private struct ReviewRow: View {
     let review: Review
     let now: Date
+    var isHighlighted = false
     let onMore: () -> Void
-    let onEdit: () -> Void
+    /// nil이면 내 리뷰여도 수정 버튼을 보이지 않는다(수정 화면이 없는 곳에서 쓸 때).
+    let onEdit: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s12) {
@@ -193,7 +214,9 @@ private struct ReviewRow: View {
                 }
                 Spacer(minLength: 0)
                 if review.isMine {
-                    Button("수정", action: onEdit).buttonStyle(.pk(.tonal, size: .small, fillsWidth: false))
+                    if let onEdit {
+                        Button("수정", action: onEdit).buttonStyle(.pk(.tonal, size: .small, fillsWidth: false))
+                    }
                 } else {
                     Button(action: onMore) {
                         Image(systemName: "ellipsis")
@@ -208,6 +231,7 @@ private struct ReviewRow: View {
         .padding(Spacing.s16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r24))
+        .overlay(RoundedRectangle(cornerRadius: Radius.r24).stroke(Color.leaf500, lineWidth: isHighlighted ? 3 : 0))
     }
 }
 

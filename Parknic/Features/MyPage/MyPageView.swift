@@ -3,11 +3,14 @@ import SwiftUI
 /// 12i·09b·09c — 마이페이지. 심사 필수 항목(로그아웃, 앱 안 회원 탈퇴, 약관·개인정보 링크)을 포함한다.
 struct MyPageView: View {
     @Bindable var viewModel: MyPageViewModel
+    /// 「총 배지」를 눌렀을 때 도감 탭으로 이동한다.
+    var onShowCollection: (() -> Void)?
     @Environment(\.openURL) private var openURL
 
     @State private var confirmsLogout = false
     @State private var withdrawStep: WithdrawStep?
     @State private var reviewsModel: MyReviewsViewModel?
+    @State private var openedReview: OpenedMyReview?
     @State private var profileEdit: ProfileEditViewModel?
 
     private enum WithdrawStep: Identifiable {
@@ -41,7 +44,12 @@ struct MyPageView: View {
             .background(Color.canvas.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: reviewsBinding) {
-                if let reviewsModel { MyReviewsView(viewModel: reviewsModel) }
+                if let reviewsModel {
+                    MyReviewsView(viewModel: reviewsModel, makeReviewList: viewModel.makeReviewListViewModel(for:))
+                }
+            }
+            .navigationDestination(isPresented: openedReviewBinding) {
+                if let openedReview { ReviewListView(viewModel: openedReview.viewModel, focusReviewID: openedReview.focusReviewID) }
             }
         }
         .task { await viewModel.load() }
@@ -147,7 +155,12 @@ struct MyPageView: View {
     private func statsGrid(_ stats: UserStats) -> some View {
         Grid(horizontalSpacing: Spacing.s12, verticalSpacing: Spacing.s12) {
             GridRow {
-                statCard("총 배지", value: stats.totalBadges, unit: "개", valueColor: .leaf600)
+                Button { onShowCollection?() } label: {
+                    statCard("총 배지", value: stats.totalBadges, unit: "개", valueColor: .leaf600, showsChevron: onShowCollection != nil)
+                }
+                .buttonStyle(.plain)
+                .disabled(onShowCollection == nil)
+                .accessibilityHint(onShowCollection == nil ? "" : "도감으로 이동해요")
                 statCard("방문한 공원", value: stats.visitedParks, unit: "곳")
             }
             GridRow {
@@ -161,7 +174,7 @@ struct MyPageView: View {
 
     private func statCard(
         _ title: LocalizedStringKey, value: Int, unit: LocalizedStringKey, note: String? = nil,
-        valueColor: Color = .ink900, labelColor: Color = .ink500, background: Color = .white
+        valueColor: Color = .ink900, labelColor: Color = .ink500, background: Color = .white, showsChevron: Bool = false
     ) -> some View {
         VStack(alignment: .leading, spacing: Spacing.s4) {
             Text(title).pkTextStyle(.callout).foregroundStyle(labelColor)
@@ -174,6 +187,12 @@ struct MyPageView: View {
         .padding(Spacing.s16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(background, in: RoundedRectangle(cornerRadius: Radius.r24))
+        .overlay(alignment: .topTrailing) {
+            if showsChevron {
+                Image(systemName: "chevron.right").font(.caption.weight(.bold)).foregroundStyle(Color.ink300).padding(Spacing.s16)
+            }
+        }
+        .contentShape(RoundedRectangle(cornerRadius: Radius.r24))
         .accessibilityElement(children: .combine)
     }
 
@@ -204,13 +223,23 @@ struct MyPageView: View {
                 VStack(spacing: 0) {
                     ForEach(Array(viewModel.recentReviews.enumerated()), id: \.element.id) { index, review in
                         if index > 0 { Divider() }
-                        MyReviewRow(review: review, timeText: viewModel.relativeTime(of: review))
+                        Button {
+                            openedReview = OpenedMyReview(viewModel: viewModel.makeReviewListViewModel(for: review), focusReviewID: review.id)
+                        } label: {
+                            MyReviewRow(review: review, timeText: viewModel.relativeTime(of: review)).contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("그 공원의 리뷰로 이동해요")
                     }
                 }
                 .padding(.horizontal, Spacing.s16)
                 .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r24))
             }
         }
+    }
+
+    private var openedReviewBinding: Binding<Bool> {
+        Binding(get: { openedReview != nil }, set: { if !$0 { openedReview = nil } })
     }
 
     private var reviewsBinding: Binding<Bool> {

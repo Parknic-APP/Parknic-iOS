@@ -11,6 +11,8 @@ struct ParkMapView: View {
     /// 내 위치에 올릴 캐릭터 에셋 이름. 없으면 기본 파란 점을 쓴다.
     var characterAssetName: String?
     let onSelect: (Park) -> Void
+    /// 마커가 아닌 지도 빈 곳을 눌렀다(열려 있는 공원 시트를 닫는 데 쓴다).
+    var onTapMap: () -> Void = {}
 
     /// 처음 들어올 때와 현위치 버튼을 누를 때 지도에 보이는 가로 폭(m). 내 주변 1km 반경이 화면 폭을 거의 채운다.
     static let visibleWidthM = 1200.0
@@ -28,6 +30,8 @@ struct ParkMapView: View {
                 center: CLLocationCoordinate2D(latitude: 37.5665, longitude: 126.9780),
                 latitudinalMeters: ParkMapView.visibleWidthM, longitudinalMeters: ParkMapView.visibleWidthM)))
     @State private var hasPlacedCamera = false
+    /// 마커를 누른 직후의 지도 탭은 무시한다(마커 탭과 지도 탭이 함께 들어오는 경우를 막는다).
+    @State private var lastMarkerTap = Date.distantPast
 
     var body: some View {
         Map(position: $position) {
@@ -54,7 +58,10 @@ struct ParkMapView: View {
             ForEach(parks) { park in
                 Annotation(park.name, coordinate: park.coordinate.clLocation, anchor: .bottom) {
                     ParkMarker(park: park, isSelected: park.id == selectedParkID)
-                        .onTapGesture { onSelect(park) }
+                        .onTapGesture {
+                            lastMarkerTap = Date()
+                            onSelect(park)
+                        }
                 }
                 .annotationTitles(.hidden)
             }
@@ -62,6 +69,10 @@ struct ParkMapView: View {
         // 시안은 상점·역 같은 장소 표시 없이 길과 공원만 보이므로 장소 표시를 끄고 지도를 흐리게 쓴다.
         .mapStyle(.standard(elevation: .flat, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
         .mapControls {}
+        .onTapGesture {
+            guard Date().timeIntervalSince(lastMarkerTap) > 0.4 else { return }
+            onTapMap()
+        }
         .onChange(of: recenterToken) { recenter(animated: hasPlacedCamera) }
         .onChange(of: userLocation) { _, new in
             if !hasPlacedCamera, new != nil { recenter(animated: false) }

@@ -64,6 +64,13 @@ final class NearbyParksViewModel {
         startFetch(at: currentLocation, showsLoading: false)
     }
 
+    /// `refresh()`와 같지만 조회가 끝날 때까지 기다린다. 배지를 받은 직후 최신 배지 수가 필요한 화면 전환에 쓴다.
+    func refreshAndWait() async {
+        guard let currentLocation else { return }
+        startFetch(at: currentLocation, showsLoading: false)
+        await fetchTask?.value
+    }
+
     private func startFetch(at center: Coordinate, showsLoading: Bool = true) {
         fetchTask?.cancel()
         if showsLoading, parks.isEmpty { state = .loading }

@@ -89,6 +89,17 @@ final class ReviewListViewModel {
         }
     }
 
+    /// `reviewID`가 목록에 보일 때까지 다음 페이지를 이어 불러온다(내 리뷰로 바로 이동할 때 쓴다). 못 찾으면 그대로 둔다.
+    func ensureLoaded(reviewID: Int, maxPages: Int = 10) async {
+        var pages = 0
+        while !reviews.contains(where: { $0.id == reviewID }), hasMore, !loadMoreFailed, pages < maxPages {
+            let before = reviews.count
+            await loadMore()
+            pages += 1
+            if reviews.count == before { break }
+        }
+    }
+
     // MARK: 신고·차단
 
     func report(_ review: Review, reason: ReportReason) async {

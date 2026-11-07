@@ -144,6 +144,27 @@ final class NearbyParksViewModelTests: XCTestCase {
         await settle(model)
         XCTAssertTrue(model.parksInRange.isEmpty)
     }
+
+    func test_refreshAndWait는_조회가_끝난_뒤에_돌아온다() async {
+        let repository = StubParkRepository()
+        let model = NearbyParksViewModel(repository: repository)
+        model.locationDidUpdate(origin)
+        await settle(model)
+        XCTAssertEqual(model.parks.count, 6)
+
+        repository.parks = []
+        await model.refreshAndWait()
+
+        XCTAssertEqual(model.state, .empty)  // 기다리지 않고 바로 확인해도 새 결과가 반영돼 있다
+    }
+
+    func test_위치가_없으면_refreshAndWait는_아무것도_하지_않는다() async {
+        let repository = StubParkRepository()
+        let model = NearbyParksViewModel(repository: repository)
+        await model.refreshAndWait()
+        XCTAssertTrue(repository.centers.isEmpty)
+    }
+
 }
 
 final class ParkTests: XCTestCase {

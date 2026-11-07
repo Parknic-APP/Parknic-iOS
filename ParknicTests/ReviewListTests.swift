@@ -190,6 +190,47 @@ final class ReviewListViewModelTests: XCTestCase {
         XCTAssertEqual(model.reviews.count, 5)
         XCTAssertEqual(model.toastMessage, APIError.network.userMessage)
     }
+
+    // MARK: 내 리뷰로 이동(ensureLoaded)
+
+    func test_찾는_리뷰가_다음_페이지에_있으면_그_페이지까지_불러온다() async {
+        let repository = PagingRepository()
+        repository.pages[nil] = ReviewPage(reviews: [review(1), review(2)], nextCursor: "a")
+        repository.pages["a"] = ReviewPage(reviews: [review(3), review(4)], nextCursor: "b")
+        repository.pages["b"] = ReviewPage(reviews: [review(5, mine: true)], nextCursor: nil)
+        let model = make(repository)
+        await model.load()
+
+        await model.ensureLoaded(reviewID: 5)
+
+        XCTAssertEqual(model.reviews.map(\.id), [1, 2, 3, 4, 5])
+        XCTAssertEqual(repository.cursors, [nil, "a", "b"])
+    }
+
+    func test_이미_목록에_있으면_더_불러오지_않는다() async {
+        let repository = PagingRepository()
+        repository.pages[nil] = ReviewPage(reviews: [review(1), review(2)], nextCursor: "a")
+        let model = make(repository)
+        await model.load()
+
+        await model.ensureLoaded(reviewID: 2)
+
+        XCTAssertEqual(repository.cursors, [nil])
+    }
+
+    func test_끝까지_없으면_멈춘다() async {
+        let repository = PagingRepository()
+        repository.pages[nil] = ReviewPage(reviews: [review(1)], nextCursor: "a")
+        repository.pages["a"] = ReviewPage(reviews: [review(2)], nextCursor: nil)
+        let model = make(repository)
+        await model.load()
+
+        await model.ensureLoaded(reviewID: 99)
+
+        XCTAssertEqual(model.reviews.map(\.id), [1, 2])
+        XCTAssertEqual(repository.cursors, [nil, "a"])
+    }
+
 }
 
 final class RelativeTimeFormatterTests: XCTestCase {

@@ -4,6 +4,8 @@ import SwiftUI
 struct MapHomeView: View {
     @Bindable var viewModel: MapHomeViewModel
     @Environment(\.openURL) private var openURL
+    /// 공원 시트 높이. 다른 공원을 고르면 다시 절반으로 돌린다.
+    @State private var sheetDetent: PresentationDetent = .medium
 
     var body: some View {
         ZStack {
@@ -14,10 +16,13 @@ struct MapHomeView: View {
             }
         }
         .task { await viewModel.run() }
+        .onChange(of: viewModel.selectedParkID) { sheetDetent = .medium }
         .onChange(of: viewModel.checkIn.state) { _, state in viewModel.checkInStateDidChange(state) }
         .sheet(item: parkBinding) { park in
+            // `.id`가 없으면 공원이 바뀌어도 시트 안의 상태가 처음 공원 기준으로 남아 이전 공원 정보가 계속 보인다.
             ParkSheetHost(park: park, viewModel: viewModel)
-                .presentationDetents([.medium, .large])
+                .id(park.id)
+                .presentationDetents([.medium, .large], selection: $sheetDetent)
                 .presentationBackgroundInteraction(.enabled(upThrough: .medium))
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(Radius.r30)
@@ -26,7 +31,7 @@ struct MapHomeView: View {
             CheckInFlowView(
                 coordinator: viewModel.checkIn, parkType: viewModel.checkInParkType,
                 badgeNumberAtPark: viewModel.badgeNumberAtPark, characterAssetName: viewModel.characterAssetName,
-                onWriteReview: viewModel.openParkAfterBadge, onShowRanking: viewModel.openParkAfterBadge,
+                onWriteReview: { Task { await viewModel.openReviewAfterBadge() } }, onShowRanking: viewModel.openParkAfterBadge,
                 onRetry: { viewModel.retryCheckIn(parkID: lastParkID) },
                 onBackToMap: { viewModel.showsCheckInFlow = false })
         }
@@ -58,7 +63,8 @@ struct MapHomeView: View {
                 parks: viewModel.nearby.parks, userLocation: viewModel.nearby.currentLocation,
                 selectedParkID: viewModel.selectedParkID, recenterToken: viewModel.recenterToken,
                 characterAssetName: viewModel.characterAssetName,
-                onSelect: { viewModel.selectedParkID = $0.id })
+                onSelect: { viewModel.selectedParkID = $0.id },
+                onTapMap: { viewModel.selectedParkID = nil })
             VStack {
                 if let display = viewModel.checkInDisplay, !viewModel.showsCheckInFlow {
                     CheckInBanner(display: display) { viewModel.showsCheckInFlow = true }
@@ -208,6 +214,15 @@ private struct ParkSheetHost: View {
         _rankingModel = State(initialValue: sheet.makeRankingViewModel())
     }
 
+    /// 배지 획득 화면에서 「리뷰 쓰기」로 들어왔으면 시트가 자리 잡은 뒤 리뷰 작성 화면을 연다.
+    private func openPendingReviewIfNeeded() async {
+        guard viewModel.pendingReviewParkID == park.id else { return }
+        viewModel.pendingReviewParkID = nil
+        // 시트가 올라오는 동안에는 그 위에 다른 시트를 띄워도 무시되므로 잠시 기다린다.
+        try? await Task.sleep(for: .milliseconds(500))
+        editorRoute = .create
+    }
+
     var body: some View {
         // 목록이 새로 조회되면 최신 상태(오늘 받음 등)로 보여준다.
         let current = viewModel.nearby.parks.first { $0.id == park.id } ?? park
@@ -229,6 +244,7 @@ private struct ParkSheetHost: View {
                     RankingView(viewModel: rankingModel, myCharacterAssetName: viewModel.characterAssetName)
                 }
         }
+        .task { await openPendingReviewIfNeeded() }
         .sheet(item: $editorRoute) { route in
             ReviewEditorHost(route: route, park: current, sheetModel: sheetModel) { result in
                 editorRoute = nil

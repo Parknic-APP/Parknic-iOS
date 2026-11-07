@@ -23,9 +23,19 @@ struct MyReviewRow: View {
     }
 }
 
+/// 내 리뷰를 눌러 연 그 공원의 리뷰 목록과 강조할 리뷰
+struct OpenedMyReview {
+    let viewModel: ReviewListViewModel
+    let focusReviewID: Int
+}
+
 /// 09b — 내 리뷰 전체 목록. 로딩·빈 상태·에러(재시도)를 갖는다.
 struct MyReviewsView: View {
     let viewModel: MyReviewsViewModel
+    /// 리뷰를 눌렀을 때 그 공원의 리뷰 목록을 만든다. nil이면 눌러도 이동하지 않는다.
+    var makeReviewList: ((MyReview) -> ReviewListViewModel)?
+
+    @State private var opened: OpenedMyReview?
 
     var body: some View {
         Group {
@@ -49,6 +59,9 @@ struct MyReviewsView: View {
         .navigationTitle("내 리뷰")
         .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.load() }
+        .navigationDestination(isPresented: Binding(get: { opened != nil }, set: { if !$0 { opened = nil } })) {
+            if let opened { ReviewListView(viewModel: opened.viewModel, focusReviewID: opened.focusReviewID) }
+        }
     }
 
     private var list: some View {
@@ -56,8 +69,15 @@ struct MyReviewsView: View {
             LazyVStack(spacing: 0) {
                 ForEach(Array(viewModel.reviews.enumerated()), id: \.element.id) { index, review in
                     if index > 0 { Divider() }
-                    MyReviewRow(review: review, timeText: viewModel.relativeTime(of: review))
-                        .task { await viewModel.loadMoreIfNeeded(current: review) }
+                    Button {
+                        if let makeReviewList { opened = OpenedMyReview(viewModel: makeReviewList(review), focusReviewID: review.id) }
+                    } label: {
+                        MyReviewRow(review: review, timeText: viewModel.relativeTime(of: review))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(makeReviewList == nil ? "" : "그 공원의 리뷰로 이동해요")
+                    .task { await viewModel.loadMoreIfNeeded(current: review) }
                 }
                 if viewModel.isLoadingMore { ProgressView().tint(.leaf600).padding(Spacing.s16) }
             }

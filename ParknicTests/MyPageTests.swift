@@ -34,6 +34,16 @@ final class MyPageViewModelTests: XCTestCase {
             isCheckInActive: { checkInActive }, onSignedOut: { [self] in signedOut += 1 })
     }
 
+    func test_내_리뷰를_누르면_그_공원의_리뷰_목록을_만든다() {
+        let model = make(SpyAuthRepository())
+        let review = MyReview(id: 7, parkID: 42, parkName: "서서울호수공원", rating: 5, content: "산책하기 좋아요", createdAt: Date())
+
+        let list = model.makeReviewListViewModel(for: review)
+
+        XCTAssertEqual(list.parkID, 42)
+        XCTAssertEqual(list.parkName, "서서울호수공원")
+    }
+
     func test_프로필을_보여준다() {
         let model = make(SpyAuthRepository())
         XCTAssertEqual(model.nickname, "나뭇잎")

@@ -5,6 +5,9 @@ struct NicknameView: View {
     @Bindable var viewModel: NicknameViewModel
     let onNext: (String) -> Void
     @FocusState private var focused: Bool
+    /// 입력칸에 보이는 글자. 뷰모델 값을 같은 갱신 안에서 되돌리면 입력칸이 다시 그려지지 않아 길이 제한이 화면에 안 먹으므로,
+    /// 입력칸 자체의 값을 잘라서 화면에 반영한다.
+    @State private var fieldText = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s20) {
@@ -27,7 +30,10 @@ struct NicknameView: View {
             .padding(.bottom, Spacing.s16)
             .background(Color.white)
         }
-        .onAppear { focused = true }
+        .onAppear {
+            focused = true
+            fieldText = viewModel.text
+        }
     }
 
     private var header: some View {
@@ -44,7 +50,7 @@ struct NicknameView: View {
     private var field: some View {
         HStack(spacing: Spacing.s12) {
             HStack {
-                TextField("닉네임", text: $viewModel.text)
+                TextField("닉네임", text: $fieldText)
                     .pkTextStyle(.headline)
                     .foregroundStyle(Color.ink900)
                     .focused($focused)
@@ -52,6 +58,15 @@ struct NicknameView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .onSubmit { viewModel.checkNow() }
+                    .onChange(of: fieldText) { _, newValue in
+                        let limited = String(newValue.prefix(NicknameViewModel.lengthRange.upperBound))
+                        if limited != newValue { fieldText = limited }
+                        if viewModel.text != limited { viewModel.text = limited }
+                    }
+                    // 추천 닉네임 선택처럼 뷰모델에서 값이 바뀐 경우를 입력칸에 반영한다.
+                    .onChange(of: viewModel.text) { _, newValue in
+                        if fieldText != newValue { fieldText = newValue }
+                    }
                 Text("\(viewModel.text.count)/\(NicknameViewModel.lengthRange.upperBound)")
                     .pkTextStyle(.callout)
                     .foregroundStyle(Color.ink500)

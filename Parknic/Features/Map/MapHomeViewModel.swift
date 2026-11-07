@@ -20,6 +20,8 @@ final class MapHomeViewModel {
     var showsCheckInFlow = false
     /// 반경이 겹쳐 사용자가 골라야 할 때의 후보 공원
     var chooserParks: [Park]?
+    /// 배지 획득 화면에서 「리뷰 쓰기」를 눌러 열린 공원. 그 공원 시트가 열리면 바로 리뷰 작성 화면을 띄운다.
+    var pendingReviewParkID: Int?
     private(set) var isStartingCheckIn = false
     /// 체크인을 시작하지 못했을 때 보여줄 문구
     var startErrorMessage: String?
@@ -220,6 +222,19 @@ final class MapHomeViewModel {
         showsCheckInFlow = false
         nearby.refresh()
         if let parkID { selectedParkID = parkID }
+    }
+
+    /// 배지 획득 화면의 「리뷰 쓰기」: 체크인 화면을 닫고 그 공원 시트를 연 뒤 리뷰 작성 화면까지 연다.
+    /// 방금 받은 배지가 반영된 뒤에 열어야 "배지가 없어 쓸 수 없다" 안내가 잠깐 뜨지 않는다.
+    func openReviewAfterBadge() async {
+        let parkID = checkIn.result?.badge.parkID
+        checkIn.dismiss()
+        showsCheckInFlow = false
+        await nearby.refreshAndWait()
+        if let parkID {
+            pendingReviewParkID = parkID
+            selectedParkID = parkID
+        }
     }
 
     /// 지도 위 진행 중 배너와 체크인 화면에 쓰는 값

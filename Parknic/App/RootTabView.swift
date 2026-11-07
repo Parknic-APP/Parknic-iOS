@@ -38,7 +38,7 @@ struct RootTabView: View {
                 CollectionView(viewModel: collectionViewModel)
                     .tag(Tab.collection)
                     .toolbar(.hidden, for: .tabBar)
-                MyPageView(viewModel: myPageViewModel)
+                MyPageView(viewModel: myPageViewModel, onShowCollection: { selection = .collection })
                     .tag(Tab.myPage)
                     .toolbar(.hidden, for: .tabBar)
             }
