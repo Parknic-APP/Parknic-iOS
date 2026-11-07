@@ -48,7 +48,7 @@ final class NicknameViewModel {
 
     private var trimmed: String { text.trimmingCharacters(in: .whitespaces) }
 
-    /// 「중복 확인」 버튼. 기다리지 않고 바로 확인한다.
+    /// 키보드의 완료(return)를 눌렀을 때. 기다리지 않고 바로 확인한다.
     func checkNow() {
         guard validate(), !confirmsOwnNickname() else { return }
         startCheck(delay: .zero)

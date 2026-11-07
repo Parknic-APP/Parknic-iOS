@@ -75,9 +75,6 @@ struct NicknameView: View {
             .frame(minHeight: 56)
             .background(Color.canvas, in: RoundedRectangle(cornerRadius: Radius.r16))
             .overlay(RoundedRectangle(cornerRadius: Radius.r16).stroke(borderColor, lineWidth: 2))
-
-            Button("중복 확인") { viewModel.checkNow() }
-                .buttonStyle(.pk(.tonal, size: .large, fillsWidth: false))
         }
     }
 
