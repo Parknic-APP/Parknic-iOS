@@ -1,0 +1,38 @@
+default_platform(:ios)
+
+# 인증서 생성(계정 소유자)과 받기(팀원)는 match 명령으로 직접 한다. fastlane/README.md 참고.
+platform :ios do
+  desc "개발·배포 인증서와 프로필을 받아 설치한다(팀원용, Apple 계정 접근 불필요)"
+  lane :certs do
+    match(type: "development", readonly: true)
+    match(type: "appstore", readonly: true)
+    UI.success("인증서·프로필 설치 완료. Config/Signing.xcconfig를 만들고 xcodegen generate를 다시 돌린다.")
+  end
+
+  desc "TestFlight 업로드. 예: bundle exec fastlane release version:1.0.0"
+  lane :release do |options|
+    version = options[:version] || UI.user_error!("버전을 입력한다. 예: bundle exec fastlane release version:1.0.0")
+    api_key = app_store_connect_api_key(key_filepath: "fastlane/AuthKey.p8", key_id: "QF3VZU8C2L", issuer_id: "b7ef2fa2-5522-4913-a7b0-91481e98679e")
+
+    build_number = latest_testflight_build_number(api_key: api_key, app_identifier: "com.hwangsanghwan.parknic") + 1
+    UI.message("버전 #{version} (#{build_number})")
+
+    sh("cd .. && xcodegen generate")
+    match(type: "appstore", readonly: true)
+    gym(
+      project: "Parknic.xcodeproj",
+      scheme: "Parknic",
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      xcargs: "MARKETING_VERSION=#{version} CURRENT_PROJECT_VERSION=#{build_number} " \
+              "CODE_SIGN_STYLE=Manual PROVISIONING_PROFILE_SPECIFIER='match AppStore com.hwangsanghwan.parknic'"
+    )
+    pilot(api_key: api_key, skip_waiting_for_build_processing: true)
+    clean_build_artifacts
+  end
+
+  error do |_lane, _exception|
+    clean_build_artifacts
+  end
+end

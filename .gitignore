@@ -43,3 +43,12 @@ GoogleService-Info.plist
 # 로컬 전용 설정(비밀키 포함). 커밋하지 않는다.
 Config/Local.xcconfig
 Config/Signing.xcconfig
+
+# fastlane: App Store Connect API 키와 산출물. 커밋하지 않는다.
+fastlane/AuthKey*.p8
+fastlane/api_key.json
+fastlane/report.xml
+fastlane/*.ipa
+fastlane/*.dSYM.zip
+fastlane/.env
+fastlane/.match_password

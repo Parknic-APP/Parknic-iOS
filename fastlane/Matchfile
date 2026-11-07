@@ -1,0 +1,11 @@
+# 인증서·프로비저닝 프로필을 암호화해 저장하는 비공개 저장소
+git_url("https://github.com/SeongmoAhn/Parknic-certificates.git")
+storage_mode("git")
+
+type("development")
+app_identifier(["com.hwangsanghwan.parknic"])
+team_id("BBVZV8T99P")
+
+# 계정 소유자만 인증서를 만들 수 있다(Individual 팀). 팀원은 readonly로 받기만 한다.
+# 인증서를 새로 만들 때는 계정 소유자가 `fastlane match development`처럼 readonly 없이 실행한다.
+readonly(true)
