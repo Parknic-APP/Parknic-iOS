@@ -33,11 +33,13 @@ private final class StubProfileRepository: UserRepository, @unchecked Sendable {
 final class CharacterSelectViewModelTests: XCTestCase {
     private var savedCount = 0
     private var duplicatedCount = 0
+    private var inappropriateCount = 0
 
     private func makeModel(_ repository: StubProfileRepository) -> CharacterSelectViewModel {
         let model = CharacterSelectViewModel(
             repository: repository, onSaved: { [self] in savedCount += 1 },
-            onNicknameDuplicated: { [self] in duplicatedCount += 1 })
+            onNicknameDuplicated: { [self] in duplicatedCount += 1 },
+            onNicknameInappropriate: { [self] in inappropriateCount += 1 })
         model.nickname = "나뭇잎"
         return model
     }
@@ -98,6 +100,20 @@ final class CharacterSelectViewModelTests: XCTestCase {
 
         XCTAssertEqual(duplicatedCount, 1)
         XCTAssertEqual(savedCount, 0)
+    }
+
+    func test_저장_중_쓸_수_없는_닉네임이면_닉네임_단계로_돌려보낸다() async {
+        let repository = StubProfileRepository()
+        repository.saveError = .server(status: 400, code: "NICKNAME_INAPPROPRIATE")
+        let model = makeModel(repository)
+        await model.load()
+
+        await model.confirm()
+
+        XCTAssertEqual(inappropriateCount, 1)
+        XCTAssertEqual(duplicatedCount, 0)
+        XCTAssertEqual(savedCount, 0)
+        XCTAssertEqual(model.saveState, .idle)
     }
 
     func test_저장에_실패하면_메시지를_보여주고_다시_시도할_수_있다() async {

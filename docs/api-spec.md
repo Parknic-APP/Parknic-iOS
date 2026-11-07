@@ -21,6 +21,7 @@
 | REVIEW_BADGE_REQUIRED | 403 | 배지 없는 공원에 리뷰 작성 | 작성 불가 안내(08g) |
 | REVIEW_ALREADY_EXISTS | 409 | 이미 리뷰를 쓴 공원 | "내 리뷰 수정"으로 전환 |
 | NICKNAME_DUPLICATED | 409 | 닉네임 중복 | 중복 안내(07c) |
+| NICKNAME_INAPPROPRIATE | 400 | 닉네임에 쓸 수 없는 말(비속어)이 들어 있음. 닉네임 확인·프로필 저장 둘 다 이 코드로 거절한다 | "사용할 수 없는 닉네임이에요" 안내 |
 | TOKEN_EXPIRED | 401 | Access 토큰 만료 | 재발급 후 재시도 |
 
 ## 2. 인증 · 회원

@@ -136,4 +136,102 @@ final class MapHomeViewModelTests: XCTestCase {
         XCTAssertNil(model.pendingReviewParkID)
     }
 
+
+    // MARK: 겹친 마커
+
+    private func makeWithParks(_ parks: [Park]) -> MapHomeViewModel {
+        MapHomeViewModel(
+            location: FakeLocationProvider(),
+            nearby: NearbyParksViewModel(repository: FixedParks(), initialState: .loaded(parks)),
+            checkIn: CheckInCoordinator(repository: MockCheckInRepository(), location: CoreLocationSampleSource(), notifier: LocalCheckInNotifier(), store: UserDefaultsCheckInStore(defaults: UserDefaults(suiteName: "tests.map.overlap") ?? .standard)),
+            parks: FixedParks())
+    }
+
+    private func park(_ id: Int, _ name: String, at coordinate: Coordinate) -> Park {
+        Park(id: id, name: name, type: .children, coordinate: coordinate, radiusM: 100, status: .none, badgeCount: 0)
+    }
+
+    func test_겹친_마커를_누르면_공원_목록을_보여준다() {
+        let here = Coordinate(latitude: 37.5016, longitude: 126.9858)
+        let model = makeWithParks([
+            park(2, "만남공원", at: here), park(1, "한수공원", at: here),
+            park(3, "먼공원", at: Coordinate(latitude: 37.52, longitude: 127.0)),
+        ])
+
+        model.markerTapped(model.nearby.parks.first { $0.id == 1 }!)
+
+        XCTAssertEqual(model.markerChoices?.map(\.name), ["만남공원", "한수공원"], "거리가 같으면 이름순, 먼 공원은 빠진다")
+        XCTAssertNil(model.selectedParkID, "고르기 전에는 공원 정보를 열지 않는다")
+    }
+
+    func test_가까이_있어도_50m를_넘으면_겹친_것으로_보지_않는다() {
+        let a = Coordinate(latitude: 37.5016, longitude: 126.9858)
+        let b = Coordinate(latitude: 37.5016 + 0.0006, longitude: 126.9858)  // 약 67m
+        let model = makeWithParks([park(1, "가", at: a), park(2, "나", at: b)])
+
+        model.markerTapped(model.nearby.parks[0])
+
+        XCTAssertNil(model.markerChoices)
+        XCTAssertEqual(model.selectedParkID, 1)
+    }
+
+    func test_겹치지_않은_마커는_바로_공원_정보를_연다() {
+        let model = makeWithParks([park(1, "혼자공원", at: Coordinate(latitude: 37.5, longitude: 127.0))])
+
+        model.markerTapped(model.nearby.parks[0])
+
+        XCTAssertNil(model.markerChoices)
+        XCTAssertEqual(model.selectedParkID, 1)
+    }
+
+    func test_목록에서_공원을_고르면_목록을_닫고_그_공원을_연다() {
+        let here = Coordinate(latitude: 37.5016, longitude: 126.9858)
+        let model = makeWithParks([park(1, "한수공원", at: here), park(2, "만남공원", at: here)])
+        model.markerTapped(model.nearby.parks[0])
+
+        model.chooseMarkerPark(model.nearby.parks[1])
+
+        XCTAssertNil(model.markerChoices)
+        XCTAssertEqual(model.selectedParkID, 2)
+    }
+
+    func test_시트를_닫으면_목록과_선택이_모두_사라진다() {
+        let here = Coordinate(latitude: 37.5016, longitude: 126.9858)
+        let model = makeWithParks([park(1, "한수공원", at: here), park(2, "만남공원", at: here)])
+        model.markerTapped(model.nearby.parks[0])
+
+        model.closeParkSheet()
+
+        XCTAssertNil(model.markerChoices)
+        XCTAssertNil(model.selectedParkID)
+    }
+
+    func test_시트를_절반으로_되돌리라는_요청은_닫았다가_같은_공원으로_다시_연다() async {
+        let model = makeWithParks([park(1, "한수공원", at: Coordinate(latitude: 37.5, longitude: 127.0))])
+        model.selectedParkID = 1
+
+        await model.reopenParkSheetAtHalf(after: .zero)
+
+        XCTAssertEqual(model.selectedParkID, 1)
+    }
+
+    func test_열린_시트가_없으면_다시_열지_않는다() async {
+        let model = makeWithParks([park(1, "한수공원", at: Coordinate(latitude: 37.5, longitude: 127.0))])
+
+        await model.reopenParkSheetAtHalf(after: .zero)
+
+        XCTAssertNil(model.selectedParkID)
+    }
+
+    func test_배지_결과가_없으면_랭킹_보기로_공원을_열지_않는다() async {
+        let model = makeWithParks([])
+        model.showsCheckInFlow = true
+
+        await model.openRankingAfterBadge()
+
+        XCTAssertFalse(model.showsCheckInFlow)
+        XCTAssertNil(model.selectedParkID)
+        XCTAssertNil(model.pendingRankingParkID)
+    }
+
 }

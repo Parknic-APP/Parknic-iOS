@@ -35,7 +35,8 @@ final class OnboardingViewModel {
             character = CharacterSelectViewModel(
                 repository: repository,
                 onSaved: { [weak self] in self?.profileSaved() },
-                onNicknameDuplicated: { [weak self] in self?.returnToNicknameAsDuplicated() })
+                onNicknameDuplicated: { [weak self] in self?.returnToNicknameAsDuplicated() },
+                onNicknameInappropriate: { [weak self] in self?.returnToNicknameAsInappropriate() })
         }
         character?.nickname = confirmed
         step = .character
@@ -60,6 +61,12 @@ final class OnboardingViewModel {
     /// 저장하는 사이 다른 사람이 같은 이름을 쓴 경우
     private func returnToNicknameAsDuplicated() {
         nickname.markDuplicated()
+        step = .nickname
+    }
+
+    /// 서버가 닉네임에 쓸 수 없는 말이 들어 있다고 거절한 경우
+    private func returnToNicknameAsInappropriate() {
+        nickname.markInappropriate()
         step = .nickname
     }
 }

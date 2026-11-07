@@ -60,6 +60,12 @@ final class NicknameViewModel {
         status = .duplicated(suggestions: Self.suggestions(for: trimmed))
     }
 
+    /// 서버가 닉네임에 쓸 수 없는 말이 들어 있다고 거절한 경우(입력 중 확인이나 저장 단계)
+    func markInappropriate() {
+        checkTask?.cancel()
+        status = .failed(APIErrorCode.nicknameInappropriate.message)
+    }
+
     func select(suggestion: String) {
         text = suggestion
     }

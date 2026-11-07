@@ -36,6 +36,8 @@ targets:
         DevLoginSecret: $(DEV_LOGIN_SECRET)
         DevLoginName: $(DEV_LOGIN_NAME)
         DevCheckInRequiredSeconds: $(DEV_CHECKIN_REQUIRED_SECONDS)
+        # 시험용 TestFlight 빌드에서만 채운다(fastlane `quick_checkin:true`). 비어 있으면 20분이며, App Store 제출 빌드는 반드시 비운다.
+        CheckInRequiredSecondsOverride: $(CHECKIN_REQUIRED_SECONDS_OVERRIDE)
         NSLocationWhenInUseUsageDescription: 공원 안에 머무는 시간을 재려고 체크인하는 동안 현재 위치를 사용해요.
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
@@ -66,6 +68,7 @@ targets:
         API_BASE_URL: http://localhost:8080
         DEV_USE_REMOTE_API: "NO"
         DEV_CHECKIN_REQUIRED_SECONDS: ""
+        CHECKIN_REQUIRED_SECONDS_OVERRIDE: ""
         # 약관·개인정보 처리방침 주소. 심사 제출 전에 실제 주소로 바꾼다(임시값).
         TERMS_URL: https:/$()/parknic-dev.duckdns.org/terms
         PRIVACY_POLICY_URL: https:/$()/parknic-dev.duckdns.org/privacy

@@ -29,11 +29,56 @@ struct OpenedMyReview {
     let focusReviewID: Int
 }
 
+/// 내 리뷰에서 공원 리뷰 화면으로 이동·수정할 때 필요한 것들
+struct MyReviewNavigation {
+    /// 리뷰를 눌렀을 때 그 공원의 리뷰 목록
+    let makeReviewList: (MyReview) -> ReviewListViewModel
+    /// 목록에서 내 리뷰의 「수정」을 눌렀을 때 수정 화면
+    let makeEditor: (Review, @escaping (ReviewEditorViewModel.Result) -> Void) -> ReviewEditorViewModel
+    /// 수정·삭제가 끝나 마이페이지의 내 리뷰 목록을 새로 불러와야 할 때
+    let onChanged: () -> Void
+}
+
+/// 내 리뷰를 눌러 연 공원 리뷰 목록. 내 리뷰에는 「수정」 버튼이 있고, 저장·삭제하면 목록을 새로 불러온다.
+struct MyReviewListScreen: View {
+    let opened: OpenedMyReview
+    let navigation: MyReviewNavigation
+    /// 수정·삭제 뒤에 이 화면 밖(내 리뷰 목록 등)도 새로 불러오게 한다.
+    var onChanged: () -> Void = {}
+
+    @State private var editor: ReviewEditorViewModel?
+
+    var body: some View {
+        ReviewListView(
+            viewModel: opened.viewModel,
+            onEdit: { review in
+                editor = navigation.makeEditor(review) { result in
+                    editor = nil
+                    guard result == .saved || result == .deleted else { return }
+                    Task {
+                        await opened.viewModel.load()
+                        navigation.onChanged()
+                        onChanged()
+                    }
+                }
+            },
+            focusReviewID: opened.focusReviewID
+        )
+        .sheet(isPresented: Binding(get: { editor != nil }, set: { if !$0 { editor = nil } })) {
+            if let editor {
+                NavigationStack {
+                    ReviewEditorView(viewModel: editor, parkName: opened.viewModel.parkName, onClose: { self.editor = nil })
+                }
+            }
+        }
+    }
+}
+
 /// 09b — 내 리뷰 전체 목록. 로딩·빈 상태·에러(재시도)를 갖는다.
 struct MyReviewsView: View {
     let viewModel: MyReviewsViewModel
-    /// 리뷰를 눌렀을 때 그 공원의 리뷰 목록을 만든다. nil이면 눌러도 이동하지 않는다.
-    var makeReviewList: ((MyReview) -> ReviewListViewModel)?
+    /// 리뷰를 눌렀을 때 이동·수정에 쓴다. nil이면 눌러도 이동하지 않는다.
+    var navigation: MyReviewNavigation?
 
     @State private var opened: OpenedMyReview?
 
@@ -60,7 +105,9 @@ struct MyReviewsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.load() }
         .navigationDestination(isPresented: Binding(get: { opened != nil }, set: { if !$0 { opened = nil } })) {
-            if let opened { ReviewListView(viewModel: opened.viewModel, focusReviewID: opened.focusReviewID) }
+            if let opened, let navigation {
+                MyReviewListScreen(opened: opened, navigation: navigation, onChanged: { Task { await viewModel.load() } })
+            }
         }
     }
 
@@ -70,13 +117,13 @@ struct MyReviewsView: View {
                 ForEach(Array(viewModel.reviews.enumerated()), id: \.element.id) { index, review in
                     if index > 0 { Divider() }
                     Button {
-                        if let makeReviewList { opened = OpenedMyReview(viewModel: makeReviewList(review), focusReviewID: review.id) }
+                        if let navigation { opened = OpenedMyReview(viewModel: navigation.makeReviewList(review), focusReviewID: review.id) }
                     } label: {
                         MyReviewRow(review: review, timeText: viewModel.relativeTime(of: review))
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityHint(makeReviewList == nil ? "" : "그 공원의 리뷰로 이동해요")
+                    .accessibilityHint(navigation == nil ? "" : "그 공원의 리뷰로 이동해요")
                     .task { await viewModel.loadMoreIfNeeded(current: review) }
                 }
                 if viewModel.isLoadingMore { ProgressView().tint(.leaf600).padding(Spacing.s16) }

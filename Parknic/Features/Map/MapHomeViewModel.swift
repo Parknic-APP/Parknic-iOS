@@ -20,8 +20,12 @@ final class MapHomeViewModel {
     var showsCheckInFlow = false
     /// 반경이 겹쳐 사용자가 골라야 할 때의 후보 공원
     var chooserParks: [Park]?
+    /// 지도에서 겹쳐 있는 마커를 눌렀을 때 보여줄 공원 목록. 값이 있으면 공원 시트 자리에 목록이 뜬다.
+    var markerChoices: [Park]?
     /// 배지 획득 화면에서 「리뷰 쓰기」를 눌러 열린 공원. 그 공원 시트가 열리면 바로 리뷰 작성 화면을 띄운다.
     var pendingReviewParkID: Int?
+    /// 배지 획득 화면에서 「랭킹 보기」를 눌러 열린 공원. 그 공원 시트가 열리면 바로 전체 랭킹 화면을 띄운다.
+    var pendingRankingParkID: Int?
     private(set) var isStartingCheckIn = false
     /// 체크인을 시작하지 못했을 때 보여줄 문구
     var startErrorMessage: String?
@@ -54,6 +58,47 @@ final class MapHomeViewModel {
         self.nearby = nearby
         self.checkIn = checkIn
         self.parkRepository = parks
+    }
+
+    /// 마커 좌표가 이 거리(m) 안이면 마커가 겹쳐 보이는 공원으로 본다.
+    static let overlapDistanceM = 50.0
+
+    /// 마커를 눌렀다. 겹친 공원이 있으면 목록을 보여주고, 하나뿐이면 바로 그 공원 정보를 연다.
+    func markerTapped(_ park: Park) {
+        let group = nearby.parks.filter {
+            $0.id == park.id || $0.coordinate.distance(to: park.coordinate) <= Self.overlapDistanceM
+        }
+        if group.count >= 2 {
+            markerChoices = group.sorted {
+                let (a, b) = ($0.coordinate.distance(to: park.coordinate), $1.coordinate.distance(to: park.coordinate))
+                return a == b ? $0.name < $1.name : a < b
+            }
+            selectedParkID = nil
+        } else {
+            markerChoices = nil
+            selectedParkID = park.id
+        }
+    }
+
+    /// 겹친 공원 목록에서 하나를 골랐다.
+    func chooseMarkerPark(_ park: Park) {
+        markerChoices = nil
+        selectedParkID = park.id
+    }
+
+    /// 공원 시트(또는 겹친 공원 목록)를 닫는다.
+    func closeParkSheet() {
+        markerChoices = nil
+        selectedParkID = nil
+    }
+
+    /// 열려 있는 공원 시트를 닫았다가 다시 띄워 절반 크기로 되돌린다.
+    /// 시트 위에 다른 시트를 띄웠다 닫으면 아래 시트가 전체 화면 크기로 남는 경우가 있어서, 크기만 바꾸지 않고 새로 띄운다.
+    func reopenParkSheetAtHalf(after delay: Duration = .milliseconds(500)) async {
+        guard let id = selectedParkID else { return }
+        selectedParkID = nil
+        try? await Task.sleep(for: delay)
+        selectedParkID = id
     }
 
     var selectedPark: Park? {
@@ -233,6 +278,18 @@ final class MapHomeViewModel {
         await nearby.refreshAndWait()
         if let parkID {
             pendingReviewParkID = parkID
+            selectedParkID = parkID
+        }
+    }
+
+    /// 배지 획득 화면의 「랭킹 보기」: 체크인 화면을 닫고 그 공원 시트를 연 뒤 전체 랭킹 화면까지 연다.
+    func openRankingAfterBadge() async {
+        let parkID = checkIn.result?.badge.parkID
+        checkIn.dismiss()
+        showsCheckInFlow = false
+        await nearby.refreshAndWait()
+        if let parkID {
+            pendingRankingParkID = parkID
             selectedParkID = parkID
         }
     }

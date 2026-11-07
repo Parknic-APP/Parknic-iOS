@@ -219,13 +219,16 @@ struct ParkSheetView: View {
 struct ParkChooserSheet: View {
     let parks: [Park]
     let location: Coordinate?
+    var title: LocalizedStringKey = "어느 공원에서 체크인할까요?"
+    var message: LocalizedStringKey = "여러 공원의 범위가 겹쳐 있어요. 한 곳만 고를 수 있어요."
+    var cancelTitle: LocalizedStringKey = "취소"
     let onSelect: (Park) -> Void
     let onCancel: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s16) {
-            Text("어느 공원에서 체크인할까요?").pkTextStyle(.title2).foregroundStyle(Color.ink900)
-            Text("여러 공원의 범위가 겹쳐 있어요. 한 곳만 고를 수 있어요.").pkTextStyle(.body).foregroundStyle(Color.ink500)
+            Text(title).pkTextStyle(.title2).foregroundStyle(Color.ink900)
+            Text(message).pkTextStyle(.body).foregroundStyle(Color.ink500)
             ForEach(parks) { park in
                 Button { onSelect(park) } label: {
                     HStack(spacing: Spacing.s12) {
@@ -247,7 +250,7 @@ struct ParkChooserSheet: View {
                     .background(Color.canvas, in: RoundedRectangle(cornerRadius: Radius.r20))
                 }
             }
-            Button("취소", action: onCancel).buttonStyle(.pk(.secondary))
+            Button(cancelTitle, action: onCancel).buttonStyle(.pk(.secondary))
         }
         .padding(Spacing.s20)
         .frame(maxHeight: .infinity, alignment: .top)

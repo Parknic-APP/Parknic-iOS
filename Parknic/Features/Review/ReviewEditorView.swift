@@ -3,11 +3,31 @@ import SwiftUI
 /// 08e·08f — 리뷰 쓰기/수정
 struct ReviewEditorView: View {
     @Bindable var viewModel: ReviewEditorViewModel
-    let park: Park
+    let parkName: String
+    /// 모르면(마이페이지의 내 리뷰에서 열 때) nil이고, 일반 공원 아이콘으로 보여준다.
+    let parkType: ParkType?
+    let badgeCount: Int?
     let onClose: () -> Void
 
     @State private var confirmsDelete = false
     @FocusState private var isEditing: Bool
+
+    /// 공원 시트에서 열 때(공원 종류와 내 배지 수를 안다)
+    init(viewModel: ReviewEditorViewModel, park: Park, onClose: @escaping () -> Void) {
+        self.init(viewModel: viewModel, parkName: park.name, parkType: park.type, badgeCount: park.badgeCount, onClose: onClose)
+    }
+
+    /// 마이페이지의 내 리뷰에서 열 때(공원 이름만 안다)
+    init(
+        viewModel: ReviewEditorViewModel, parkName: String, parkType: ParkType? = nil, badgeCount: Int? = nil,
+        onClose: @escaping () -> Void
+    ) {
+        self.viewModel = viewModel
+        self.parkName = parkName
+        self.parkType = parkType
+        self.badgeCount = badgeCount
+        self.onClose = onClose
+    }
 
     var body: some View {
         ScrollView {
@@ -51,13 +71,15 @@ struct ReviewEditorView: View {
 
     private var parkCard: some View {
         HStack(spacing: Spacing.s12) {
-            Image(systemName: park.type.symbolName)
+            Image(systemName: parkType?.symbolName ?? "leaf")
                 .foregroundStyle(Color.ink900)
                 .frame(width: 48, height: 48)
-                .background(park.type.color, in: RoundedRectangle(cornerRadius: Radius.r16))
+                .background(parkType?.color ?? Color.leaf100, in: RoundedRectangle(cornerRadius: Radius.r16))
             VStack(alignment: .leading, spacing: Spacing.s4) {
-                Text(park.name).pkTextStyle(.title2).foregroundStyle(Color.ink900)
-                Text("\(park.type.displayName) · 내 배지 \(park.badgeCount)개").pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                Text(parkName).pkTextStyle(.title2).foregroundStyle(Color.ink900)
+                if let parkType, let badgeCount {
+                    Text("\(parkType.displayName) · 내 배지 \(badgeCount)개").pkTextStyle(.callout).foregroundStyle(Color.ink500)
+                }
             }
             Spacer()
         }

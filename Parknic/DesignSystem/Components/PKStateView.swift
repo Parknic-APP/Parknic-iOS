@@ -126,7 +126,7 @@ private struct PKStateLayout: View {
 }
 
 #Preview("빈 상태") {
-    PKEmptyView(title: "근처에 공원이 없어요", message: "1km 안에 도시공원이 없어요. 지도를 움직여 찾아보세요.")
+    PKEmptyView(title: "근처에 공원이 없어요", message: "근처에 도시공원이 없어요. 지도를 움직여 찾아보세요.")
 }
 
 #Preview("에러") {

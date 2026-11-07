@@ -17,12 +17,20 @@ struct MapHomeView: View {
         }
         .task { await viewModel.run() }
         .onChange(of: viewModel.selectedParkID) { sheetDetent = .medium }
+        .onChange(of: viewModel.markerChoices?.map(\.id)) { sheetDetent = .medium }
         .onChange(of: viewModel.checkIn.state) { _, state in viewModel.checkInStateDidChange(state) }
         // item 방식은 선택한 공원이 바뀌면 열린 시트를 닫고 새로 띄워서 전체 화면 크기로 열렸다.
         // isPresented 방식은 시트를 그대로 둔 채 내용만 바꿔서 지금 크기(절반)가 유지된다.
         .sheet(isPresented: parkSheetBinding) {
             Group {
-                if let park = viewModel.selectedPark {
+                if let choices = viewModel.markerChoices {
+                    // 같은 자리에 겹친 공원들: 목록에서 하나를 고르면 같은 시트가 그 공원 정보로 바뀐다.
+                    ParkChooserSheet(
+                        parks: choices, location: viewModel.nearby.currentLocation,
+                        title: "겹쳐 있는 공원이에요", message: "같은 자리에 공원이 \(choices.count)곳 있어요. 보고 싶은 공원을 골라 주세요.",
+                        cancelTitle: "닫기",
+                        onSelect: { viewModel.chooseMarkerPark($0) }, onCancel: { viewModel.closeParkSheet() })
+                } else if let park = viewModel.selectedPark {
                     // `.id`가 없으면 공원이 바뀌어도 시트 안의 상태가 처음 공원 기준으로 남아 이전 공원 정보가 계속 보인다.
                     ParkSheetHost(park: park, viewModel: viewModel).id(park.id)
                 }
@@ -36,7 +44,7 @@ struct MapHomeView: View {
             CheckInFlowView(
                 coordinator: viewModel.checkIn, parkType: viewModel.checkInParkType,
                 badgeNumberAtPark: viewModel.badgeNumberAtPark, characterAssetName: viewModel.characterAssetName,
-                onWriteReview: { Task { await viewModel.openReviewAfterBadge() } }, onShowRanking: viewModel.openParkAfterBadge,
+                onWriteReview: { Task { await viewModel.openReviewAfterBadge() } }, onShowRanking: { Task { await viewModel.openRankingAfterBadge() } },
                 onRetry: { viewModel.retryCheckIn(parkID: lastParkID) },
                 onBackToMap: { viewModel.showsCheckInFlow = false })
         }
@@ -49,8 +57,8 @@ struct MapHomeView: View {
 
     private var parkSheetBinding: Binding<Bool> {
         Binding(
-            get: { viewModel.selectedPark != nil },
-            set: { if !$0 { viewModel.selectedParkID = nil } })
+            get: { viewModel.selectedPark != nil || viewModel.markerChoices != nil },
+            set: { if !$0 { viewModel.closeParkSheet() } })
     }
 
     private var startErrorBinding: Binding<Bool> {
@@ -67,9 +75,9 @@ struct MapHomeView: View {
             ParkMapView(
                 parks: viewModel.nearby.parks, userLocation: viewModel.nearby.currentLocation,
                 selectedParkID: viewModel.selectedParkID, recenterToken: viewModel.recenterToken,
-                characterAssetName: viewModel.characterAssetName,
-                onSelect: { viewModel.selectedParkID = $0.id },
-                onTapMap: { viewModel.selectedParkID = nil })
+                characterAssetName: viewModel.characterAssetName, searchRadiusM: viewModel.nearby.radiusM,
+                onSelect: { viewModel.markerTapped($0) },
+                onTapMap: { viewModel.closeParkSheet() })
             VStack {
                 if let display = viewModel.checkInDisplay, !viewModel.showsCheckInFlow {
                     CheckInBanner(display: display) { viewModel.showsCheckInFlow = true }
@@ -91,10 +99,11 @@ struct MapHomeView: View {
 
     // MARK: 구성
 
-    /// "신대방동 주변 1km"(동네 이름을 모르면 "내 주변 1km")
+    /// "신대방동 주변 1km"(동네 이름을 모르면 "내 주변 1km"). km는 설정한 반경이다.
     private var summaryTitle: String {
-        guard let name = viewModel.neighborhoodName else { return String(localized: "내 주변 1km") }
-        return String(localized: "\(name) 주변 1km")
+        let radius = viewModel.nearby.radiusSetting.radius.label
+        guard let name = viewModel.neighborhoodName else { return String(localized: "내 주변 \(radius)") }
+        return String(localized: "\(name) 주변 \(radius)")
     }
 
     private var summaryPill: some View {
@@ -161,9 +170,9 @@ struct MapHomeView: View {
                 .pkTextStyle(.callout).padding(Spacing.s16)
                 .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r16)).pkShadow(.soft2)
         case .empty:
-            // 03c — 1km 안에 공원이 없다
+            // 03c — 반경 안에 공원이 없다
             statusCard(
-                title: "근처 1km 안에 공원이 없어요", message: "다른 동네로 이동하면 공원이 나타나요.",
+                title: LocalizedStringKey("근처 \(viewModel.nearby.radiusSetting.radius.label) 안에 공원이 없어요"), message: "다른 동네로 이동하면 공원이 나타나요.",
                 symbol: "leaf", actionTitle: nil, action: nil)
         case .failed(let message):
             statusCard(
@@ -219,13 +228,16 @@ private struct ParkSheetHost: View {
         _rankingModel = State(initialValue: sheet.makeRankingViewModel())
     }
 
-    /// 배지 획득 화면에서 「리뷰 쓰기」로 들어왔으면 시트가 자리 잡은 뒤 리뷰 작성 화면을 연다.
-    private func openPendingReviewIfNeeded() async {
-        guard viewModel.pendingReviewParkID == park.id else { return }
+    /// 배지 획득 화면에서 「리뷰 쓰기」·「랭킹 보기」로 들어왔으면 시트가 자리 잡은 뒤 그 화면을 연다.
+    private func openPendingDestinationIfNeeded() async {
+        let wantsReview = viewModel.pendingReviewParkID == park.id
+        let wantsRanking = viewModel.pendingRankingParkID == park.id
+        guard wantsReview || wantsRanking else { return }
         viewModel.pendingReviewParkID = nil
-        // 시트가 올라오는 동안에는 그 위에 다른 시트를 띄워도 무시되므로 잠시 기다린다.
+        viewModel.pendingRankingParkID = nil
+        // 시트가 올라오는 동안에는 그 위에 다른 화면을 띄워도 무시되므로 잠시 기다린다.
         try? await Task.sleep(for: .milliseconds(500))
-        editorRoute = .create
+        if wantsReview { editorRoute = .create } else { showsRanking = true }
     }
 
     var body: some View {
@@ -249,9 +261,18 @@ private struct ParkSheetHost: View {
                     RankingView(viewModel: rankingModel, myCharacterAssetName: viewModel.characterAssetName)
                 }
         }
-        .task { await openPendingReviewIfNeeded() }
+        .task { await openPendingDestinationIfNeeded() }
         .sheet(item: $editorRoute) { route in
-            ReviewEditorHost(route: route, park: current, sheetModel: sheetModel) { result in
+            ReviewEditorHost(
+                route: route, park: current, sheetModel: sheetModel,
+                onViewOnMap: {
+                    // 작성 화면과 그 아래 리뷰·랭킹 화면을 모두 닫고, 지도 위의 공원 정보(절반 크기)로 다시 연다.
+                    editorRoute = nil
+                    showsReviews = false
+                    showsRanking = false
+                    Task { await viewModel.reopenParkSheetAtHalf() }
+                }
+            ) { result in
                 editorRoute = nil
                 if result != nil { Task { await reviewList.load(); await sheetModel.load() } }
             }
@@ -290,6 +311,8 @@ private struct ReviewEditorHost: View {
     let route: ReviewEditorRoute
     let park: Park
     let sheetModel: ParkSheetViewModel
+    /// 배지가 없어 리뷰를 쓸 수 없다는 안내에서 「지도에서 공원 보기」를 눌렀다.
+    let onViewOnMap: () -> Void
     /// 저장·삭제를 마치면 결과와 함께, 그냥 닫으면 nil로 부른다.
     let onDone: (ReviewEditorViewModel.Result?) -> Void
 
@@ -298,7 +321,7 @@ private struct ReviewEditorHost: View {
     var body: some View {
         NavigationStack {
             if case .create = route, park.badgeCount == 0 {
-                ReviewNotAllowedView(park: park, onViewOnMap: { onDone(nil) }, onReadOnly: { onDone(nil) })
+                ReviewNotAllowedView(park: park, onViewOnMap: onViewOnMap, onReadOnly: { onDone(nil) })
                     .toolbar { ToolbarItem(placement: .topBarLeading) { Button { onDone(nil) } label: { Image(systemName: "xmark") }.accessibilityLabel("닫기") } }
             } else if let editorModel {
                 ReviewEditorView(viewModel: editorModel, park: park, onClose: { onDone(nil) })

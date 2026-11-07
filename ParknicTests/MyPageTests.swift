@@ -44,6 +44,34 @@ final class MyPageViewModelTests: XCTestCase {
         XCTAssertEqual(list.parkName, "서서울호수공원")
     }
 
+    func test_내_리뷰_수정_화면은_수정_모드로_만들어진다() {
+        let model = make(SpyAuthRepository())
+        let review = Review(id: 7, userID: 1, nickname: "나뭇잎", characterID: 1, badgeCount: 3, rating: 4, content: "산책하기 좋아요 정말로", createdAt: Date(), isMine: true)
+
+        let editor = model.makeReviewEditorViewModel(for: review) { _ in }
+
+        XCTAssertEqual(editor.mode, .edit(review))
+        XCTAssertTrue(editor.isEditing)
+        XCTAssertEqual(editor.rating, 4)
+        XCTAssertEqual(editor.content, "산책하기 좋아요 정말로")
+    }
+
+    func test_주변_공원_범위를_고르면_저장하고_지도에_알린다() {
+        var notified = 0
+        let defaults = UserDefaults(suiteName: "tests.mypage.radius.\(UUID().uuidString)")!
+        let setting = SearchRadiusSetting(store: UserDefaultsSearchRadiusStore(defaults: defaults))
+        let model = MyPageViewModel(
+            auth: SpyAuthRepository(), profile: profile, repository: MockMyPageRepository(delay: .zero), userRepository: MockUserRepository(),
+            searchRadius: setting, onSearchRadiusChanged: { notified += 1 },
+            notificationStatus: StubNotificationStatus(enabled: true), isCheckInActive: { false }, onSignedOut: {})
+
+        model.selectSearchRadius(.km1_5)
+        model.selectSearchRadius(.km1_5)  // 같은 값을 다시 골라도 다시 알리지 않는다
+
+        XCTAssertEqual(setting.radius, .km1_5)
+        XCTAssertEqual(notified, 1)
+    }
+
     func test_프로필을_보여준다() {
         let model = make(SpyAuthRepository())
         XCTAssertEqual(model.nickname, "나뭇잎")

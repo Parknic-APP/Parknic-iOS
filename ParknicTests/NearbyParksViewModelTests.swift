@@ -4,13 +4,15 @@ import XCTest
 private final class StubParkRepository: ParkRepository, @unchecked Sendable {
     private let lock = NSLock()
     private var _centers: [Coordinate] = []
+    private var _radii: [Int] = []
     var parks: [Park] = MockParkRepository.sample
     var error: APIError?
 
     var centers: [Coordinate] { lock.withLock { _centers } }
+    var radii: [Int] { lock.withLock { _radii } }
 
     func nearby(center: Coordinate, radiusM: Int) async throws -> [Park] {
-        lock.withLock { _centers.append(center) }
+        lock.withLock { _centers.append(center); _radii.append(radiusM) }
         if let error { throw error }
         return parks
     }
@@ -163,6 +165,38 @@ final class NearbyParksViewModelTests: XCTestCase {
         let model = NearbyParksViewModel(repository: repository)
         await model.refreshAndWait()
         XCTAssertTrue(repository.centers.isEmpty)
+    }
+
+
+    func test_기본_반경은_1km이고_그_반경으로_조회한다() async {
+        let repository = StubParkRepository()
+        let model = NearbyParksViewModel(repository: repository, radiusSetting: SearchRadiusSetting(store: UserDefaultsSearchRadiusStore(defaults: UserDefaults(suiteName: "tests.nearby.radius.\(UUID().uuidString)")!)))
+        model.locationDidUpdate(origin)
+        await settle(model)
+        XCTAssertEqual(repository.radii, [1000])
+    }
+
+    func test_반경을_바꾸면_새_반경으로_다시_조회한다() async {
+        let repository = StubParkRepository()
+        let setting = SearchRadiusSetting(store: UserDefaultsSearchRadiusStore(defaults: UserDefaults(suiteName: "tests.nearby.radius.\(UUID().uuidString)")!))
+        let model = NearbyParksViewModel(repository: repository, radiusSetting: setting)
+        model.locationDidUpdate(origin)
+        await settle(model)
+
+        setting.select(.km2)
+        model.radiusDidChange()
+        for _ in 0..<200 where repository.radii.count < 2 { try? await Task.sleep(for: .milliseconds(5)) }
+
+        XCTAssertEqual(repository.radii, [1000, 2000])
+        XCTAssertEqual(model.radiusM, 2000)
+    }
+
+    func test_위치가_없으면_반경을_바꿔도_조회하지_않는다() async {
+        let repository = StubParkRepository()
+        let model = NearbyParksViewModel(repository: repository)
+        model.radiusDidChange()
+        try? await Task.sleep(for: .milliseconds(30))
+        XCTAssertTrue(repository.radii.isEmpty)
     }
 
 }

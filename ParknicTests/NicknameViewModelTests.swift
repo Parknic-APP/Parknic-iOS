@@ -136,6 +136,24 @@ final class NicknameViewModelTests: XCTestCase {
         XCTAssertFalse(model.canProceed, "새 이름은 확인이 끝나기 전에는 진행할 수 없다")
     }
 
+    func test_서버가_쓸_수_없는_닉네임이라고_하면_안내하고_진행할_수_없다() async {
+        let repository = StubUserRepository()
+        repository.error = .server(status: 400, code: "NICKNAME_INAPPROPRIATE")
+        let model = makeModel(repository)
+        model.text = "나쁜말"
+        await settle(model)
+        XCTAssertEqual(model.status, .failed(APIErrorCode.nicknameInappropriate.message))
+        XCTAssertFalse(model.canProceed)
+    }
+
+    func test_저장_단계에서_쓸_수_없는_닉네임으로_드러나면_안내한다() {
+        let model = makeModel(StubUserRepository())
+        model.text = "나쁜말"
+        model.markInappropriate()
+        XCTAssertEqual(model.status, .failed(APIErrorCode.nicknameInappropriate.message))
+        XCTAssertFalse(model.canProceed)
+    }
+
     func test_서버_오류는_메시지를_보여주고_진행할_수_없다() async {
         let repository = StubUserRepository()
         repository.error = .network
@@ -146,7 +164,7 @@ final class NicknameViewModelTests: XCTestCase {
         XCTAssertFalse(model.canProceed)
     }
 
-    func test_중복_확인_버튼은_바로_확인한다() async {
+    func test_키보드_완료는_기다리지_않고_바로_확인한다() async {
         let repository = StubUserRepository()
         let model = makeModel(repository, debounce: .seconds(30))
         model.text = "나뭇잎"

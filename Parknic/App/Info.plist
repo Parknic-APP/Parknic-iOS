@@ -20,6 +20,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>CheckInRequiredSecondsOverride</key>
+	<string>$(CHECKIN_REQUIRED_SECONDS_OVERRIDE)</string>
 	<key>DevCheckInRequiredSeconds</key>
 	<string>$(DEV_CHECKIN_REQUIRED_SECONDS)</string>
 	<key>DevLoginName</key>

@@ -27,6 +27,8 @@ struct RootTabView: View {
     let myPageViewModel: MyPageViewModel
 
     @State private var selection: Tab = .map
+    /// 마이페이지 탭을 다시 누를 때마다 올라간다. 쌓여 있던 화면(내 리뷰 등)을 닫고 마이페이지 첫 화면으로 돌아가게 한다.
+    @State private var myPageResetToken = 0
 
     var body: some View {
         // `safeAreaInset`은 탭 안쪽 화면(지도 범례 등)에 전달되지 않아 탭바 뒤로 가려지므로 위아래로 쌓는다.
@@ -38,11 +40,14 @@ struct RootTabView: View {
                 CollectionView(viewModel: collectionViewModel)
                     .tag(Tab.collection)
                     .toolbar(.hidden, for: .tabBar)
-                MyPageView(viewModel: myPageViewModel, onShowCollection: { selection = .collection })
+                MyPageView(viewModel: myPageViewModel, resetToken: myPageResetToken, onShowCollection: { selection = .collection })
                     .tag(Tab.myPage)
                     .toolbar(.hidden, for: .tabBar)
             }
-            PKTabBar(selection: $selection)
+            PKTabBar(selection: $selection) { tab in
+                // 이미 선택된 탭을 다시 눌렀을 때
+                if tab == .myPage { myPageResetToken += 1 }
+            }
         }
     }
 }
@@ -50,12 +55,16 @@ struct RootTabView: View {
 /// 흰 바탕 + 위쪽 얇은 선. 선택된 탭은 `leaf600` 채운 아이콘, 나머지는 `ink500`.
 private struct PKTabBar: View {
     @Binding var selection: RootTabView.Tab
+    /// 이미 선택된 탭을 다시 눌렀다.
+    var onReselect: (RootTabView.Tab) -> Void = { _ in }
 
     var body: some View {
         HStack(spacing: 0) {
             ForEach(RootTabView.Tab.allCases, id: \.self) { tab in
                 let isSelected = tab == selection
-                Button { selection = tab } label: {
+                Button {
+                    if tab == selection { onReselect(tab) } else { selection = tab }
+                } label: {
                     VStack(spacing: Spacing.s4) {
                         Image(systemName: tab.symbol(selected: isSelected)).font(.system(size: 24)).frame(height: 28)
                         Text(tab.title).pkTextStyle(.caption)

@@ -22,6 +22,9 @@ final class MyPageViewModel {
     private let repository: MyPageRepository
     private let userRepository: UserRepository
     private let reviewRepository: ReviewRepository
+    /// 주변 공원 조회 반경 설정(지도와 같은 값을 본다)
+    let searchRadius: SearchRadiusSetting
+    private let onSearchRadiusChanged: () -> Void
     private let notificationStatus: NotificationStatusReading
     let clock: AppClock
     private let isCheckInActive: () -> Bool
@@ -30,6 +33,7 @@ final class MyPageViewModel {
     init(
         auth: AuthRepository, profile: ProfileStore, repository: MyPageRepository, userRepository: UserRepository,
         reviewRepository: ReviewRepository = MockReviewRepository(delay: .zero),
+        searchRadius: SearchRadiusSetting? = nil, onSearchRadiusChanged: @escaping () -> Void = {},
         notificationStatus: NotificationStatusReading = UserNotificationStatusReader(),
         clock: AppClock = SystemClock(), initialState: SummaryState = .loading,
         isCheckInActive: @escaping () -> Bool, onSignedOut: @escaping () -> Void
@@ -39,6 +43,8 @@ final class MyPageViewModel {
         self.repository = repository
         self.userRepository = userRepository
         self.reviewRepository = reviewRepository
+        self.searchRadius = searchRadius ?? SearchRadiusSetting()
+        self.onSearchRadiusChanged = onSearchRadiusChanged
         self.notificationStatus = notificationStatus
         self.clock = clock
         self.summaryState = initialState
@@ -75,11 +81,25 @@ final class MyPageViewModel {
             repository: userRepository, profileStore: profile, onFinished: onFinished)
     }
 
+    /// 설정에서 주변 공원 범위를 골랐다. 저장하고 지도가 새 반경으로 공원을 다시 불러오게 한다.
+    func selectSearchRadius(_ radius: SearchRadius) {
+        guard radius != searchRadius.radius else { return }
+        searchRadius.select(radius)
+        onSearchRadiusChanged()
+    }
+
     func makeReviewsViewModel() -> MyReviewsViewModel { MyReviewsViewModel(repository: repository, clock: clock) }
 
     /// 내 리뷰를 눌렀을 때 열 그 공원의 리뷰 목록
     func makeReviewListViewModel(for review: MyReview) -> ReviewListViewModel {
         ReviewListViewModel(parkID: review.parkID, parkName: review.parkName, repository: reviewRepository)
+    }
+
+    /// 공원 리뷰 목록에서 내 리뷰의 「수정」을 눌렀을 때 쓰는 수정 화면
+    func makeReviewEditorViewModel(
+        for review: Review, onFinished: @escaping (ReviewEditorViewModel.Result) -> Void
+    ) -> ReviewEditorViewModel {
+        ReviewEditorViewModel(mode: .edit(review), repository: reviewRepository, onFinished: onFinished)
     }
 
     func relativeTime(of review: MyReview) -> String {

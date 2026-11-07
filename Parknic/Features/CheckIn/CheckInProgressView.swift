@@ -26,7 +26,8 @@ struct CheckInProgressView: View {
 
     private var topBar: some View {
         HStack {
-            circleButton("xmark", label: "체크인 그만두기", action: onRequestCancel)
+            // 체크인을 그만두는 버튼은 아래쪽에 있어 왼쪽 위에는 지도 버튼을 둔다.
+            circleButton("map", label: "지도 보기", action: onShowMap)
             Spacer()
             VStack(spacing: Spacing.s4) {
                 Text(display.parkType.displayName).pkTextStyle(.callout).foregroundStyle(Color.leaf600)
@@ -34,7 +35,8 @@ struct CheckInProgressView: View {
             }
             .accessibilityElement(children: .combine)
             Spacer()
-            circleButton("map", label: "지도 보기", action: onShowMap)
+            // 가운데 제목이 치우치지 않게 왼쪽 버튼과 같은 너비를 비워 둔다.
+            Color.clear.frame(width: TouchTarget.minimum, height: TouchTarget.minimum)
         }
         .padding(.top, Spacing.s8)
     }

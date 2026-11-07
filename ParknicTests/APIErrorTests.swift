@@ -18,6 +18,7 @@ final class APIErrorTests: XCTestCase {
             ("REVIEW_BADGE_REQUIRED", .reviewBadgeRequired),
             ("REVIEW_ALREADY_EXISTS", .reviewAlreadyExists),
             ("NICKNAME_DUPLICATED", .nicknameDuplicated),
+            ("NICKNAME_INAPPROPRIATE", .nicknameInappropriate),
             ("TOKEN_EXPIRED", .tokenExpired),
         ]
         for (raw, expected) in cases {

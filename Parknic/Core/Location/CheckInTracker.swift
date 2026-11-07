@@ -14,6 +14,8 @@ struct CheckInTracker {
         // 개발용: 줄여서 시험한다(서버 로컬 설정과 맞춰야 한다). Release에는 없다.
         if let seconds = AppConfig.devCheckInRequiredSeconds { return seconds }
         #endif
+        // 시험용 TestFlight 빌드에서만 값이 들어온다. 비어 있으면(평소 빌드, App Store 제출 빌드) 20분이다.
+        if let seconds = AppConfig.checkInRequiredSecondsOverride { return seconds }
         return 20 * 60
     }()
     /// 반경 이탈 후 복귀할 수 있는 시간

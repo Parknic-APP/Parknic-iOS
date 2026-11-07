@@ -28,15 +28,26 @@ enum AppConfig {
     static var devLoginSecret: String {
         (Bundle.main.object(forInfoDictionaryKey: "DevLoginSecret") as? String) ?? ""
     }
+    #endif
 
+    /// 시험용 빌드(TestFlight 등)에서 체크인 완료까지 걸리는 시간(초). 모든 빌드가 읽지만 평소에는 비어 있어 nil이다(20분).
+    /// fastlane `quick_checkin:true`로 만든 빌드에서만 값이 들어간다. App Store 제출 빌드에는 넣지 않는다.
+    static var checkInRequiredSecondsOverride: Double? {
+        positiveSeconds(from: Bundle.main.object(forInfoDictionaryKey: "CheckInRequiredSecondsOverride") as? String)
+    }
+
+    /// 양수 숫자 문자열만 초로 읽는다. 비었거나 숫자가 아니거나 0 이하면 nil.
+    static func positiveSeconds(from text: String?) -> Double? {
+        guard let text, let seconds = Double(text.trimmingCharacters(in: .whitespaces)), seconds > 0 else { return nil }
+        return seconds
+    }
+
+    #if DEBUG
     /// 개발용: 체크인 완료까지 걸리는 시간(초). 환경변수 PARKNIC_CHECKIN_REQUIRED_SECONDS가 우선하고, 없으면 빌드 설정을 따른다.
     static var devCheckInRequiredSeconds: Double? {
         let env = ProcessInfo.processInfo.environment["PARKNIC_CHECKIN_REQUIRED_SECONDS"]
         let plist = Bundle.main.object(forInfoDictionaryKey: "DevCheckInRequiredSeconds") as? String
-        for text in [env, plist] {
-            if let text, let seconds = Double(text), seconds > 0 { return seconds }
-        }
-        return nil
+        return positiveSeconds(from: env) ?? positiveSeconds(from: plist)
     }
     #endif
 

@@ -3,10 +3,13 @@ import SwiftUI
 /// 12i·09b·09c — 마이페이지. 심사 필수 항목(로그아웃, 앱 안 회원 탈퇴, 약관·개인정보 링크)을 포함한다.
 struct MyPageView: View {
     @Bindable var viewModel: MyPageViewModel
+    /// 값이 바뀌면(마이페이지 탭을 다시 눌렀을 때) 내 리뷰 등 쌓인 화면을 닫고 첫 화면으로 돌아간다.
+    var resetToken = 0
     /// 「총 배지」를 눌렀을 때 도감 탭으로 이동한다.
     var onShowCollection: (() -> Void)?
     @Environment(\.openURL) private var openURL
 
+    @State private var choosesSearchRadius = false
     @State private var confirmsLogout = false
     @State private var withdrawStep: WithdrawStep?
     @State private var reviewsModel: MyReviewsViewModel?
@@ -45,18 +48,33 @@ struct MyPageView: View {
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: reviewsBinding) {
                 if let reviewsModel {
-                    MyReviewsView(viewModel: reviewsModel, makeReviewList: viewModel.makeReviewListViewModel(for:))
+                    MyReviewsView(viewModel: reviewsModel, navigation: reviewNavigation)
                 }
             }
             .navigationDestination(isPresented: openedReviewBinding) {
-                if let openedReview { ReviewListView(viewModel: openedReview.viewModel, focusReviewID: openedReview.focusReviewID) }
+                if let openedReview { MyReviewListScreen(opened: openedReview, navigation: reviewNavigation) }
             }
         }
         .task { await viewModel.load() }
+        .onChange(of: resetToken) {
+            // 내 리뷰 목록과 그 위에 열린 공원 리뷰 화면을 한 번에 닫는다.
+            reviewsModel = nil
+            openedReview = nil
+        }
         .fullScreenCover(isPresented: profileEditBinding) {
             if let profileEdit { ProfileEditView(viewModel: profileEdit) { self.profileEdit = nil } }
         }
         .overlay { if viewModel.isWorking { ProgressView().controlSize(.large).tint(.leaf600) } }
+        .confirmationDialog("주변 공원 범위", isPresented: $choosesSearchRadius, titleVisibility: .visible) {
+            ForEach(SearchRadius.allCases) { option in
+                Button(option == viewModel.searchRadius.radius ? "\(option.label) ✓" : option.label) {
+                    viewModel.selectSearchRadius(option)
+                }
+            }
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("지도에서 내 위치 주변 어디까지 공원을 보여줄지 정해요")
+        }
         .alert("로그아웃할까요?", isPresented: $confirmsLogout) {
             Button("로그아웃", role: .destructive) { Task { await viewModel.logout() } }
             Button("취소", role: .cancel) {}
@@ -111,6 +129,8 @@ struct MyPageView: View {
     private var settingsCard: some View {
         VStack(spacing: 0) {
             row("알림", detail: notificationDetail, action: openSystemSettings)
+            Divider()
+            row("주변 공원 범위", detail: LocalizedStringKey(viewModel.searchRadius.radius.label)) { choosesSearchRadius = true }
             Divider()
             row("위치 권한", detail: "앱을 사용하는 동안", action: openSystemSettings)
             Divider()
@@ -236,6 +256,14 @@ struct MyPageView: View {
                 .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.r24))
             }
         }
+    }
+
+    /// 내 리뷰에서 공원 리뷰 화면으로 이동하고 수정할 때 쓴다. 수정이 끝나면 마이페이지의 통계·최근 리뷰도 새로 불러온다.
+    private var reviewNavigation: MyReviewNavigation {
+        MyReviewNavigation(
+            makeReviewList: viewModel.makeReviewListViewModel(for:),
+            makeEditor: { review, onFinished in viewModel.makeReviewEditorViewModel(for: review, onFinished: onFinished) },
+            onChanged: { Task { await viewModel.load() } })
     }
 
     private var openedReviewBinding: Binding<Bool> {

@@ -25,16 +25,19 @@ final class CharacterSelectViewModel {
     private let repository: UserRepository
     private let onSaved: () -> Void
     private let onNicknameDuplicated: () -> Void
+    private let onNicknameInappropriate: () -> Void
 
     init(
         repository: UserRepository, initialState: State = .loading, selectedID: Int? = nil,
-        onSaved: @escaping () -> Void, onNicknameDuplicated: @escaping () -> Void
+        onSaved: @escaping () -> Void, onNicknameDuplicated: @escaping () -> Void,
+        onNicknameInappropriate: @escaping () -> Void = {}
     ) {
         self.repository = repository
         self.state = initialState
         self.selectedID = selectedID
         self.onSaved = onSaved
         self.onNicknameDuplicated = onNicknameDuplicated
+        self.onNicknameInappropriate = onNicknameInappropriate
     }
 
     var characters: [AvatarCharacter] {
@@ -81,6 +84,9 @@ final class CharacterSelectViewModel {
         } catch let error as APIError where error.serverCode == .nicknameDuplicated {
             saveState = .idle
             onNicknameDuplicated()
+        } catch let error as APIError where error.serverCode == .nicknameInappropriate {
+            saveState = .idle
+            onNicknameInappropriate()
         } catch {
             saveState = .failed(Self.message(for: error))
         }

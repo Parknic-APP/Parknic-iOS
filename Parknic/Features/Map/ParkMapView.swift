@@ -10,11 +10,13 @@ struct ParkMapView: View {
     let recenterToken: Int
     /// 내 위치에 올릴 캐릭터 에셋 이름. 없으면 기본 파란 점을 쓴다.
     var characterAssetName: String?
+    /// 설정한 주변 공원 조회 반경(m). 점선 원으로 보여준다.
+    var searchRadiusM = SearchRadius.default.meters
     let onSelect: (Park) -> Void
     /// 마커가 아닌 지도 빈 곳을 눌렀다(열려 있는 공원 시트를 닫는 데 쓴다).
     var onTapMap: () -> Void = {}
 
-    /// 처음 들어올 때와 현위치 버튼을 누를 때 지도에 보이는 가로 폭(m). 내 주변 1km 반경이 화면 폭을 거의 채운다.
+    /// 처음 들어올 때와 현위치 버튼을 누를 때 지도에 보이는 가로 폭(m). 공원을 불러오는 반경(설정에서 1~2km)과 별개로 이 크기를 유지한다.
     static let visibleWidthM = 1200.0
 
     private static let koreaVeil: [CLLocationCoordinate2D] = [
@@ -45,7 +47,7 @@ struct ParkMapView: View {
                 .foregroundStyle(Color.mapVeil.opacity(0.55))
                 .mapOverlayLevel(level: .aboveRoads)
             if let userLocation {
-                MapCircle(center: userLocation.clLocation, radius: Double(NearbyParksViewModel.searchRadiusM))
+                MapCircle(center: userLocation.clLocation, radius: Double(searchRadiusM))
                     .foregroundStyle(Color.leaf500.opacity(0.08))
                     .stroke(Color.leaf600.opacity(0.6), style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
             }

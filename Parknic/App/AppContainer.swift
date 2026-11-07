@@ -71,13 +71,17 @@ final class AppContainer {
             repository: checkInRepository, location: CoreLocationSampleSource(),
             notifier: LocalCheckInNotifier(), store: UserDefaultsCheckInStore())
         checkInCoordinator = coordinator
+        // 지도와 마이페이지 설정이 같은 반경 값을 본다.
+        let searchRadius = SearchRadiusSetting()
+        let nearby = NearbyParksViewModel(repository: parkRepository, radiusSetting: searchRadius)
         mapViewModel = MapHomeViewModel(
-            location: CoreLocationProvider(), nearby: NearbyParksViewModel(repository: parkRepository),
+            location: CoreLocationProvider(), nearby: nearby,
             checkIn: coordinator, parks: parkRepository, rankings: rankingRepository, reviews: reviewRepository, profile: profileStore,
             neighborhood: GeocoderNeighborhoodNamer(), myPage: myPageRepository)
         myPageViewModel = MyPageViewModel(
             auth: authRepository, profile: profileStore, repository: myPageRepository, userRepository: userRepository,
             reviewRepository: reviewRepository,
+            searchRadius: searchRadius, onSearchRadiusChanged: { nearby.radiusDidChange() },
             isCheckInActive: { coordinator.state.isActive },
             onSignedOut: { session.didLogout() })
         collectionViewModel = CollectionViewModel(repository: collectionRepository)

@@ -10,6 +10,7 @@ enum APIErrorCode: String, CaseIterable, Sendable {
     case reviewBadgeRequired = "REVIEW_BADGE_REQUIRED"
     case reviewAlreadyExists = "REVIEW_ALREADY_EXISTS"
     case nicknameDuplicated = "NICKNAME_DUPLICATED"
+    case nicknameInappropriate = "NICKNAME_INAPPROPRIATE"
     case tokenExpired = "TOKEN_EXPIRED"
 
     /// `code → 한글 메시지` 매핑은 여기 한 곳에서만 관리한다.
@@ -23,6 +24,7 @@ enum APIErrorCode: String, CaseIterable, Sendable {
         case .reviewBadgeRequired: String(localized: "배지를 받은 공원에만 리뷰를 쓸 수 있어요")
         case .reviewAlreadyExists: String(localized: "이미 이 공원에 리뷰를 썼어요")
         case .nicknameDuplicated: String(localized: "이미 사용 중인 닉네임이에요")
+        case .nicknameInappropriate: String(localized: "사용할 수 없는 닉네임이에요. 다른 이름을 써 주세요")
         case .tokenExpired: String(localized: "로그인이 만료됐어요. 다시 로그인해주세요")
         }
     }
