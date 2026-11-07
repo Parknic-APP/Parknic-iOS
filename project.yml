@@ -54,13 +54,13 @@ targets:
         # 서버 주소는 빌드 설정으로 구분한다. Release 주소는 서버 운영 주소가 정해지면 교체한다.
         API_BASE_URL: http://localhost:8080
         # 약관·개인정보 처리방침 주소. 심사 제출 전에 실제 주소로 바꾼다(임시값).
-        TERMS_URL: https:/$()/parknic.example/terms
-        PRIVACY_POLICY_URL: https:/$()/parknic.example/privacy
+        TERMS_URL: https:/$()/parknic-dev.duckdns.org/terms
+        PRIVACY_POLICY_URL: https:/$()/parknic-dev.duckdns.org/privacy
         # Xcode가 문구 카탈로그를 자동으로 고치지 않게 한다(문구는 직접 관리).
         SWIFT_EMIT_LOC_STRINGS: NO
       configs:
         Release:
-          API_BASE_URL: https://api.parknic.example
+          API_BASE_URL: https://parknic-dev.duckdns.org
   ParknicTests:
     type: bundle.unit-test
     platform: iOS

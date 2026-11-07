@@ -17,9 +17,9 @@
 - [x] 지도·공원 시트·체크인·배지·랭킹·리뷰·마이페이지(P0 전체)
 
 ## 2. 제출 전에 반드시 바꿔야 하는 것 (project.yml)
-- [ ] `TERMS_URL` — 이용약관 실제 주소 (현재 임시값 `https://parknic.example/terms`)
+- [ ] `TERMS_URL` — 이용약관 실제 주소 (현재 `https://parknic-dev.duckdns.org/terms`, 도메인을 바꾸면 함께 교체)
 - [ ] `PRIVACY_POLICY_URL` — 개인정보 처리방침 실제 주소 (현재 임시값)
-- [ ] Release `API_BASE_URL` — 운영 서버 주소 (현재 임시값 `https://api.parknic.example`)
+- [ ] Release `API_BASE_URL` — 운영 서버 주소 (현재 `https://parknic-dev.duckdns.org`, 도메인을 바꾸면 교체)
 - [ ] Release 빌드가 Mock이 아니라 실서버 저장소를 쓰는지 확인(`#if DEBUG`로 Debug만 Mock)
 - [ ] 앱 아이콘 최종 이미지(`Resources/Assets.xcassets/AppIcon.appiconset`) — **현재는 임시 아이콘**
 - [ ] 개발 팀(Team ID) 서명 설정, 번들 ID `com.seongmo.parknic` 등록, Sign in with Apple capability 활성화
