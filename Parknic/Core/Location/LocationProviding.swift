@@ -24,6 +24,8 @@ protocol LocationProviding {
 final class CoreLocationProvider: NSObject, LocationProviding, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
     private var continuation: AsyncStream<LocationEvent>.Continuation?
+    /// 구독자가 없을 때 들어온 마지막 위치. 앱을 켠 직후 권한 콜백이 수신을 먼저 시작하면 첫 위치가 구독 전에 도착한다.
+    private var lastCoordinate: Coordinate?
 
     override init() {
         super.init()
@@ -37,7 +39,11 @@ final class CoreLocationProvider: NSObject, LocationProviding, CLLocationManager
         let stream = AsyncStream<LocationEvent> { continuation in self.continuation = continuation }
         let authorization = Self.map(manager.authorizationStatus)
         continuation?.yield(.authorization(authorization))
-        if authorization == .authorized { manager.startUpdatingLocation() }
+        if authorization == .authorized {
+            // 이미 받은 위치를 바로 전달한다. 수신이 이미 진행 중이면 가만히 있을 때(distanceFilter) 새 위치가 오지 않는다.
+            if let lastCoordinate { continuation?.yield(.location(lastCoordinate)) }
+            manager.startUpdatingLocation()
+        }
         return stream
     }
 
@@ -68,7 +74,10 @@ final class CoreLocationProvider: NSObject, LocationProviding, CLLocationManager
         // 정확도가 100m보다 나쁜 위치는 무시한다.
         guard let last = locations.last(where: { $0.horizontalAccuracy >= 0 && $0.horizontalAccuracy <= 100 }) else { return }
         let coordinate = Coordinate(latitude: last.coordinate.latitude, longitude: last.coordinate.longitude)
-        Task { @MainActor in continuation?.yield(.location(coordinate)) }
+        Task { @MainActor in
+            lastCoordinate = coordinate
+            continuation?.yield(.location(coordinate))
+        }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {}
