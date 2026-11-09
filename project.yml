@@ -76,9 +76,10 @@ targets:
         SWIFT_EMIT_LOC_STRINGS: NO
       configs:
         Debug:
-          # Debug는 배포 서버에 붙는다(개발용 로그인은 Config/Local.xcconfig의 DEV_LOGIN_SECRET이 필요하다).
-          # 맥에서 도는 로컬 서버에 붙으려면 아래를 http://Seongmo-MacBookPro-M4.local:8080 으로 바꾼다(맥 이름은 `scutil --get LocalHostName`).
-          API_BASE_URL: https://parknic-dev.duckdns.org
+          # Debug는 맥에서 도는 로컬 서버에 붙는다(시뮬레이터 기준).
+          # 실기기에서는 localhost가 폰 자신이므로 http://Seongmo-MacBookPro-M4.local:8080 으로 바꾼다(맥 이름은 `scutil --get LocalHostName`).
+          # 스킴 환경변수 PARKNIC_API_BASE_URL을 주면 이 값보다 우선한다.
+          API_BASE_URL: http://localhost:8080
           # Mock으로만 돌리려면 NO로 바꾼다(스킴 환경변수 PARKNIC_USE_REMOTE_API=0도 같은 효과).
           DEV_USE_REMOTE_API: "YES"
           # 체크인 완료까지 걸리는 시간(초). 서버 로컬 설정(1분)보다 조금 길게. 실제 20분으로 시험하려면 빈 값으로.
