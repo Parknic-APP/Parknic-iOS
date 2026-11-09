@@ -5,11 +5,16 @@
 
 ## 1. 프로젝트 개요
 
-- **파크닉(Parknic)**: 내 주변 공원에서 **연속 20분** 머무르면 배지를 받고, 공원별 월간 랭킹 시상대(1~3등)에 내 캐릭터가 올라가는 산책 수집 앱. 범위는 대한민국 전국 도시공원.
+- **파크닉(Parknic)**: 내 주변 공원에서 **연속 20분** 머무르면 배지를 받고, 공원별 **주간** 랭킹 시상대(1~3등, 매주 월요일 0시 KST 초기화)에 내 캐릭터가 올라가는 산책 수집 앱. 범위는 대한민국 전국 도시공원.
 - 핵심 루프: 지도에서 주변 공원 확인 → 공원 반경 안에서 체크인 → 연속 20분 체류 → 배지 획득 → 랭킹 반영 → 리뷰 작성
-- 이 저장소는 **iOS 클라이언트**만 다룬다. 백엔드(Spring Boot)는 별도 저장소이며, 서버와의 약속은 `docs/api-spec.md`가 기준이다.
-- 저장소: `github.com/SeongmoAhn/Parknic-FE` · 기본 브랜치: `main`
-- 목표: 1개월 내 1차 출시(iOS 먼저, Android는 추후). 실제 출시·운영 + 포트폴리오 겸용.
+- 이 저장소는 **iOS 클라이언트**만 다룬다. 서버와의 약속은 `docs/api-spec.md`가 기준이다.
+- 저장소: `github.com/SeongmoAhn/Parknic-IOS` · 기본 브랜치: `main`
+- 상태: **1.0.0 (빌드 6) App Store 심사 통과, 2026-11-09 출시 신청.** 번들 ID `com.hwangsanghwan.parknic`, 팀 `BBVZV8T99P`.
+
+### 역할 분담
+- 이 저장소(iOS)는 에이전트가 개발한다.
+- 서버(`../be/`, `github.com/SeongmoAhn/Parknic-Server`)는 **사용자가 직접 개발한다.** 에이전트는 서버 코드를 대신 쓰지 않는다. 앱 작업에 서버 변경이 필요하면 무엇이 필요한지 알려주고, 사용자가 물어보면 설명·리뷰만 한다.
+- 출시된 앱이 쓰는 운영 서버는 심사용으로 먼저 만든 **temp 서버**(`~/code/parknic-temp`)다. 사용자 서버가 준비될 때까지 유지한다.
 
 ## 2. 문서 (작업 전에 해당 문서를 먼저 읽는다)
 
@@ -20,7 +25,11 @@
 | `docs/api-spec.md` | API 명세, 에러 코드 |
 | `docs/screens/` | 화면 디자인 이미지 (구현의 기준, 파일명 앞 번호가 화면 ID) |
 | `docs/design/` | 혼합안 정의, 디자인 토큰(색·서체·간격), 디자인 원본(HTML) |
+| `fastlane/SIGNING.md` | 서명 인증서 공유(match), TestFlight 업로드 |
+| [Notion 파크닉(Parknic)](https://app.notion.com/p/3fcfb019b7808005be0cd219e6cce288) | 프로젝트 개요, API 명세, iOS 앱, 백엔드 개발 순서, 운영·배포·심사 |
 
+- `docs/api-spec.md`와 Notion API 명세는 같은 내용으로 유지한다.
+- `docs/frontend-*.md`는 1.0 이전에 쓴 문서라 지금과 다른 곳이 있다(월간 랭킹 등). 다르면 이 문서와 `docs/api-spec.md`가 우선이다.
 - 우선순위: **P0(출시 필수)를 먼저**, P1은 3주차 끝에 미완성이면 업데이트로 넘긴다.
 - 문서와 디자인이 충돌하거나 스펙이 모호하면 **임의로 정하지 말고 질문한다.**
 
@@ -38,6 +47,7 @@
 | 로그인 | **1차: Sign in with Apple만**. 카카오·구글·이메일은 업데이트 (소셜 토큰을 서버로 보내고 서버 JWT를 받는다) |
 | 알림 | UserNotifications (로컬 알림만, 1차는 서버 푸시 없음) |
 | 패키지 | Swift Package Manager (SDK가 SPM 미지원이면 CocoaPods) |
+| 프로젝트 / 배포 | XcodeGen(`project.yml`), fastlane match + `bundle exec fastlane release`(TestFlight) |
 
 ## 4. 프로젝트 구조
 
@@ -109,14 +119,38 @@ Parknic/
 - 앱이 강제 종료되면 측정이 끊긴다. 재실행 시 `GET /api/check-ins/current`로 진행 중 세션을 조회해 실패 처리하고 안내한다. 체크인 상태는 `UserDefaults`에도 저장해 복구한다.
 - 최종 판정은 **서버**가 한다. 클라이언트는 조건을 만족하면 `complete`를 요청할 뿐이다.
 - 위치 좌표를 **로그·파일·서버에 이동 경로로 남기지 않는다.** 서버로는 체크인 시작·완료 시점의 좌표만 보낸다.
-- 주변 공원은 반경 **1km**를 조회하고, 위치가 **300m 이상** 바뀌면 재조회한다.
+- 주변 공원은 마이페이지에서 고른 범위(**1 / 1.5 / 2km**, 기본 1km)를 조회하고, 위치가 **300m 이상** 바뀌면 재조회한다.
 
 ## 7. 보안·비밀 값
 
 - API 키·시크릿(네이버 지도 Client ID, 카카오 앱 키, 구글 Client ID 등)을 **커밋하지 않는다.**
 - 비밀 값은 `Secrets.xcconfig`에 두고 `.gitignore`에 포함한다. 형식은 `Secrets.example.xcconfig`로 공유한다.
 - 토큰은 Keychain에만 저장하고, 로그에 출력하지 않는다.
-- 서버 주소는 빌드 설정(Debug / Release)으로 구분한다.
+- Git에서 제외된 로컬 전용 파일: `Config/Local.xcconfig`(개발용 로그인 키), `Config/Signing.xcconfig`(서명), `fastlane/AuthKey.p8`, `fastlane/api_key.json`. 내용을 출력하거나 커밋하지 않는다.
+
+## 7.1 서버 연결
+
+서버 주소는 `project.yml`의 `API_BASE_URL`로 정한다. 바꾼 뒤 `xcodegen generate`.
+
+| 빌드 | 주소 | 비고 |
+|---|---|---|
+| Debug | `http://localhost:8080` | 사용자가 맥에서 띄우는 로컬 서버(`../be/`). 시뮬레이터 기준 |
+| Release | `https://parknic-dev.duckdns.org` | **출시된 앱이 쓰는 운영 서버(temp 서버)**. 사용자 서버가 운영 준비될 때까지 바꾸지 않는다 |
+
+- 실기기에서 로컬 서버: `http://Seongmo-MacBookPro-M4.local:8080`(맥 이름은 `scutil --get LocalHostName`) 또는 스킴 환경변수 `PARKNIC_API_BASE_URL`.
+- 서버 없이 화면만: `DEV_USE_REMOTE_API: "NO"`면 Mock Repository를 쓴다.
+- Debug 로그인: `Config/Local.xcconfig`에 `DEV_LOGIN_SECRET`이 있으면 `POST /api/auth/login/apple`에 `token: "dev:<키>:<이름>"`, 없으면 실제 Apple 로그인. 로컬 서버는 `dev:<이름>`을 받는다.
+- Debug 체크인 완료 시간은 65초(`DEV_CHECKIN_REQUIRED_SECONDS`). 서버의 요구 시간(로컬 1분)과 맞춘다.
+
+서버 API가 바뀌면 `docs/api-spec.md`부터 맞추고 아래를 고친다.
+
+| 바뀐 것 | 파일 |
+|---|---|
+| 경로·메서드·요청/응답 JSON(DTO) | `Parknic/Data/Remote*Repository.swift` |
+| 에러 코드 → 한글 문구 | `Parknic/Core/Network/APIError.swift` `APIErrorCode` |
+| 토큰 재발급(`/api/auth/reissue`)·인증 헤더 | `Parknic/Core/Network/APIClient.swift` |
+| 앱 데이터 모델 | `Parknic/Domain/*.swift` (+ `Data/Mock/`, 화면 코드) |
+| 테스트 | `ParknicTests/Remote*RepositoryTests.swift` |
 
 ## 8. 테스트·검증
 
@@ -129,6 +163,7 @@ Parknic/
   ```
   xcodebuild -scheme Parknic -destination 'platform=iOS Simulator,name=iPhone 17e' build test
   ```
+- 2026-11-09 기준 단위 테스트 460개 통과.
 
 ## 9. Git 워크플로
 
@@ -191,8 +226,6 @@ Parknic/
 
 ## 11. 미결정 사항 (결정되면 이 문서를 갱신)
 
-- 앱 이름 확정(가칭 파크닉). 번들 ID는 `com.seongmo.parknic`으로 정함
-- 캐릭터·배지·일러스트 최종 손그림 에셋 제작 방식(직접 / 외주 / 임시 형태를 SVG로 추출)
 - 손그림 지도 스타일을 네이버 지도 SDK에서 구현할 수 있는지 확인
 - 최소 지원 iOS 버전 재확인(현재 17)
-- 서버 개발·운영 주소
+- 사용자 서버로 옮길 때의 운영 주소(지금 도메인을 그대로 쓸지, 새 도메인 + 앱 업데이트로 갈지)
