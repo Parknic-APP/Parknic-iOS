@@ -139,7 +139,7 @@ Parknic/
 
 - 실기기에서 로컬 서버: `http://Seongmo-MacBookPro-M4.local:8080`(맥 이름은 `scutil --get LocalHostName`) 또는 스킴 환경변수 `PARKNIC_API_BASE_URL`.
 - 서버 없이 화면만: `DEV_USE_REMOTE_API: "NO"`면 Mock Repository를 쓴다.
-- Debug 로그인: `Config/Local.xcconfig`에 `DEV_LOGIN_SECRET`이 있으면 `POST /api/auth/login/apple`에 `token: "dev:<키>:<이름>"`, 없으면 실제 Apple 로그인. 로컬 서버는 `dev:<이름>`을 받는다.
+- Debug 로그인: `Config/Local.xcconfig`의 `DEV_LOGIN_SECRET`이 **비어 있지 않으면** 개발용 로그인으로 `POST /api/auth/login/apple`에 `token: "dev:<키>:<이름>"`(이름은 `DEV_LOGIN_NAME`)을 보내고, 비어 있으면 실제 Apple 로그인을 쓴다. 로컬 서버용으로는 비밀이 아닌 값(`local`)을 넣고, 서버는 `dev:` 뒤 마지막 `:` 다음을 이름으로 쓴다.
 - Debug 체크인 완료 시간은 65초(`DEV_CHECKIN_REQUIRED_SECONDS`). 서버의 요구 시간(로컬 1분)과 맞춘다.
 
 서버 API가 바뀌면 `docs/api-spec.md`부터 맞추고 아래를 고친다.
