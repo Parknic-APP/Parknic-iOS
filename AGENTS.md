@@ -8,7 +8,7 @@
 - **파크닉(Parknic)**: 내 주변 공원에서 **연속 20분** 머무르면 배지를 받고, 공원별 **주간** 랭킹 시상대(1~3등, 매주 월요일 0시 KST 초기화)에 내 캐릭터가 올라가는 산책 수집 앱. 범위는 대한민국 전국 도시공원.
 - 핵심 루프: 지도에서 주변 공원 확인 → 공원 반경 안에서 체크인 → 연속 20분 체류 → 배지 획득 → 랭킹 반영 → 리뷰 작성
 - 이 저장소는 **iOS 클라이언트**만 다룬다. 서버와의 약속은 `docs/api-spec.md`가 기준이다.
-- 저장소: `github.com/SeongmoAhn/Parknic-IOS` · 기본 브랜치: `main`
+- 저장소: `github.com/Parknic-APP/Parknic-iOS` · 기본 브랜치: `main`
 - 상태: **1.0.0 (빌드 6) App Store 심사 통과, 2026-11-09 출시 신청.** 번들 ID `com.hwangsanghwan.parknic`, 팀 `BBVZV8T99P`.
 
 ### 역할 분담
