@@ -135,7 +135,7 @@ Parknic/
 | 빌드 | 주소 | 비고 |
 |---|---|---|
 | Debug | `http://localhost:8080` | 사용자가 맥에서 띄우는 로컬 서버(`../be/`). 시뮬레이터 기준 |
-| Release | `https://parknic-dev.duckdns.org` | **출시된 앱이 쓰는 운영 서버(temp 서버)**. 사용자 서버가 운영 준비될 때까지 바꾸지 않는다 |
+| Release | `https://parknic-gcp.duckdns.org` | **사용자 서버(GCP) 운영 주소**. 앱 1.0.0은 옛 temp 서버(`parknic-dev.duckdns.org`)를 쓰며, 이 주소는 새 버전부터 적용된다 |
 
 - 실기기에서 로컬 서버: `http://Seongmo-MacBookPro-M4.local:8080`(맥 이름은 `scutil --get LocalHostName`) 또는 스킴 환경변수 `PARKNIC_API_BASE_URL`.
 - 서버 없이 화면만: `DEV_USE_REMOTE_API: "NO"`면 Mock Repository를 쓴다.

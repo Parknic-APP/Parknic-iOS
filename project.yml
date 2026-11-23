@@ -70,8 +70,8 @@ targets:
         DEV_CHECKIN_REQUIRED_SECONDS: ""
         CHECKIN_REQUIRED_SECONDS_OVERRIDE: ""
         # 약관·개인정보 처리방침 주소. 심사 제출 전에 실제 주소로 바꾼다(임시값).
-        TERMS_URL: https:/$()/parknic-dev.duckdns.org/terms
-        PRIVACY_POLICY_URL: https:/$()/parknic-dev.duckdns.org/privacy
+        TERMS_URL: https:/$()/parknic-gcp.duckdns.org/terms
+        PRIVACY_POLICY_URL: https:/$()/parknic-gcp.duckdns.org/privacy
         # Xcode가 문구 카탈로그를 자동으로 고치지 않게 한다(문구는 직접 관리).
         SWIFT_EMIT_LOC_STRINGS: NO
       configs:
@@ -85,7 +85,7 @@ targets:
           # 체크인 완료까지 걸리는 시간(초). 서버 로컬 설정(1분)보다 조금 길게. 실제 20분으로 시험하려면 빈 값으로.
           DEV_CHECKIN_REQUIRED_SECONDS: "65"
         Release:
-          API_BASE_URL: https://parknic-dev.duckdns.org
+          API_BASE_URL: https://parknic-gcp.duckdns.org
   ParknicTests:
     type: bundle.unit-test
     platform: iOS
