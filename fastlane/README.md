@@ -29,7 +29,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios build
 ```
 
-App Store용 .ipa를 만든다(업로드 없음). 예: bundle exec fastlane build version:1.0.0 build_number:1
+App Store용 .ipa를 만든다(업로드 없음). 예: bundle exec fastlane build version:1.0.0 build_number:1 (체크인 1분 시험용은 quick_checkin:true)
 
 ### ios release
 
@@ -37,7 +37,7 @@ App Store용 .ipa를 만든다(업로드 없음). 예: bundle exec fastlane buil
 [bundle exec] fastlane ios release
 ```
 
-TestFlight 업로드. 예: bundle exec fastlane release version:1.0.0
+TestFlight 업로드. 예: bundle exec fastlane release version:1.0.0 (체크인 1분 시험용은 quick_checkin:true)
 
 ----
 
