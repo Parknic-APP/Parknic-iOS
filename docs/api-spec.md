@@ -50,7 +50,7 @@
 - `GET /api/users/me/stats` → `{ "totalBadges": 23, "visitedParks": 11, "currentStreak": 5, "bestStreak": 9, "podiumParks": 2 }` (`podiumParks`는 **이번 주** 시상대 1~3등에 오른 공원 수. 랭킹이 매주 월요일 0시(KST)에 초기화되므로 월요일에는 0에서 다시 시작한다)
 - `GET /api/users/me/reviews?cursor=` → `{ "reviews": [ { "id": 7, "parkId": 1024, "parkName": "보라매공원", "rating": 5, "content": "...", "createdAt": "..." } ], "totalCount": 3, "nextCursor": null }` (최신순, 커서 기반)
 
-도감(클라이언트 가정, 서버와 확정 필요): `GET /api/users/me/collection` → `{ "totalBadges": 23, "visitedParks": 11, "types": [ { "parkType": "NEIGHBORHOOD", "count": 9 } ], "achievements": [ { "code": "PARKS_10", "name": "서로 다른 공원 10곳", "label": "10", "achievedAt": "2026-10-19T12:00:00+09:00" | null, "progress": 11, "target": 20 } ] }`. `types`에 없는 유형은 0개로 보고, 알 수 없는 `parkType`은 무시한다. `achievedAt`이 null이면 미달성이며 `progress/target`으로 진행도를 그린다. `label`은 업적 배지 안에 들어가는 짧은 글자("첫", "10", "7일").
+도감(클라이언트 가정, 서버와 확정 필요): `GET /api/users/me/collection` → `{ "totalBadges": 23, "visitedParks": 11, "types": [ { "parkType": "NEIGHBORHOOD", "count": 9 } ], "achievements": [ { "code": "PARKS_10", "name": "서로 다른 공원 10곳", "label": "10", "achievedAt": "2026-10-19T12:00:00+09:00" | null, "progress": 11, "target": 20 } ] }`. `types`의 `count`는 그 유형에서 배지를 받은 **서로 다른 공원 수**(합계가 `visitedParks`)이고, `types`에 없는 유형은 0개로 보고, 알 수 없는 `parkType`은 무시한다. `progress`는 현재 값이며 `target`(업적 기준)을 넘지 않게 자른 값이다. `achievedAt`이 null이면 미달성이며 `progress/target`으로 진행도를 그린다. `label`은 업적 배지 안에 들어가는 짧은 글자("첫", "10", "7일").
 
 캐릭터 목록·프로필 저장(클라이언트 가정, 서버와 확정 필요): `GET /api/characters` → `{ "characters": [ { "id": 1, "name": "치즈냥" } ] }`(8종, 이미지는 앱의 `character-<id>` 에셋). `PATCH /api/users/me` 요청 `{ "nickname", "characterId" }`, 닉네임이 중복이면 409 `NICKNAME_DUPLICATED`. 마이페이지 [수정]에서도 같은 API를 쓰며, 닉네임을 그대로 두고 캐릭터만 바꾸면 같은 닉네임이 다시 오므로 **본인의 현재 닉네임은 중복으로 보지 않아야 한다**(앱은 현재 닉네임이면 중복 확인 API를 부르지 않는다).
 
@@ -65,9 +65,9 @@
 로그인 요청: `{ "token": "<소셜 SDK 토큰>", "authorizationCode": "<Apple만, 선택>" }` (`authorizationCode`는 서버가 Apple refresh token을 받아 두었다가 회원 탈퇴 때 revoke하는 데 쓴다) → 응답: `{ "accessToken", "refreshToken", "isNewUser" }`
 `isNewUser`가 true면 온보딩(닉네임·캐릭터)으로 보낸다.
 
-통계 응답 예 (`maxStreak`는 디자인의 "최고 9일" 때문에 필요 — 서버와 합의):
+통계 응답 예 (`bestStreak`는 디자인의 "최고 9일" 때문에 필요 — 서버와 합의):
 ```json
-{ "totalBadges": 23, "visitedParks": 11, "currentStreak": 5, "maxStreak": 9, "podiumParks": 2 }
+{ "totalBadges": 23, "visitedParks": 11, "currentStreak": 5, "bestStreak": 9, "podiumParks": 2 }
 ```
 
 ## 3. 공원 · 체크인 · 랭킹

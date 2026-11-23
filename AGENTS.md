@@ -161,7 +161,7 @@ Parknic/
 - 프로젝트는 XcodeGen으로 관리한다. 클론 후 `brew install xcodegen && xcodegen generate`로 `Parknic.xcodeproj`를 만든다(`project.yml`이 기준, 생성물은 커밋하지 않는다).
 - 빌드 예시 (시뮬레이터 이름은 설치된 기기에 맞춘다):
   ```
-  xcodebuild -scheme Parknic -destination 'platform=iOS Simulator,name=iPhone 17e' build test
+  xcodebuild -scheme Parknic -destination 'platform=iOS Simulator,name=iPhone 17' build test
   ```
 - 2026-11-09 기준 단위 테스트 460개 통과.
 
