@@ -30,6 +30,7 @@ CODE_SIGN_ENTITLEMENTS = Parknic/App/Parknic.entitlements
 ## TestFlight 업로드
 
 App Store Connect API 키 `fastlane/AuthKey.p8`(Git 제외)가 필요하다. 팀원은 소유자에게 개인 메시지로 받는다.
+소유자 키를 못 받으면 본인 계정으로 **개별 API 키**를 만들어 쓸 수 있다(App Store Connect → 사용자 및 액세스 → 본인 → 개별 API 키). 받은 `.p8`을 `fastlane/AuthKey.p8`로 두고, `fastlane/.env`(Git 제외)에 `ASC_KEY_ID=<키 ID>`와 `ASC_ISSUER_ID=`(빈 값)를 적는다.
 
 ```bash
 bundle exec fastlane release version:1.0.0              # 빌드 번호는 TestFlight의 마지막 번호 + 1로 자동
