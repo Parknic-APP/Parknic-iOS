@@ -20,6 +20,7 @@
 ```
 
 ## 제출 직전 체크
+- [ ] TestFlight 업로드용 App Store Connect API 키 `fastlane/AuthKey.p8`(Git 제외)과 `MATCH_PASSWORD` 확인 — 키는 계정 소유자에게 개인 메시지로 받는다(`fastlane/SIGNING.md`)
 - [ ] 서버 `REVIEW_MODE=true`와 심사용 공원 등록(`be/docs/review-mode.md`), 심사 통과 후 끄기
 - [ ] 버전은 1.0.0보다 높게: `bundle exec fastlane release version:1.0.1` (또는 brew fastlane이면 `fastlane release version:1.0.1`)
 - [ ] 체크인 시험용 옵션(`quick_checkin`)을 켜지 않았는지 확인(App Store 제출 빌드에는 금지)
